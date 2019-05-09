@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: Box
+# key: box
+# --
+┌${1:$(make-string (string-width yas-text) ?\─)}┐
+│${1:theorem}│
+└${1:$(make-string (string-width yas-text) ?\─)}┘

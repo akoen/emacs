@@ -1,0 +1,804 @@
+#+TITLE: Alex Koen's Emacs configuration
+
+I've been experimenting with using Emacs as my primary editor, and I've been liking it more and more due to it's flexibility and extensibility. In order to become more comfortable with this editor, I need to learn elisp properly and maybe switch to emacs keybindings (I do love vim though...)
+
+This is my configuration:
+
+* Init
+** Personal Information
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq user-full-name "Alex Koen"
+user-mail-address "arw.koen@gmail.com")
+#+END_SRC
+
+** Use-Package
+
+Allows us to automatically download and use packages
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+;; bootstrap use-package
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+  (require 'use-package)
+
+(setq use-package-always-ensure t)
+#+END_SRC
+
+** Detection
+*** Detect Internet Connection
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defun internet-up-p (&optional host)
+    (= 0 (call-process "ping" nil nil nil "-c" "1" "-W" "1"
+                       (if host host "www.google.com"))))
+
+#+END_SRC
+** Disable unecessary UI elements
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(tooltip-mode -1)
+#+END_SRC
+
+*** Mode Line
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq-default mode-line-format
+                '("%e" ; print error message about full memory
+                  mode-line-front-space
+                  ;; mode-line-mule-info
+                  ;; mode-line-client
+                  ;; mode-line-modified
+                  ;; mode-line-remote
+                  ;; mode-line-frame-identification
+                  mode-line-buffer-identification
+                  "   "
+                  ;; mode-line-position
+                  ;; (vc-mode vc-mode)
+                  ;; "   "
+                  ;; mode-line-modes
+                  ;; "   "
+                  ;; mode-line-misc-info
+                  ;; battery-mode-line-string
+                  mode-line-end-spaces))
+  (setq display-time-format "%a, %b %e %R"
+        global-mode-string (remove 'display-time-string global-mode-string)
+        mode-line-end-spaces (list (propertize "  "
+                                               'display '(space :align-to (- right 17)))
+                                   'display-time-string))
+  (display-time-mode 1)
+  (display-time-update)
+#+END_SRC
+** Prompts
+
+Make yes or no prompts be y or n prompts
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(fset 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+** Sane defaults
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq delete-old-versions -1 )    ;delete excess backup versions silently
+(setq version-control t)
+
+(setq make-backup-files t)		; make backups file even when in version controlled dir
+(setq backup-directory-alist `(("." . "~/.emacs.d/backups"))
+  backup-by-copying t    ; Don't delink hardlinks
+  version-control t      ; Use version numbers on backups
+  delete-old-versions t  ; Automatically delete excess backups
+  kept-new-versions 20   ; how many of the newest versions to keep
+  kept-old-versions 5    ; and how many of the old
+) ; which directory to put backups file
+(auto-revert-mode 1)
+(setq vc-follow-symlinks t)				       ; don't ask for confirmation when opening symlinked file
+(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)) ) ;transform backups file name
+(setq inhibit-startup-screen t)	; inhibit useless and old-school startup screen
+(setq ring-bell-function 'ignore)	; silent bell when you make a mistake
+;(setq-default coding-system-for-read 'utf-8)	; use utf-8 by default
+;(setq coding-system-for-write 'utf-8)
+(setq sentence-end-double-space nil)	; sentence SHOULD end with only a point.
+(setq-default fill-column 74)		; toggle wrapping text at the 80th character
+(setq initial-scratch-message "Welcome to Emacs") ; print a default message in the empty scratch buffer opened at startup
+(setq x-select-enable-clipboard t)  ; allow pasting selection outside of emacs
+(setq delete-by-moving-to-trash t) ; move files to trash when deleting
+(global-display-line-numbers-mode t)
+(setq display-line-numbers-type 'relative)
+
+;; Set default font
+(set-default-font "Fira Code 12")
+(set-face-attribute 'default nil :height 100)
+
+;; Show matching parentheses
+(setq show-paren-delay 0)
+(show-paren-mode 1)
+
+;; visual line
+(global-visual-line-mode 1)
+#+END_SRC
+
+* Keybindings
+
+EVIL window mappings
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+;(define-key evil-window-map "\C-h" 'evil-window-left)
+;(define-key evil-window-map "\C-l" 'evil-window-right)
+;(define-key evil-window-map "\C-j" 'evil-window-down)
+;(define-key evil-window-map "\C-k" 'evil-window-up)
+#+END_SRC
+
+** General
+#+BEGIN_SRC emacs-lisp :tangle yes
+;; load general
+(use-package general
+:after which-key
+:config
+(general-override-mode 1)
+(general-auto-unbind-keys)
+
+(defun universal-argument-file ()
+    (interactive)
+    (let ((current-prefix-arg 4)) ;; emulate C-u
+    (call-interactively 'counsel-fzf))) ;; invoke counsel-file-jump interactively
+
+(general-create-definer tyrant-def
+    :keymaps '(normal visual insert emacs motion)
+    :prefix "SPC"
+    :non-normal-prefix "C-SPC")
+
+(tyrant-def
+    "SPC" nil
+
+    ;; Buffer
+    "w" 'save-buffer
+    "z" 'previous-buffer
+    "x" 'next-buffer
+    "b" 'switch-to-buffer
+
+    ;; Files
+    "t" 'universal-argument-file
+    "ff" 'dired-jump
+
+    ;; Language
+    "lf" 'french-mode
+    "le" 'english-mode
+    "lg" 'writing-mode
+
+    ;; Org mode
+    "oa" 'org-agenda
+    "oc" 'org-capture
+
+    ;; Shell
+    "s" 'shell
+
+
+    )) 
+#+END_SRC
+
+* Core Utilities
+
+Utilities which are essential for rational operation of emacs
+
+** Which Key
+A small buffer which shows the list of features you can do next
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package which-key
+  :init
+  (setq which-key-separator " ")
+  (setq which-key-prefix-prefix "+")
+  :config
+  (which-key-mode 1))
+#+END_SRC
+
+** EVIL
+
+Allows for traditional vim bindings inside of emacs
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+;; load evil
+(use-package evil
+  :init ;; tweak evil's configuration before loading it
+    (setq evil-search-module 'evil-search)
+    (setq evil-want-C-u-scroll t)
+  :config ;; tweak evil after loading it
+    ;; Make movement keys work like they should
+    (define-key evil-normal-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
+    (define-key evil-normal-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
+    (define-key evil-motion-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
+    (define-key evil-motion-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
+    ; Make horizontal movement cross lines                                    
+    (setq-default evil-cross-lines t)
+  (evil-mode 1))
+#+END_SRC
+
+** Counsel
+Counsel contains ivy enhancements for commonly-used functions.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package counsel
+:demand
+:diminish (ivy-mode . "")
+:bind
+(("C-x b" . ivy-switch-buffer)
+    ("C-x C-f" . counsel-find-file))
+:config
+(ivy-mode 1)
+(define-key ivy-minibuffer-map [escape] 'minibuffer-keyboard-quit)
+(setq ivy-re-builders-alist
+        '((counsel-M-x . ivy--regex-plus) ;Only counsel-M-x use fuzzy search
+        (t . ivy--regex-plus)))
+(setq ivy-initial-inputs-alist nil))
+#+END_SRC
+
+*** ESC quits everything
+
+This code allows us to quit basically everything using ESC.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defun minibuffer-keyboard-quit ()
+    "Abort recursive edit.
+    In Delete Selection mode, if the mark is active, just deactivate it;
+    then it takes a second \\[keyboard-quit] to abort the minibuffer."
+    (interactive)
+    (if (and delete-selection-mode transient-mark-mode mark-active)
+        (setq deactivate-mark  t)
+        (when (get-buffer "*Completions*")
+              (delete-windows-on "*Completions*"))
+        (abort-recursive-edit)))
+(define-key evil-normal-state-map [escape] 'keyboard-quit)
+(define-key evil-visual-state-map [escape] 'keyboard-quit)
+(define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+#+END_SRC
+
+** Swiper
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package swiper
+:bind (("M-s" . swiper)))
+#+END_SRC
+** LSP-mode
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package lsp-mode
+:commands lsp
+:init)
+
+(use-package lsp-ui
+:commands lsp-ui-mode)
+
+(use-package company-lsp
+:commands company-lsp)
+#+END_SRC
+** Dired-x
+
+Adds additional functionalit on top of dired
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(add-hook 'dired-load-hook
+        (lambda ()
+            (load "dired-x")
+            ;; Set dired-x global variables here.  For example:
+            ;; (setq dired-guess-shell-gnutar "gtar")
+            ;; (setq dired-x-hands-off-my-keys nil)
+            ))
+(add-hook 'dired-mode-hook
+        (lambda ()
+            ;; Set dired-x buffer-local variables here.  For example:
+            ;; (dired-omit-mode 1)
+            ))
+#+END_SRC
+
+* Utilities
+Utilities which add functionality to emacs
+** Yasnippet
+
+A package with which you can insert code or text snippets based on templates.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package yasnippet
+:config
+(yas-global-mode 1)
+(setq yas-triggers-in-field t))
+#+END_SRC
+
+** NeoTree and Icons
+Displays the folder tree
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package all-the-icons)
+
+(use-package neotree
+  :init
+  (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
+#+END_SRC
+** Deft
+An Emacs mode for quickly browsing, filtering, and editing directories of plain text notes, inspired by Notional Velocity
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package deft
+  :config
+	(setq deft-extensions '("org" "md" "markdown" "adoc" "asciidoc" "txt" "tex"))
+  ;; (setq deft-text-mode 'org-mode)
+  (setq deft-use-filename-as-title t)
+  (setq deft-file-naming-rules '((noslash . "-")
+                                 (nospace . "-")))
+  (setq deft-ignore-file-regexp
+    (concat "\\(?:"
+    ".*sync-conflict.*"
+    "\\)"))
+  (setq deft-directory "~/Org")
+  (setq deft-recursive nil)
+  :general (tyrant-def "fd" 'deft))
+#+END_SRC
+** Magit
+
+An inteface to version control system Git
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package magit
+:defer t
+:general (tyrant-def "gs" 'magit-status))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package evil-magit
+:after magit)
+#+END_SRC
+
+* Org-mode
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org
+    :ensure org-plus-contrib
+    :config
+    ; log time when task is marked DONE
+    (setq org-log-done 'time)
+    
+    ; allow changing to any todo state from a menu
+    (setq org-use-fast-todo-selection t)
+    
+    :custom-face 
+    (variable-pitch ((t (:family "Fira Code" :height 1.0))))
+    (org-document-title ((t (:weight bold :height 1.5))))
+    (org-done ((t (:strike-through t :weight bold))))
+    (org-headline-done ((t (:strike-through t))))
+    (org-level-1 ((t (:height 1.1))))
+    (org-level-2 ((t (:height 1.1))))
+    (org-level-3 ((t (:height 1.1))))
+    (org-image-actual-width (/ (display-pixel-width) 2)))
+#+END_SRC
+
+** Configuration
+*** Auto-save
+#+BEGIN_SRC emacs-lisp :tangle yes
+(add-hook 'auto-save-hook 'org-save-all-org-buffers)
+#+END_SRC
+*** Todo keywords
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq org-todo-keywords
+      (quote ((sequence "TODO(t)" "SOMEDAY(s)" "|" "DONE(d)" "FAILED(f)"))))
+#+END_SRC
+
+Automatically archive DONE entries
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defun channing/archive-when-done ()
+    "Archive current entry if it is marked as DONE (see `org-done-keywords')"
+    (when (org-entry-is-done-p)
+        (org-archive-to-archive-sibling)))
+        
+;(add-hook 'org-after-todo-state-change-hook
+;    'channing/archive-when-done)
+#+END_SRC
+
+** Packages
+*** org-modules
+#+BEGIN_SRC emacs-lisp :tangle yes
+(require 'org-install)
+(setq org-modules '(org-habit))
+(org-load-modules-maybe t)
+#+END_SRC
+*** EVIL-Org
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package evil-org
+:after org
+:config
+(add-hook 'org-mode-hook 'evil-org-mode)
+  (add-hook 'evil-org-mode-hook
+            (lambda ()
+              (evil-org-set-key-theme)))
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
+#+END_SRC
+*** Org-Bullets
+Make the header bullets look prettier
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-bullets
+:config
+(setq org-bullets-face-name "Inconsolata-12")
+(setq org-bullets-bullet-list
+        '("◉" "◎" "⚫" "○" "►" "◇"))
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+#+END_SRC
+*** Org-Gcal
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-gcal
+:config
+(load (locate-user-emacs-file "secrets.org") :noerror :nomessage)
+(add-hook 'emacs-startup-hook #'org-gcal-fetch)
+
+(defun fetch-calendar ()
+(when (internet-up-p) (org-gcal-fetch))))
+#+END_SRC
+
+*** Ox-Tufte
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package ox-tufte)
+#+END_SRC
+*** Ox-Pandoc
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package ox-pandoc
+:config
+(setq org-pandoc-menu-entry
+'(
+    (?l "to latex-pdf and open." org-pandoc-export-to-latex-pdf-and-open)
+    (?L "to latex-pdf." org-pandoc-export-to-latex-pdf)
+    (?4 "to html5 and open." org-pandoc-export-to-html5-and-open)
+    (?$ "as html5." org-pandoc-export-as-html5))))
+#+END_SRC
+*** Habitica
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package habitica)
+#+END_SRC
+*** Babel
+**** Gnuplot
+
+An emacs major mode for interacting with gnuplot
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package gnuplot)
+#+END_SRC
+
+**** IPython
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package ob-ipython
+:defer t)
+#+END_SRC
+*** Org Download
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-download
+:defer t
+:init
+(add-hook 'org-mode-hook 'org-download-enable)
+(add-hook 'dired-mode-hook 'org-download-enable))
+#+END_SRC
+** Capture
+
+Set up capture templates
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq org-capture-templates
+'(("t" "Todo" entry (file "~/Org/refile.org")
+       "* TODO %?\n%U" :empty-lines 1)))
+#+END_SRC
+
+Refile configuration
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+; Targets include this file and any file contributing to the agenda - up to 9 levels deep
+(setq org-refile-targets (quote ((nil :maxlevel . 9)
+(org-agenda-files :maxlevel . 9))))
+
+; Use full outline paths for refile targets - we file directly with IDO
+(setq org-refile-use-outline-path t)
+
+; Targets complete directly with IDO
+(setq org-outline-path-complete-in-steps nil)
+
+; Allow refile to create parent tasks with confirmation
+(setq org-refile-allow-creating-parent-nodes (quote confirm))
+
+; Use the current window for indirect buffer display
+(setq org-indirect-buffer-display 'current-window)
+
+;;;; Refile settings
+; Exclude DONE state tasks from refile targets
+(defun bh/verify-refile-target ()
+  "Exclude todo keywords with a done state from refile targets"
+  (not (member (nth 2 (org-heading-components)) org-done-keywords)))
+
+(setq org-refile-target-verify-function 'bh/verify-refile-target)
+#+END_SRC
+
+** Agenda
+
+Set agenda settings
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+;;warn me of any deadlines in next 7 days
+(setq org-deadline-warning-days 7)
+;;don't show tasks as scheduled if they are already shown as a deadline
+(setq org-agenda-skip-scheduled-if-deadline-is-shown t)
+;;set all files under ~/Org to be included in the agenda view
+(setq org-agenda-files '("~/Org"))
+;;don't give awarning colour to tasks with impending deadlines if they are scheduled to be done
+(setq org-agenda-skip-deadline-prewarning-if-scheduled (quote pre-scheduled))
+#+END_SRC
+
+Custom composite agenda view
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq org-agenda-custom-commands
+'(("c" "Simple agenda view"
+((agenda "")
+(alltodo "")))
+("h" "Daily habits" 
+         ((agenda ""))
+         ((org-agenda-show-log t)
+          (org-agenda-ndays 7)
+          (org-agenda-log-mode-items '(state))
+          (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp ":DAILY:")))))
+)
+#+END_SRC
+** Variable Pitch Mode
+
+We use a font that's easier on the eyes for long blocks of text
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(add-hook 'org-mode-hook
+          '(lambda ()
+             (setq line-spacing 0.2) ;; Add more line padding for readability
+             (variable-pitch-mode 1) ;; All fonts with variable pitch.
+             (mapc
+              (lambda (face) ;; Other fonts with fixed-pitch.
+                (set-face-attribute face nil :inherit 'fixed-pitch))
+              (list 'org-code
+                    'org-link
+                    'org-block
+                    'org-table
+                    'org-verbatim
+                    'org-block-begin-line
+                    'org-block-end-line
+                    'org-meta-line
+                    'org-document-info-keyword))))
+#+END_SRC 
+
+Other org-mode ricing configuratioin:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq org-startup-indented t    ; indent each level of heading
+    org-hide-emphasis-markers t ; hide the markers for italics and bold
+    org-pretty-entities t       ; show entities as UTF8 characters
+    org-src-tab-acts-natively t
+    org-edit-src-content-indentation 0)
+#+END_SRC
+
+** Circular Bullets
+Make bullets circular
+#+BEGIN_SRC emacs-lisp :tangle yes
+(font-lock-add-keywords 'org-mode
+                        '(("^ *\\([-]\\) "
+                           (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+#+END_SRC
+
+** Autosort
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defun yant/org-entry-has-subentries ()
+  "Any entry with subheadings"
+  (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+    (save-excursion
+      (org-back-to-heading)
+      (forward-line 1)
+      (when (< (point) subtree-end)
+	(re-search-forward "^\*+ " subtree-end t)))))
+
+(defun yant/org-entry-sort-by-property nil
+  (let ((property (org-entry-get (point) "SORT" 'INHERIT)))
+    (when (and (not (seq-empty-p property))
+	       (yant/org-entry-has-subentries))
+      (funcall #'org-sort-entries nil (string-to-char property) nil nil nil)))
+  (let ((property_second (org-entry-get (point) "SORT_AFTER" 'INHERIT)))
+    (when (and (not (seq-empty-p property_second))
+	       (yant/org-entry-has-subentries))
+      (funcall #'org-sort-entries nil (string-to-char property_second) nil nil nil))))
+
+(defun yant/org-buffer-sort-by-property (&optional MATCH)
+  (interactive)
+  (org-map-entries #'yant/org-entry-sort-by-property MATCH 'file)
+  (org-set-startup-visibility))
+
+(add-hook 'org-mode-hook #'yant/org-buffer-sort-by-property)
+#+END_SRC
+** Babel
+
+Enable support for various babel languages
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq org-confirm-babel-evaluate nil)
+(org-babel-do-load-languages
+'org-babel-load-languages
+'((gnuplot . t)
+(ipython .t)))
+#+END_SRC
+
+* LaTeX
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package latex
+:ensure auctex
+:config
+(add-hook 'LaTeX-mode-hook
+        (lambda ()
+        (prettify-symbols-mode)))
+        ;(smartparens-mode)
+(add-hook 'LaTeX-mode-hook 'visual-line-mode)
+(setq TeX-save-query nil)
+(setq TeX-auto-save t)
+(setq Tex-parse-self t)
+(setq TeX-PDF-mode t)
+ ;; Method for enabling forward and inverse search 
+(setq TeX-source-correlate-method 'synctex)
+;; inhibit the question to start a server process
+(setq TeX-source-correlate-start-server t)
+(setq TeX-view-program-selection '((output-pdf "Zathura"))))
+(set-default 'preview-scale-function 2.0)
+#+END_SRC
+* Appearance
+** Theme
+*** Doom-themes
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package doom-themes
+:defer t
+:config
+(load-theme 'doom-one t)
+(doom-themes-org-config))
+#+END_SRC
+** Load theme
+** Smooth Scrolling
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package smooth-scrolling
+:init
+  (setq smooth-scroll-margin 5
+        scroll-conservatively 101
+        scroll-preserve-screen-position t
+        auto-window-vscroll nil)
+  :config
+(setq scroll-margin 5))
+#+END_SRC
+** Writing
+*** Focus
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package focus
+:config
+(setq focus-mode-to-thing 
+'((prog-mode . defun)
+ (text-mode . paragraph)
+ (org-mode . paragraph))))
+#+END_SRC
+*** Olivetti
+
+Writing environment
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package olivetti)
+#+END_SRC
+
+*** Writeroom-mode
+A minor mode for Emacs that implements a distraction-free writing mode.
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package writeroom-mode
+:commands (writeroom-mode)
+:init
+(setq writeroom-restore-window-config t))
+#+END_SRC
+* Functions
+** Compile org to pdf
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defun org-compile-pdf ()
+  (interactive)
+  (if (memq 'org-latex-export-to-pdf after-save-hook)
+      (progn
+        (remove-hook 'after-save-hook 'org-latex-export-to-pdf t)
+        (message "Disabled org pdf export on save for current buffer..."))
+    (add-hook 'after-save-hook 'org-latex-export-to-pdf nil t)
+    (message "Enabled org pdf export on save for current buffer...")))
+#+END_SRC
+** Writing Function
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defvar writemode 1 "Set default writing mode state.")
+(defun writing-mode ()
+"Run focus and olivetti mode"
+(interactive)
+(cond
+    ((= writemode 1)
+        ;;(focus-mode t)
+        (olivetti-mode t)
+        (display-line-numbers-mode -1)
+        (setq-local org-bullets-bullet-list '(" ")) ;; no bullets
+        (setq-local writemode 2))
+    ((= writemode 2)
+        ;;(focus-mode -1)
+        (olivetti-mode -1)
+        (display-line-numbers-mode t)
+        (setq-local display-line-numbers 'relative)
+        (setq-local org-bullets-bullet-list
+            '("◉" "◎" "⚫" "○" "►" "◇"))
+        (setq-local writemode 1))))
+#+END_SRC
+** French mode
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defvar frenchmode 1 "Set default French mode state.")
+  (defun french-mode ()
+    "Toggle french spellchecking"
+    (interactive)
+    (cond
+     ((= frenchmode 1)
+      (message "Enabled French Mode")
+      (flycheck-mode 1)
+      (setq flycheck-checker 'francais-grammalecte)
+      (flyspell-mode 1)
+      ; (setq ispell-local-dictionary "francais")
+      (ispell-change-dictionary "francais")
+      (setq frenchmode 2))
+     ((= frenchmode 2)
+      (message "Disabled French mode")
+      (flycheck-mode -1)
+      (flyspell-mode -1)
+      (setq frenchmode 1))))
+#+END_SRC
+** English Mode
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defvar englishmode 1 "Set default English mode state.")
+(defun english-mode ()
+"Toggle English spellchecking"
+(interactive)
+(cond
+    ((= englishmode 1)
+        (message "Enabled English Mode")
+        (flycheck-mode 1)
+        (setq flycheck-checker 'proselint)
+        (flyspell-mode 1)
+        ;(setq ispell-current-dictionary "en_CA")
+        (ispell-change-dictionary "english")
+        (setq englishmode 2))
+    ((= englishmode 2)
+        (message "Disabled English mode")
+        (flycheck-mode -1)
+        (flyspell-mode -1)
+        (setq englishmode 1))))
+#+END_SRC
+** Ispell
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+;; find aspell and hunspell automatically
+(use-package flyspell
+:config
+  (setq ispell-program-name "aspell"))
+#+END_SRC
+** Flycheck-grammalecte
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package flycheck-grammalecte
+:config
+(setq flycheck-grammalecte-report-spellcheck t)
+(setq flycheck-grammalecte-report-apos nil)
+(setq flycheck-grammalecte-report-nbsp nil)
+(setq flycheck-grammalecte-report-esp nil))
+#+END_SRC
+** Flycheck-proselint
+Set up emacs to use proselint, a linter for prose (what a surprise!)
+#+BEGIN_SRC emacs-lisp :tangle yes
+(flycheck-define-checker proselint
+  "A linter for prose."
+  :command ("proselint" source-inplace)
+  :error-patterns
+  ((warning line-start (file-name) ":" line ":" column ": "
+	    (id (one-or-more (not (any " "))))
+	    (message) line-end))
+  :modes (text-mode markdown-mode gfm-mode org-mode))
+
+(add-to-list 'flycheck-checkers 'proselint)
+#+END_SRC

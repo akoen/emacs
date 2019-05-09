@@ -1,0 +1,10 @@
+(require 'package)
+(setq package-enable-at-statup nil)
+(setq package-archives '(("melpa". "http://melpa.org/packages/")
+                         ("gnu" . "http://elpa.gnu.org/packages/")
+                        ("org" . "https://orgmode.org/elpa/")))
+(package-initialize)
+
+(setq custom-file "~/.emacs.d/custom.el")
+(org-babel-load-file (expand-file-name "~/.emacs.d/config.org"))
+(load custom-file)

@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: Resume Skill
+# key: rskill
+# --
+${1:Skill Name} {\skill{-- ${2:Description}} \newline
+$0

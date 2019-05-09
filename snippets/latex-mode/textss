@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: Text Superscript
+# key: ss
+# --
+\textsuperscript{$1}$0
