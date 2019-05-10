@@ -5,6 +5,18 @@ I've been experimenting with using Emacs as my primary editor, and I've been lik
 This is my configuration:
 
 * Init
+** Optimizations
+*** Garbage collector
+
+The garbage collector eats up a lot of time during startup, so turn up its memory threshold to prevent it from getting trigerred.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defvar last-file-name-handler-alist file-name-handler-alist)
+(setq gc-cons-threshold 402653184
+      gc-cons-percentage 0.6
+      file-name-handler-alist nil)
+#+END_SRC
+
 ** Personal Information
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -823,4 +835,15 @@ Set up emacs to use proselint, a linter for prose (what a surprise!)
   :modes (text-mode markdown-mode gfm-mode org-mode))
 
 (add-to-list 'flycheck-checkers 'proselint)
+#+END_SRC
+* End of config optimizations
+** Restore garbage collector
+
+Reset garbage collector to a reasonable default. If freezing or stuttering occurs, reduce gc-cons-threshold.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(add-hook 'emacs-startup-hook
+	   (setq gc-cons-threshold 16777216
+		 gc-cons-percentage 0.1
+		 file-name-handler-alist last-file-name-handler-alist))
 #+END_SRC
