@@ -8,7 +8,79 @@ This is my configuration:
 (setq debug-on-error t)
 #+END_SRC
 
-* Table of Contents :TOC_3_gh:
+* Table of Contents                                               :TOC_3_gh:
+- [[#init][Init]]
+  - [[#personal-information][Personal Information]]
+  - [[#optimizations][Optimizations]]
+    - [[#garbage-collector][Garbage collector]]
+  - [[#package-management][Package Management]]
+    - [[#package-settings][Package Settings]]
+    - [[#manually-set-load-path][Manually Set Load Path]]
+    - [[#initialize-package-management][Initialize Package Management]]
+  - [[#detection][Detection]]
+    - [[#detect-internet-connection][Detect Internet Connection]]
+  - [[#disable-unecessary-ui-elements][Disable unecessary UI elements]]
+    - [[#mode-line][Mode Line]]
+  - [[#prompts][Prompts]]
+  - [[#sane-defaults][Sane defaults]]
+- [[#keybindings][Keybindings]]
+  - [[#general][General]]
+- [[#core-utilities][Core Utilities]]
+  - [[#which-key][Which Key]]
+  - [[#evil][EVIL]]
+    - [[#esc-quits-everything][ESC quits everything]]
+  - [[#completion][Completion]]
+    - [[#counsel][Counsel]]
+    - [[#swiper][Swiper]]
+  - [[#lsp-mode][LSP-mode]]
+  - [[#dired-x][Dired-x]]
+- [[#utilities][Utilities]]
+  - [[#yasnippet][Yasnippet]]
+  - [[#neotree-and-icons][NeoTree and Icons]]
+  - [[#deft][Deft]]
+  - [[#magit][Magit]]
+- [[#appearance][Appearance]]
+  - [[#theme][Theme]]
+    - [[#doom-themes][Doom-themes]]
+  - [[#load-theme][Load theme]]
+  - [[#smooth-scrolling][Smooth Scrolling]]
+  - [[#writing][Writing]]
+    - [[#focus][Focus]]
+    - [[#olivetti][Olivetti]]
+  - [[#all-the-icons][All the icons]]
+  - [[#doom-modeline][Doom-modeline]]
+- [[#org-mode][Org-mode]]
+  - [[#configuration][Configuration]]
+    - [[#auto-save][Auto-save]]
+    - [[#keywords][keywords]]
+  - [[#packages][Packages]]
+    - [[#org-modules][org-modules]]
+    - [[#evil-org][EVIL-Org]]
+    - [[#org-bullets][Org-Bullets]]
+    - [[#org-gcal][Org-Gcal]]
+    - [[#ox-tufte][Ox-Tufte]]
+    - [[#ox-pandoc][Ox-Pandoc]]
+    - [[#habitica][Habitica]]
+    - [[#babel][Babel]]
+    - [[#org-download][Org Download]]
+    - [[#toc-org][Toc-org]]
+  - [[#capture][Capture]]
+  - [[#agenda][Agenda]]
+  - [[#variable-pitch-mode][Variable Pitch Mode]]
+  - [[#circular-bullets][Circular Bullets]]
+  - [[#autosort][Autosort]]
+  - [[#babel-1][Babel]]
+- [[#latex][LaTeX]]
+- [[#functions][Functions]]
+  - [[#compile-org-to-pdf][Compile org to pdf]]
+  - [[#writing-function][Writing Function]]
+  - [[#french-mode][French mode]]
+  - [[#english-mode][English Mode]]
+  - [[#ispell][Ispell]]
+  - [[#flycheck-grammalecte][Flycheck-grammalecte]]
+  - [[#flycheck-proselint][Flycheck-proselint]]
+- [[#post-initialization][Post Initialization]]
+  - [[#restore-garbage-collector][Restore garbage collector]]
 
 * Init
 ** Personal Information
@@ -587,6 +659,15 @@ An emacs major mode for interacting with gnuplot
 :init
 (add-hook 'org-mode-hook 'org-download-enable)
 (add-hook 'dired-mode-hook 'org-download-enable))
+#+END_SRC
+*** Toc-org
+
+The =toc-org= package generates an up-to-date table of contents for us.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package toc-org
+  :after org
+  :init (add-hook 'org-mode-hook #'toc-org-enable))
 #+END_SRC
 ** Capture
 
