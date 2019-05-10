@@ -4,10 +4,6 @@ I've been experimenting with using Emacs as my primary editor, and I've been lik
 
 This is my configuration:
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-(setq debug-on-error t)
-#+END_SRC
-
 * Table of Contents                                               :TOC_3_gh:
 - [[#init][Init]]
   - [[#personal-information][Personal Information]]
