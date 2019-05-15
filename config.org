@@ -79,6 +79,12 @@ This is my configuration:
   - [[#restore-garbage-collector][Restore garbage collector]]
 
 * Init
+** Lexical binding
+
+#+BEGIN_SRC emacs-lisp :tangle yes :comments no
+;;; init.el --- The personal Emacs configuration of Alex Koen -*- lexical-binding: t; -*-
+#+END_SRC
+
 ** Personal Information
 
 #+BEGIN_SRC emacs-lisp :tangle yes

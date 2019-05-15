@@ -1,3 +1,5 @@
+;;; init.el -*- lexical-binding: t; -*-
+
 (require 'org)
 
 (org-babel-load-file (expand-file-name "~/.emacs.d/config.org"))
