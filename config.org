@@ -299,6 +299,15 @@ Make yes or no prompts be y or n prompts
 
 Utilities which are essential for rational operation of emacs
 
+** Exec Path From Shell
+
+This sets the variable exec-path to the normal shell's PATH variable. This doesn't normally get set in daemon mode.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package exec-path-from-shell
+:config
+(exec-path-from-shell-initialize))
+#+END_SRC
 ** Which Key
 A small buffer which shows the list of features you can do next
 #+BEGIN_SRC emacs-lisp :tangle yes
