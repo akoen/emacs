@@ -5,7 +5,8 @@ I've been experimenting with using Emacs as my primary editor, and I've been lik
 This is my configuration:
 
 * Table of Contents                                               :TOC_3_gh:
-- [[#init][Init]]
+- [[#initialization][Initialization]]
+  - [[#lexical-binding][Lexical binding]]
   - [[#personal-information][Personal Information]]
   - [[#optimizations][Optimizations]]
     - [[#garbage-collector][Garbage collector]]
@@ -14,14 +15,22 @@ This is my configuration:
     - [[#manually-set-load-path][Manually Set Load Path]]
     - [[#initialize-package-management][Initialize Package Management]]
   - [[#detection][Detection]]
+    - [[#detect-operating-system][Detect Operating System]]
     - [[#detect-internet-connection][Detect Internet Connection]]
-  - [[#disable-unecessary-ui-elements][Disable unecessary UI elements]]
-    - [[#mode-line][Mode Line]]
+  - [[#appearance][Appearance]]
+    - [[#theme][Theme]]
+    - [[#text][Text]]
+    - [[#disable-unecessary-ui-elements][Disable unecessary UI elements]]
+    - [[#smooth-scrolling][Smooth Scrolling]]
+    - [[#all-the-icons][All the icons]]
+    - [[#doom-modeline][Doom-modeline]]
+  - [[#backups][Backups]]
   - [[#prompts][Prompts]]
-  - [[#sane-defaults][Sane defaults]]
+  - [[#miscellaneous][Miscellaneous]]
 - [[#keybindings][Keybindings]]
   - [[#general][General]]
 - [[#core-utilities][Core Utilities]]
+  - [[#exec-path-from-shell][Exec Path From Shell]]
   - [[#which-key][Which Key]]
   - [[#evil][EVIL]]
     - [[#esc-quits-everything][ESC quits everything]]
@@ -35,16 +44,6 @@ This is my configuration:
   - [[#neotree-and-icons][NeoTree and Icons]]
   - [[#deft][Deft]]
   - [[#magit][Magit]]
-- [[#appearance][Appearance]]
-  - [[#theme][Theme]]
-    - [[#doom-themes][Doom-themes]]
-  - [[#load-theme][Load theme]]
-  - [[#smooth-scrolling][Smooth Scrolling]]
-  - [[#writing][Writing]]
-    - [[#focus][Focus]]
-    - [[#olivetti][Olivetti]]
-  - [[#all-the-icons][All the icons]]
-  - [[#doom-modeline][Doom-modeline]]
 - [[#org-mode][Org-mode]]
   - [[#configuration][Configuration]]
     - [[#auto-save][Auto-save]]
@@ -67,6 +66,13 @@ This is my configuration:
   - [[#autosort][Autosort]]
   - [[#babel-1][Babel]]
 - [[#latex][LaTeX]]
+  - [[#reftex][RefTeX]]
+- [[#development][Development]]
+  - [[#web][Web]]
+    - [[#web-mode][Web Mode]]
+- [[#writing][Writing]]
+  - [[#focus][Focus]]
+  - [[#olivetti][Olivetti]]
 - [[#functions][Functions]]
   - [[#compile-org-to-pdf][Compile org to pdf]]
   - [[#writing-function][Writing Function]]
@@ -78,7 +84,7 @@ This is my configuration:
 - [[#post-initialization][Post Initialization]]
   - [[#restore-garbage-collector][Restore garbage collector]]
 
-* Init
+* Initialization
 ** Lexical binding
 
 #+BEGIN_SRC emacs-lisp :tangle yes :comments no
@@ -153,6 +159,24 @@ Since the code is automatically compiled during runtime, if the configuration ha
 #+END_SRC
 
 ** Detection
+
+*** Detect Operating System
+
+Detection for the host operating system. Currently, I only use Emacs on Linux, so this is more for future consideration.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defun is-linux-p
+    ()
+  (eq system-type 'gnu/linux))
+
+(defun is-linux-p
+    ()
+  (or
+   (eq system-type 'ms-dos)
+   (eq system-type 'windows-nt)
+   (eq system-type 'cygwin)))
+#+END_SRC
+
 *** Detect Internet Connection
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defun internet-up-p (&optional host)
@@ -160,7 +184,35 @@ Since the code is automatically compiled during runtime, if the configuration ha
                        (if host host "www.google.com"))))
 
 #+END_SRC
-** Disable unecessary UI elements
+** Appearance
+*** Theme
+
+Doom one is beautiful
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package doom-themes
+:defer t
+:config
+(load-theme 'doom-one t)
+(doom-themes-org-config))
+#+END_SRC
+*** Text
+**** Font
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(set-default-font "Fira Code 12")
+(set-face-attribute 'default nil :height 100)
+#+END_SRC
+**** Text wrapping
+
+Soft wrapping instead of hard wrapping.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(global-visual-line-mode 1)
+#+END_SRC
+
+*** Disable unecessary UI elements
+**** Tool Bar
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (menu-bar-mode -1)
@@ -169,34 +221,51 @@ Since the code is automatically compiled during runtime, if the configuration ha
 (tooltip-mode -1)
 #+END_SRC
 
-*** Mode Line
+**** Startup Screen
+
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (setq-default mode-line-format
-                '("%e" ; print error message about full memory
-                  mode-line-front-space
-                  ;; mode-line-mule-info
-                  ;; mode-line-client
-                  ;; mode-line-modified
-                  ;; mode-line-remote
-                  ;; mode-line-frame-identification
-                  mode-line-buffer-identification
-                  "   "
-                  ;; mode-line-position
-                  ;; (vc-mode vc-mode)
-                  ;; "   "
-                  ;; mode-line-modes
-                  ;; "   "
-                  ;; mode-line-misc-info
-                  ;; battery-mode-line-string
-                  mode-line-end-spaces))
-  (setq display-time-format "%a, %b %e %R"
-        global-mode-string (remove 'display-time-string global-mode-string)
-        mode-line-end-spaces (list (propertize "  "
-                                               'display '(space :align-to (- right 17)))
-                                   'display-time-string))
-  (display-time-mode 1)
-  (display-time-update)
+(setq inhibit-startup-screen t)	; inhibit useless and old-school startup screen
 #+END_SRC
+
+*** Smooth Scrolling
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package smooth-scrolling
+:init
+  (setq smooth-scroll-margin 5
+        scroll-conservatively 101
+        scroll-preserve-screen-position t
+        auto-window-vscroll nil)
+  :config
+(setq scroll-margin 5))
+#+END_SRC
+*** All the icons
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package all-the-icons
+:defer t)
+#+END_SRC
+*** Doom-modeline
+
+A fancy and fast mode-line inspired by minimalistic design
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package doom-modeline
+:hook (after-init . doom-modeline-mode))
+#+END_SRC
+** Backups
+
+By default, Emacs saves backups relative to the current directory. This is abhorrent. We change this.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq make-backup-files t) ; make backups file even when in version controlled dir
+(setq backup-directory-alist `(("." . "~/.emacs.d/backups"))
+  backup-by-copying t      ; Don't delink hardlinks
+  version-control t        ; Use version numbers on backups
+  delete-old-versions t    ; Automatically delete excess backups
+  kept-new-versions 20     ; how many of the newest versions to keep
+  kept-old-versions 5      ; and how many of the old
+)                          ; which directory to put backups file
+#+END_SRC
+
 ** Prompts
 
 Make yes or no prompts be y or n prompts
@@ -204,29 +273,16 @@ Make yes or no prompts be y or n prompts
 #+BEGIN_SRC emacs-lisp :tangle yes
 (fset 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
-** Sane defaults
+** Miscellaneous
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(setq delete-old-versions -1 )    ;delete excess backup versions silently
-(setq version-control t)
-
-(setq make-backup-files t)		; make backups file even when in version controlled dir
-(setq backup-directory-alist `(("." . "~/.emacs.d/backups"))
-  backup-by-copying t    ; Don't delink hardlinks
-  version-control t      ; Use version numbers on backups
-  delete-old-versions t  ; Automatically delete excess backups
-  kept-new-versions 20   ; how many of the newest versions to keep
-  kept-old-versions 5    ; and how many of the old
-) ; which directory to put backups file
 (auto-revert-mode 1)
 (setq vc-follow-symlinks t)				       ; don't ask for confirmation when opening symlinked file
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)) ) ;transform backups file name
-(setq inhibit-startup-screen t)	; inhibit useless and old-school startup screen
 (setq ring-bell-function 'ignore)	; silent bell when you make a mistake
 ;(setq-default coding-system-for-read 'utf-8)	; use utf-8 by default
 ;(setq coding-system-for-write 'utf-8)
 (setq sentence-end-double-space nil)	; sentence SHOULD end with only a point.
-(setq-default fill-column 74)		; toggle wrapping text at the 80th character
 (setq initial-scratch-message "Welcome to Emacs") ; print a default message in the empty scratch buffer opened at startup
 (setq x-select-enable-clipboard t)  ; allow pasting selection outside of emacs
 (setq delete-by-moving-to-trash t) ; move files to trash when deleting
@@ -234,19 +290,15 @@ Make yes or no prompts be y or n prompts
 (setq display-line-numbers-type 'relative)
 
 ;; Set default font
-(set-default-font "Fira Code 12")
-(set-face-attribute 'default nil :height 100)
 
 ;; Show matching parentheses
 (setq show-paren-delay 0)
 (show-paren-mode 1)
 
 ;; visual line
-(global-visual-line-mode 1)
 #+END_SRC
 
 * Keybindings
-
 ** General
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; load general
@@ -490,58 +542,6 @@ An inteface to version control system Git
 :after magit)
 #+END_SRC
 
-* Appearance
-** Theme
-*** Doom-themes
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package doom-themes
-:defer t
-:config
-(load-theme 'doom-one t)
-(doom-themes-org-config))
-#+END_SRC
-** Load theme
-** Smooth Scrolling
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package smooth-scrolling
-:init
-  (setq smooth-scroll-margin 5
-        scroll-conservatively 101
-        scroll-preserve-screen-position t
-        auto-window-vscroll nil)
-  :config
-(setq scroll-margin 5))
-#+END_SRC
-** Writing
-*** Focus
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package focus
-:config
-(setq focus-mode-to-thing 
-'((prog-mode . defun)
- (text-mode . paragraph)
- (org-mode . paragraph))))
-#+END_SRC
-*** Olivetti
-
-Writing environment
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package olivetti)
-#+END_SRC
-
-** All the icons
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package all-the-icons)
-#+END_SRC
-** Doom-modeline
-
-A fancy and fast mode-line inspired by minimalistic design
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package doom-modeline
-:hook (after-init . doom-modeline-mode))
-#+END_SRC
 * Org-mode
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -851,6 +851,46 @@ Enable support for various babel languages
 (setq TeX-view-program-selection '((output-pdf "Zathura"))))
 (set-default 'preview-scale-function 2.0)
 #+END_SRC
+
+** RefTeX
+
+Allow RefTeX to plug into AUCTeX
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq reftex-plug-into-AUCTeX t)
+(setq reftex-extra-bindings t)
+#+END_SRC
+
+* Development
+** Web
+*** Web Mode
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package web-mode
+:defer t
+:mode "\\.p?html?$"
+)
+
+(use-package gulp-task-runner
+:defer t)
+#+END_SRC
+* Writing
+** Focus
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package focus
+:config
+(setq focus-mode-to-thing 
+'((prog-mode . defun)
+ (text-mode . paragraph)
+ (org-mode . paragraph))))
+#+END_SRC
+** Olivetti
+
+Writing environment
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package olivetti)
+#+END_SRC
+
 * Functions
 ** Compile org to pdf
 #+BEGIN_SRC emacs-lisp :tangle yes
