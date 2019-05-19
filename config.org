@@ -35,6 +35,8 @@ This is my configuration:
   - [[#evil][EVIL]]
     - [[#esc-quits-everything][ESC quits everything]]
   - [[#completion][Completion]]
+    - [[#ivy][Ivy]]
+    - [[#ivy-rich][Ivy-Rich]]
     - [[#counsel][Counsel]]
     - [[#swiper][Swiper]]
   - [[#lsp-mode][LSP-mode]]
@@ -203,6 +205,7 @@ Doom one is beautiful
 (set-default-font "Fira Code 12")
 (set-face-attribute 'default nil :height 100)
 #+END_SRC
+
 **** Text wrapping
 
 Soft wrapping instead of hard wrapping.
@@ -243,6 +246,7 @@ Soft wrapping instead of hard wrapping.
 (use-package all-the-icons
 :defer t)
 #+END_SRC
+
 *** Doom-modeline
 
 A fancy and fast mode-line inspired by minimalistic design
@@ -273,6 +277,7 @@ Make yes or no prompts be y or n prompts
 #+BEGIN_SRC emacs-lisp :tangle yes
 (fset 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
+
 ** Miscellaneous
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -417,20 +422,124 @@ This code allows us to quit basically everything using ESC.
 #+END_SRC
 
 ** Completion
-*** Counsel
-
-Counsel contains ivy enhancements for commonly-used functions.
+*** Ivy
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package counsel
-:demand
-:diminish (ivy-mode . "")
-:bind
-(("C-x b" . ivy-switch-buffer)
-    ("C-x C-f" . counsel-find-file))
+(use-package ivy
+:defer 1 ;; wait one second before loading
 :config
-(ivy-mode 1)
-(define-key ivy-minibuffer-map [escape] 'minibuffer-keyboard-quit))
+(setq ivy-height 15
+      ivy-wrap t
+      ;; don't use ^ as initial input
+      ivy-initial-inputs-alist nil
+      ;; highlight til EOL
+      ivy-format-function #'ivy-format-function-line
+      ;; don't show recent files in switch-buffer
+      ivy-use-virtual-buffers nil
+      ;; don't quit minibuffer on delete-error
+      ivy-on-del-error-function nil
+      ;; enable ability to select prompt
+      ivy-use-selectable-prompt t)
+
+(ivy-mode 1))
+#+END_SRC
+*** Ivy-Rich
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package ivy-rich
+  :after ivy
+  :preface
+  (defun ivy-rich-branch-candidate (candidate)
+    "Displays the branch candidate of the candidate for ivy-rich."
+    (let ((candidate (expand-file-name candidate ivy--directory)))
+      (if (or (not (file-exists-p candidate)) (file-remote-p candidate))
+	  ""
+	(format "%s%s"
+		(propertize
+		 (replace-regexp-in-string abbreviated-home-dir "~/"
+					   (file-name-directory
+					    (directory-file-name candidate)))
+		 'face 'font-lock-doc-face)
+		(propertize
+		 (file-name-nondirectory
+		  (directory-file-name candidate))
+		 'face 'success)))))
+
+  (defun ivy-rich-compiling (candidate)
+    "Displays compiling buffers of the candidate for ivy-rich."
+    (let* ((candidate (expand-file-name candidate ivy--directory)))
+      (if (or (not (file-exists-p candidate)) (file-remote-p candidate)
+	      (not (magit-git-repo-p candidate)))
+	  ""
+	(if (my/projectile-compilation-buffers candidate)
+	    "compiling"
+	  ""))))
+
+  (defun ivy-rich-file-group (candidate)
+    "Displays the file group of the candidate for ivy-rich"
+    (let ((candidate (expand-file-name candidate ivy--directory)))
+      (if (or (not (file-exists-p candidate)) (file-remote-p candidate))
+	  ""
+	(let* ((group-id (file-attribute-group-id (file-attributes candidate)))
+	       (group-function (if (fboundp #'group-name) #'group-name #'identity))
+	       (group-name (funcall group-function group-id)))
+	  (format "%s" group-name)))))
+
+  (defun ivy-rich-file-modes (candidate)
+    "Displays the file mode of the candidate for ivy-rich."
+    (let ((candidate (expand-file-name candidate ivy--directory)))
+      (if (or (not (file-exists-p candidate)) (file-remote-p candidate))
+	  ""
+	(format "%s" (file-attribute-modes (file-attributes candidate))))))
+
+  (defun ivy-rich-file-size (candidate)
+    "Displays the file size of the candidate for ivy-rich."
+    (let ((candidate (expand-file-name candidate ivy--directory)))
+      (if (or (not (file-exists-p candidate)) (file-remote-p candidate))
+	  ""
+	(let ((size (file-attribute-size (file-attributes candidate))))
+	  (cond
+	   ((> size 1000000) (format "%.1fM " (/ size 1000000.0)))
+	   ((> size 1000) (format "%.1fk " (/ size 1000.0)))
+	   (t (format "%d " size)))))))
+
+  (defun ivy-rich-file-user (candidate)
+    "Displays the file user of the candidate for ivy-rich."
+    (let ((candidate (expand-file-name candidate ivy--directory)))
+      (if (or (not (file-exists-p candidate)) (file-remote-p candidate))
+	  ""
+	(let* ((user-id (file-attribute-user-id (file-attributes candidate)))
+	       (user-name (user-login-name user-id)))
+	  (format "%s" user-name)))))
+
+  (defun ivy-rich-switch-buffer-icon (candidate)
+    "Returns an icon for the candidate out of `all-the-icons'."
+    (with-current-buffer
+	(get-buffer candidate)
+      (let ((icon (all-the-icons-icon-for-mode major-mode :height 0.9)))
+	(if (symbolp icon)
+	    (all-the-icons-icon-for-mode 'fundamental-mode :height 0.9)
+	  icon))))
+  :config
+  (plist-put ivy-rich-display-transformers-list
+	     'counsel-find-file
+	     '(:columns
+	       ((ivy-rich-candidate               (:width 73))
+		(ivy-rich-file-user               (:width 8 :face font-lock-doc-face))
+		(ivy-rich-file-group              (:width 4 :face font-lock-doc-face))
+		(ivy-rich-file-modes              (:width 11 :face font-lock-doc-face))
+		(ivy-rich-file-size               (:width 7 :face font-lock-doc-face))
+		(ivy-rich-file-last-modified-time (:width 30 :face font-lock-doc-face)))))
+  (plist-put ivy-rich-display-transformers-list
+             'ivy-switch-buffer
+             '(:columns
+               ((ivy-rich-switch-buffer-icon       (:width 2))
+                (ivy-rich-candidate                (:width 40))
+                (ivy-rich-switch-buffer-size       (:width 7))
+                (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
+                (ivy-rich-switch-buffer-major-mode (:width 20 :face warning)))
+               :predicate (lambda (cand) (get-buffer cand))))
+  (ivy-rich-mode 1))
 #+END_SRC
 
 **** Flx
@@ -449,6 +558,38 @@ Sublime-text fuzzy matching for Emacs. Package used following Doom's ivy configu
           (swiper-isearch . ivy--regex-plus)
           (t . ivy--regex-fuzzy))
 ivy-initial-inputs-alist nil))
+#+END_SRC
+
+*** Counsel
+
+Counsel contains ivy enhancements for commonly-used functions.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package counsel
+:demand
+:diminish (ivy-mode . "")
+:bind
+(("C-x b" . ivy-switch-buffer)
+    ("C-x C-f" . counsel-find-file))
+:config
+(define-key ivy-minibuffer-map [escape] 'minibuffer-keyboard-quit)
+
+(ivy-add-actions
+ 'counsel-find-file
+ `(("b" counsel-find-file-cd-bookmark-action "cd bookmark")
+   ("s" counsel-find-file-as-root "open as root")
+   ("m" counsel-find-file-mkdir-action "mkdir")
+   ("r" (lambda (path) (rename-file path (read-string "New name: "))) "rename")
+   ("f" find-file-other-window "other window")
+   ("F" find-file-other-frame "other frame")
+   ("p" (lambda (path) (with-ivy-window (insert (file-relative-name path default-directory)))) "insert relative path")
+   ("P" (lambda (path) (with-ivy-window (insert path))) "insert absolute path")
+   ("l" (lambda (path) "Insert org-link with relative path"
+	  (with-ivy-window (insert (format "[[./%s]]" (file-relative-name path default-directory))))) "insert org-link (rel. path)")
+   ("L" (lambda (path) "Insert org-link with absolute path"
+	  (with-ivy-window (insert (format "[[%s]]" path)))) "insert org-link (abs. path)")))
+(counsel-mode 1))
+
 #+END_SRC
 
 *** Swiper
