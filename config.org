@@ -19,6 +19,7 @@ This is my configuration:
     - [[#detect-internet-connection][Detect Internet Connection]]
   - [[#appearance][Appearance]]
     - [[#theme][Theme]]
+    - [[#buffer-local-themes][Buffer-local themes]]
     - [[#text][Text]]
     - [[#disable-unecessary-ui-elements][Disable unecessary UI elements]]
     - [[#smooth-scrolling][Smooth Scrolling]]
@@ -198,6 +199,12 @@ Doom one is beautiful
 (load-theme 'doom-one t)
 (doom-themes-org-config))
 #+END_SRC
+
+*** Buffer-local themes
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package load-theme-buffer-local
+:defer t)
+#+END_SRC
 *** Text
 **** Font
 
@@ -291,7 +298,7 @@ Make yes or no prompts be y or n prompts
 (setq initial-scratch-message "Welcome to Emacs") ; print a default message in the empty scratch buffer opened at startup
 (setq x-select-enable-clipboard t)  ; allow pasting selection outside of emacs
 (setq delete-by-moving-to-trash t) ; move files to trash when deleting
-(global-display-line-numbers-mode t)
+;;(global-display-line-numbers-mode t)
 (setq display-line-numbers-type 'relative)
 
 ;; Set default font
@@ -664,7 +671,7 @@ An Emacs mode for quickly browsing, filtering, and editing directories of plain 
     (concat "\\(?:"
     ".*sync-conflict.*"
     "\\)"))
-  (setq deft-directory "~/Org")
+  (setq deft-directory "~/Drive/Org")
   (setq deft-recursive nil)
   :general (tyrant-def "fd" 'deft))
 #+END_SRC
@@ -696,7 +703,7 @@ An inteface to version control system Git
     (setq org-use-fast-todo-selection t)
     
     :custom-face 
-    (variable-pitch ((t (:family "Fira Code" :height 1.0))))
+    (variable-pitch ((t (:family "PT Sans" :height 1.0))))
     (org-document-title ((t (:weight bold :height 1.5))))
     (org-done ((t (:strike-through t :weight bold))))
     (org-headline-done ((t (:strike-through t))))
@@ -827,7 +834,7 @@ Set up capture templates
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq org-capture-templates
-'(("t" "Todo" entry (file "~/Org/refile.org")
+'(("t" "Todo" entry (file "~/Drive/Org/refile.org")
        "* TODO %?\n%U" :empty-lines 1)))
 #+END_SRC
 
@@ -868,8 +875,8 @@ Set agenda settings
 (setq org-deadline-warning-days 7)
 ;;don't show tasks as scheduled if they are already shown as a deadline
 (setq org-agenda-skip-scheduled-if-deadline-is-shown t)
-;;set all files under ~/Org to be included in the agenda view
-(setq org-agenda-files '("~/Org" "~/Org/GCal"))
+;;set all files under ~/Drive/Org to be included in the agenda view
+(setq org-agenda-files '("~/Drive/Org" "~/Drive/Org/GCal"))
 ;;don't give awarning colour to tasks with impending deadlines if they are scheduled to be done
 (setq org-agenda-skip-deadline-prewarning-if-scheduled (quote pre-scheduled))
 #+END_SRC
@@ -1049,23 +1056,25 @@ Writing environment
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defvar writemode 1 "Set default writing mode state.")
 (defun writing-mode ()
-"Run focus and olivetti mode"
-(interactive)
-(cond
-    ((= writemode 1)
-        ;;(focus-mode t)
-        (olivetti-mode t)
-        (display-line-numbers-mode -1)
-        (setq-local org-bullets-bullet-list '(" ")) ;; no bullets
-        (setq-local writemode 2))
-    ((= writemode 2)
-        ;;(focus-mode -1)
-        (olivetti-mode -1)
-        (display-line-numbers-mode t)
-        (setq-local display-line-numbers 'relative)
-        (setq-local org-bullets-bullet-list
-            '("◉" "◎" "⚫" "○" "►" "◇"))
-        (setq-local writemode 1))))
+  "Run focus and olivetti mode"
+  (interactive)
+  (cond
+   ((= writemode 1)
+    ;;(focus-mode t)
+    (olivetti-mode t)
+    (load-theme 'doom-opera-light t)
+    (display-line-numbers-mode -1)
+    (setq-local org-bullets-bullet-list '(" ")) ;; no bullets
+    (setq-local writemode 2))
+   ((= writemode 2)
+    ;;(focus-mode -1)
+    (olivetti-mode -1)
+    (load-theme 'doom-one t)
+    (display-line-numbers-mode t)
+    (setq-local display-line-numbers 'relative)
+    (setq-local org-bullets-bullet-list
+		'("◉" "◎" "⚫" "○" "►" "◇"))
+    (setq-local writemode 1))))
 #+END_SRC
 ** French mode
 #+BEGIN_SRC emacs-lisp :tangle yes
