@@ -52,7 +52,7 @@ This is my configuration:
     - [[#auto-save][Auto-save]]
     - [[#keywords][keywords]]
   - [[#packages][Packages]]
-    - [[#org-modules][org-modules]]
+    - [[#org-modules][Org-modules]]
     - [[#evil-org][EVIL-Org]]
     - [[#org-bullets][Org-Bullets]]
     - [[#org-gcal][Org-Gcal]]
@@ -703,7 +703,7 @@ An inteface to version control system Git
     (setq org-use-fast-todo-selection t)
     
     :custom-face 
-    (variable-pitch ((t (:family "PT Sans" :height 1.0))))
+    (variable-pitch ((t (:family "Fira Code" :height 1.0))))
     (org-document-title ((t (:weight bold :height 1.5))))
     (org-done ((t (:strike-through t :weight bold))))
     (org-headline-done ((t (:strike-through t))))
@@ -738,7 +738,7 @@ Automatically archive DONE entries
 #+END_SRC
 
 ** Packages
-*** org-modules
+*** Org-modules
 #+BEGIN_SRC emacs-lisp :tangle yes
 (require 'org-install)
 (setq org-modules '(org-habit))
@@ -760,7 +760,7 @@ Automatically archive DONE entries
 Make the header bullets look prettier
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-bullets
-:config
+:init
 (setq org-bullets-face-name "Inconsolata-12")
 (setq org-bullets-bullet-list
         '("◉" "◎" "⚫" "○" "►" "◇"))
@@ -807,6 +807,9 @@ An emacs major mode for interacting with gnuplot
 #+END_SRC
 
 **** IPython
+
+Babel support for Ipython. For some strange reason, if IPython is not installed, org-capture will throw a JSON readtable error.
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ob-ipython
 :defer t)
@@ -1005,8 +1008,10 @@ Enable support for various babel languages
 Allow RefTeX to plug into AUCTeX
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+(add-hook 'LaTeX-mode-hook 'turn-on-reftex)
 (setq reftex-plug-into-AUCTeX t)
 (setq reftex-extra-bindings t)
+(setq reftex-use-external-file-handlers t)
 #+END_SRC
 
 * Development

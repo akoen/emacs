@@ -27,16 +27,7 @@
  '(sml/active-foreground-color "#ffffff")
  '(sml/inactive-background-color "#dfe4ea")
  '(sml/inactive-foreground-color "#34495e"))
-(custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-document-title ((t (:weight bold :height 1.5))))
- '(org-done ((t (:strike-through t :weight bold))))
- '(org-headline-done ((t (:strike-through t))))
- '(org-image-actual-width (/ (display-pixel-width) 2))
- '(org-level-1 ((t (:height 1.1))))
- '(org-level-2 ((t (:height 1.1))))
- '(org-level-3 ((t (:height 1.1))))
- '(variable-pitch ((t (:family "Fira Code" :height 1.0)))))
