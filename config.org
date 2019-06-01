@@ -51,23 +51,24 @@ This is my configuration:
   - [[#configuration][Configuration]]
     - [[#auto-save][Auto-save]]
     - [[#keywords][keywords]]
-  - [[#packages][Packages]]
-    - [[#org-modules][Org-modules]]
-    - [[#evil-org][EVIL-Org]]
-    - [[#org-bullets][Org-Bullets]]
-    - [[#org-gcal][Org-Gcal]]
-    - [[#ox-tufte][Ox-Tufte]]
-    - [[#ox-pandoc][Ox-Pandoc]]
-    - [[#habitica][Habitica]]
-    - [[#babel][Babel]]
-    - [[#org-download][Org Download]]
-    - [[#toc-org][Toc-org]]
   - [[#capture][Capture]]
   - [[#agenda][Agenda]]
   - [[#variable-pitch-mode][Variable Pitch Mode]]
   - [[#circular-bullets][Circular Bullets]]
   - [[#autosort][Autosort]]
-  - [[#babel-1][Babel]]
+  - [[#babel][Babel]]
+  - [[#packages][Packages]]
+    - [[#org-modules][Org-modules]]
+    - [[#evil-org][EVIL-Org]]
+    - [[#org-protocol][Org-Protocol]]
+    - [[#org-bullets][Org-Bullets]]
+    - [[#org-gcal][Org-Gcal]]
+    - [[#ox-tufte][Ox-Tufte]]
+    - [[#ox-pandoc][Ox-Pandoc]]
+    - [[#habitica][Habitica]]
+    - [[#babel-1][Babel]]
+    - [[#org-download][Org Download]]
+    - [[#toc-org][Toc-org]]
 - [[#latex][LaTeX]]
   - [[#reftex][RefTeX]]
 - [[#development][Development]]
@@ -737,108 +738,19 @@ Automatically archive DONE entries
 ;    'channing/archive-when-done)
 #+END_SRC
 
-** Packages
-*** Org-modules
-#+BEGIN_SRC emacs-lisp :tangle yes
-(require 'org-install)
-(setq org-modules '(org-habit))
-(org-load-modules-maybe t)
-#+END_SRC
-*** EVIL-Org
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package evil-org
-:after org
-:config
-(add-hook 'org-mode-hook 'evil-org-mode)
-  (add-hook 'evil-org-mode-hook
-            (lambda ()
-              (evil-org-set-key-theme)))
-  (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys))
-#+END_SRC
-*** Org-Bullets
-Make the header bullets look prettier
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package org-bullets
-:init
-(setq org-bullets-face-name "Inconsolata-12")
-(setq org-bullets-bullet-list
-        '("◉" "◎" "⚫" "○" "►" "◇"))
-(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
-#+END_SRC
-*** Org-Gcal
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package org-gcal
-:config
-(load (locate-user-emacs-file "secrets.org") :noerror :nomessage)
-(add-hook 'emacs-startup-hook #'org-gcal-fetch)
-
-(defun fetch-calendar ()
-(when (internet-up-p) (org-gcal-fetch))))
-#+END_SRC
-
-*** Ox-Tufte
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package ox-tufte)
-#+END_SRC
-*** Ox-Pandoc
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package ox-pandoc
-:config
-(setq org-pandoc-menu-entry
-'(
-    (?l "to latex-pdf and open." org-pandoc-export-to-latex-pdf-and-open)
-    (?L "to latex-pdf." org-pandoc-export-to-latex-pdf)
-    (?4 "to html5 and open." org-pandoc-export-to-html5-and-open)
-    (?$ "as html5." org-pandoc-export-as-html5))))
-#+END_SRC
-*** Habitica
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package habitica)
-#+END_SRC
-*** Babel
-**** Gnuplot
-
-An emacs major mode for interacting with gnuplot
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package gnuplot)
-#+END_SRC
-
-**** IPython
-
-Babel support for Ipython. For some strange reason, if IPython is not installed, org-capture will throw a JSON readtable error.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package ob-ipython
-:defer t)
-#+END_SRC
-*** Org Download
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package org-download
-:defer t
-:init
-(add-hook 'org-mode-hook 'org-download-enable)
-(add-hook 'dired-mode-hook 'org-download-enable))
-#+END_SRC
-*** Toc-org
-
-The =toc-org= package generates an up-to-date table of contents for us.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package toc-org
-  :after org
-  :init (add-hook 'org-mode-hook #'toc-org-enable))
-#+END_SRC
 ** Capture
 
 Set up capture templates
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq org-capture-templates
-'(("t" "Todo" entry (file "~/Drive/Org/refile.org")
-       "* TODO %?\n%U" :empty-lines 1)))
+      '(("t" "Todo" entry (file "~/Drive/Org/refile.org")
+	 "* TODO %?\n%U" :empty-lines 1)
+	("p" "Protocol" entry (file "~/Drive/Org/refile.org")
+	 "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
+	("L" "Protocol Link" entry (file "~/Drive/Org/refile.org")
+	 "* %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n")))
+
 #+END_SRC
 
 Refile configuration
@@ -981,6 +893,115 @@ Enable support for various babel languages
 (ipython .t)))
 #+END_SRC
 
+** Packages
+*** Org-modules
+#+BEGIN_SRC emacs-lisp :tangle yes
+(require 'org-install)
+(setq org-modules '(org-habit))
+(org-load-modules-maybe t)
+#+END_SRC
+*** EVIL-Org
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package evil-org
+:after org
+:config
+(add-hook 'org-mode-hook 'evil-org-mode)
+  (add-hook 'evil-org-mode-hook
+            (lambda ()
+              (evil-org-set-key-theme)))
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
+#+END_SRC
+*** Org-Protocol
+
+Allows for external applications to trigger custom actions without external dependencies
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(require 'org-protocol)
+
+(defun transform-square-brackets-to-round-ones(string-to-transform)
+  "Transforms [ into ( and ] into ), other chars left unchanged."
+  (concat 
+   (mapcar #'(lambda (c) (if (equal c ?[) ?\( (if (equal c ?]) ?\) c))) string-to-transform))
+  )
+
+#+END_SRC
+
+*** Org-Bullets
+Make the header bullets look prettier
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-bullets
+:init
+(setq org-bullets-face-name "Inconsolata-12")
+(setq org-bullets-bullet-list
+        '("◉" "◎" "⚫" "○" "►" "◇"))
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+#+END_SRC
+*** Org-Gcal
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-gcal
+:config
+(load (locate-user-emacs-file "secrets.org") :noerror :nomessage)
+(add-hook 'emacs-startup-hook #'org-gcal-fetch)
+
+(defun fetch-calendar ()
+(when (internet-up-p) (org-gcal-fetch))))
+#+END_SRC
+
+*** Ox-Tufte
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package ox-tufte)
+#+END_SRC
+*** Ox-Pandoc
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package ox-pandoc
+:config
+(setq org-pandoc-menu-entry
+'(
+    (?l "to latex-pdf and open." org-pandoc-export-to-latex-pdf-and-open)
+    (?L "to latex-pdf." org-pandoc-export-to-latex-pdf)
+    (?4 "to html5 and open." org-pandoc-export-to-html5-and-open)
+    (?$ "as html5." org-pandoc-export-as-html5))))
+#+END_SRC
+*** Habitica
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package habitica)
+#+END_SRC
+*** Babel
+**** Gnuplot
+
+An emacs major mode for interacting with gnuplot
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package gnuplot)
+#+END_SRC
+
+**** IPython
+
+Babel support for Ipython. For some strange reason, if IPython is not installed, org-capture will throw a JSON readtable error.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package ob-ipython
+:defer t)
+#+END_SRC
+*** Org Download
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-download
+:defer t
+:init
+(add-hook 'org-mode-hook 'org-download-enable)
+(add-hook 'dired-mode-hook 'org-download-enable))
+#+END_SRC
+*** Toc-org
+
+The =toc-org= package generates an up-to-date table of contents for us.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package toc-org
+  :after org
+  :init (add-hook 'org-mode-hook #'toc-org-enable))
+#+END_SRC
 * LaTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package latex
