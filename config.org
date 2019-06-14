@@ -22,6 +22,7 @@ This is my configuration:
     - [[#buffer-local-themes][Buffer-local themes]]
     - [[#text][Text]]
     - [[#disable-unecessary-ui-elements][Disable unecessary UI elements]]
+    - [[#relative-line-numbers][Relative line numbers]]
     - [[#smooth-scrolling][Smooth Scrolling]]
     - [[#all-the-icons][All the icons]]
     - [[#doom-modeline][Doom-modeline]]
@@ -35,6 +36,7 @@ This is my configuration:
   - [[#which-key][Which Key]]
   - [[#evil][EVIL]]
     - [[#esc-quits-everything][ESC quits everything]]
+    - [[#evil-surround][Evil-surround]]
   - [[#completion][Completion]]
     - [[#ivy][Ivy]]
     - [[#ivy-rich][Ivy-Rich]]
@@ -54,6 +56,7 @@ This is my configuration:
   - [[#capture][Capture]]
   - [[#agenda][Agenda]]
   - [[#variable-pitch-mode][Variable Pitch Mode]]
+  - [[#emphasis-configuration][Emphasis configuration]]
   - [[#circular-bullets][Circular Bullets]]
   - [[#autosort][Autosort]]
   - [[#babel][Babel]]
@@ -238,6 +241,15 @@ Soft wrapping instead of hard wrapping.
 (setq inhibit-startup-screen t)	; inhibit useless and old-school startup screen
 #+END_SRC
 
+*** Relative line numbers
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(display-line-numbers-mode t)
+(setq display-line-numbers-type 'relative
+      display-line-numbers-grow-only t
+      display-line-numbers-width-start t)
+#+END_SRC
+
 *** Smooth Scrolling
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package smooth-scrolling
@@ -299,8 +311,6 @@ Make yes or no prompts be y or n prompts
 (setq initial-scratch-message "Welcome to Emacs") ; print a default message in the empty scratch buffer opened at startup
 (setq x-select-enable-clipboard t)  ; allow pasting selection outside of emacs
 (setq delete-by-moving-to-trash t) ; move files to trash when deleting
-;;(global-display-line-numbers-mode t)
-(setq display-line-numbers-type 'relative)
 
 ;; Set default font
 
@@ -427,6 +437,16 @@ This code allows us to quit basically everything using ESC.
 (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+#+END_SRC
+
+*** Evil-surround
+
+This package emulates surround.vim by Tim Pope
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package evil-surround
+  :config
+  (global-evil-surround-mode 1))
 #+END_SRC
 
 ** Completion
@@ -711,6 +731,7 @@ An inteface to version control system Git
     (org-level-1 ((t (:height 1.1))))
     (org-level-2 ((t (:height 1.1))))
     (org-level-3 ((t (:height 1.1))))
+    (org-link ((t (:underline t))))
     (org-image-actual-width (/ (display-pixel-width) 2)))
 #+END_SRC
 
@@ -818,7 +839,6 @@ We use a font that's easier on the eyes for long blocks of text
 (add-hook 'org-mode-hook
           '(lambda ()
              (setq line-spacing 0.2) ;; Add more line padding for readability
-             (variable-pitch-mode 1) ;; All fonts with variable pitch.
              (mapc
               (lambda (face) ;; Other fonts with fixed-pitch.
                 (set-face-attribute face nil :inherit 'fixed-pitch))
@@ -843,6 +863,16 @@ Other org-mode ricing configuratioin:
     org-edit-src-content-indentation 0)
 #+END_SRC
 
+** Emphasis configuration
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq org-emphasis-alist (quote (("!"  (:foreground "red") )
+             ("/" italic "<i>" "</i>") 
+             ("_" underline "<span style=\"text-decoration:underline;\">" "</span>")
+             ("-" (:overline t) "<span style=\"text-decoration:overline;\">" "</span>")
+             ("=" org-code "<code>" "</code>" verbatim)
+             ("*" org-verbatim "<code>" "</code>" verbatim) 
+            ("+" (:strike-through t) "<del>" "</del>"))))
+#+END_SRC
 ** Circular Bullets
 Make bullets circular
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -900,6 +930,7 @@ Enable support for various babel languages
 (setq org-modules '(org-habit))
 (org-load-modules-maybe t)
 #+END_SRC
+
 *** EVIL-Org
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package evil-org
@@ -912,6 +943,7 @@ Enable support for various babel languages
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
 #+END_SRC
+
 *** Org-Protocol
 
 Allows for external applications to trigger custom actions without external dependencies
@@ -1062,7 +1094,9 @@ Allow RefTeX to plug into AUCTeX
 Writing environment
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package olivetti)
+(use-package olivetti
+:config
+(setq olivetti-body-width 80))
 #+END_SRC
 
 * Functions
@@ -1088,18 +1122,17 @@ Writing environment
    ((= writemode 1)
     ;;(focus-mode t)
     (olivetti-mode t)
-    (load-theme 'doom-opera-light t)
+    (variable-pitch-mode 1) ;; All fonts with variable pitch.
+    (text-scale-increase .5)
     (display-line-numbers-mode -1)
-    (setq-local org-bullets-bullet-list '(" ")) ;; no bullets
     (setq-local writemode 2))
    ((= writemode 2)
     ;;(focus-mode -1)
     (olivetti-mode -1)
-    (load-theme 'doom-one t)
+    (variable-pitch-mode 0) ;; All fonts with variable pitch.
+    (text-scale-decrease .5)
     (display-line-numbers-mode t)
     (setq-local display-line-numbers 'relative)
-    (setq-local org-bullets-bullet-list
-		'("◉" "◎" "⚫" "○" "►" "◇"))
     (setq-local writemode 1))))
 #+END_SRC
 ** French mode
