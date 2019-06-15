@@ -975,7 +975,10 @@ Make the header bullets look prettier
 (use-package org-gcal
 :config
 (load (locate-user-emacs-file "secrets.org") :noerror :nomessage)
-(add-hook 'emacs-startup-hook #'org-gcal-fetch)
+(setq org-gcal-file-alist '(("arw.koen@gmail.com" . "~/Drive/Org/GCal/gcal-events.org")
+("k3omf96kvjusjmqr2kpr3dnf3c@group.calendar.google.com" . "~/Drive/Org/GCal/gcal-school.org")
+("5vh0tb7krfn47itei3puqqmrvc@group.calendar.google.com" . "~/Drive/Org/GCal/gcal-time-blocking.org")))
+(add-hook 'emacs-startup-hook #'org-gcal-sync)
 
 (defun fetch-calendar ()
 (when (internet-up-p) (org-gcal-fetch))))
