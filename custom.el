@@ -22,7 +22,7 @@
      ("\\.pdf\\'" . "zathura %s"))))
  '(package-selected-packages
    (quote
-    (projectile evil-surround org-protocol load-theme-buffer-local color-theme-buffer-local ivy-rich toc-org bug-hunter doom-modeline helm-themes helm zenburn-theme yasnippet writeroom-mode which-key use-package tao-theme smooth-scrolling ranger poet-theme ox-tufte ox-pandoc org-plus-contrib org-gcal org-download org-bullets olivetti ob-ipython nlinum-relative neotree lsp-ui kaolin-themes habitica gnuplot general focus flycheck-grammalecte flx flatui-theme evil-org evil-magit evil-leader doom-themes deft counsel company-lsp color-identifiers-mode auctex atom-one-dark-theme)))
+    (projectile org-pomodoro evil-surround org-protocol load-theme-buffer-local color-theme-buffer-local ivy-rich toc-org bug-hunter doom-modeline helm-themes helm zenburn-theme yasnippet writeroom-mode which-key use-package tao-theme smooth-scrolling ranger poet-theme ox-tufte ox-pandoc org-plus-contrib org-gcal org-download org-bullets olivetti ob-ipython nlinum-relative neotree lsp-ui kaolin-themes habitica gnuplot general focus flycheck-grammalecte flx flatui-theme evil-org evil-magit evil-leader doom-themes deft counsel company-lsp color-identifiers-mode auctex atom-one-dark-theme)))
  '(sml/active-background-color "#34495e")
  '(sml/active-foreground-color "#ffffff")
  '(sml/inactive-background-color "#dfe4ea")

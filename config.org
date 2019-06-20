@@ -117,6 +117,22 @@ The garbage collector eats up a lot of time during startup, so turn up its memor
       gc-cons-percentage 0.6)
 #+END_SRC
 
+** Set Variables
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defvar emacs-dir (file-truename user-emacs-directory)
+  "The currently loaded .emacs.d directory.")
+
+(defvar emacs-local-dir (concat emacs-dir ".local/")
+  "Root directory for local storage. Do not share across systems.")
+
+(defvar emacs-cache-dir (concat emacs-local-dir "cache/")
+  "Directory for volatile local storage.")
+
+(defvar emacs-packages-dir (concat emacs-local-dir "packages/")
+  "Where pacakges are stored.")
+#+END_SRC
+
 ** Package Management
 
 *** Package Settings
@@ -125,7 +141,7 @@ We’re going to set the load-path ourselves and avoid calling (package-initiliz
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq load-prefer-newer t
-      package-user-dir "~/.emacs.d/elpa"
+      package-user-dir (expand-file-name "elpa" emacs-packages-dir)
       package--init-file-ensured t
       package-enable-at-startup nil)
 
@@ -632,8 +648,15 @@ Counsel contains ivy enhancements for commonly-used functions.
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package projectile
 :defer t
+:init
+(tyrant-def 
+"SPC" 'projectile-find-file
+"pb" 'projectile-switch-to-buffer
+"pf" 'projectile-recentf
+)
 :config
-(projectile-mode 1))
+(projectile-mode 1)
+)
 #+END_SRC
 ** LSP-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
