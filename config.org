@@ -66,6 +66,7 @@ This is my configuration:
     - [[#org-protocol][Org-Protocol]]
     - [[#org-bullets][Org-Bullets]]
     - [[#org-gcal][Org-Gcal]]
+    - [[#org-pomodoro][Org-pomodoro]]
     - [[#ox-tufte][Ox-Tufte]]
     - [[#ox-pandoc][Ox-Pandoc]]
     - [[#habitica][Habitica]]
@@ -982,6 +983,15 @@ Make the header bullets look prettier
 
 (defun fetch-calendar ()
 (when (internet-up-p) (org-gcal-fetch))))
+#+END_SRC
+
+*** Org-pomodoro
+
+Support for the Pomodoro technique in org-mode
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-pomodoro
+:defer t)
 #+END_SRC
 
 *** Ox-Tufte
