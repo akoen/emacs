@@ -42,6 +42,7 @@ This is my configuration:
     - [[#ivy-rich][Ivy-Rich]]
     - [[#counsel][Counsel]]
     - [[#swiper][Swiper]]
+  - [[#projectile][Projectile]]
   - [[#lsp-mode][LSP-mode]]
   - [[#dired-x][Dired-x]]
 - [[#utilities][Utilities]]
@@ -625,6 +626,14 @@ Counsel contains ivy enhancements for commonly-used functions.
 (use-package swiper
 :bind (("M-s" . swiper)))
 #+END_SRC
+** Projectile
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package projectile
+:defer t
+:config
+(projectile-mode 1))
+#+END_SRC
 ** LSP-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package lsp-mode
@@ -1186,7 +1195,8 @@ Writing environment
 ;; find aspell and hunspell automatically
 (use-package flyspell
 :config
-  (setq ispell-program-name "aspell"))
+  (setq ispell-program-name "aspell")
+)
 #+END_SRC
 ** Flycheck-grammalecte
 #+BEGIN_SRC emacs-lisp :tangle yes
