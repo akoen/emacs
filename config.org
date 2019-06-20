@@ -358,8 +358,6 @@ Make yes or no prompts be y or n prompts
     :non-normal-prefix "C-SPC")
 
 (tyrant-def
-    "SPC" nil
-
     ;; Buffer
     "w" 'save-buffer
     "z" 'previous-buffer
@@ -367,6 +365,8 @@ Make yes or no prompts be y or n prompts
     "b" 'switch-to-buffer
 
     ;; Files
+    "." 'find-file
+    "fl" 'load-file
     "ff" 'dired-jump
     "fr" 'counsel-recentf
 
@@ -662,7 +662,8 @@ Allows for further integration between ivy and projectile.
 (use-package projectile
 :defer t
 :init
-(setq projectile-cache-file (concat emacs-cache-dir "projectile.cache")
+(setq projectile-project-search-path '("~/Drive")
+      projectile-cache-file (concat emacs-cache-dir "projectile.cache")
       projectile-enable-caching (not noninteractive)
       projectile-known-projects-file (concat emacs-cache-dir "projectile.projects")
       projectile-require-project-root 'prompt
@@ -671,6 +672,9 @@ Allows for further integration between ivy and projectile.
       projectile-use-git-grep t) ; use git-grep for text searches
 :config
 (projectile-mode 1)
+
+;; Accept .project files as project root markers
+(push ".project" projectile-project-root-files-bottom-up)
 )
 #+END_SRC
 ** LSP-mode
@@ -685,6 +689,7 @@ Allows for further integration between ivy and projectile.
 (use-package company-lsp
 :commands company-lsp)
 #+END_SRC
+
 ** Dired-x
 
 Adds additional functionalit on top of dired
