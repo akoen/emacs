@@ -221,6 +221,15 @@ Doom one is beautiful
 (doom-themes-org-config))
 #+END_SRC
 
+**** Github Modern theme
+
+Colours inspired by the new GitHub theme colours.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package github-modern-theme
+:defer t)
+#+END_SRC
+
 *** Text
 **** Font
 
@@ -256,7 +265,7 @@ Soft wrapping instead of hard wrapping.
 *** Relative line numbers
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(display-line-numbers-mode t)
+(global-display-line-numbers-mode t)
 (setq display-line-numbers-type 'relative
       display-line-numbers-grow-only t
       display-line-numbers-width-start t)
@@ -1029,7 +1038,9 @@ Support for the Pomodoro technique in org-mode
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-pomodoro
-:defer t)
+:defer t
+:init
+(tyrant-def "op" 'org-pomodoro))
 #+END_SRC
 
 *** Ox-Tufte
