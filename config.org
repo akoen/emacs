@@ -10,6 +10,7 @@ This is my configuration:
   - [[#personal-information][Personal Information]]
   - [[#optimizations][Optimizations]]
     - [[#garbage-collector][Garbage collector]]
+  - [[#set-variables][Set Variables]]
   - [[#package-management][Package Management]]
     - [[#package-settings][Package Settings]]
     - [[#manually-set-load-path][Manually Set Load Path]]
@@ -19,7 +20,6 @@ This is my configuration:
     - [[#detect-internet-connection][Detect Internet Connection]]
   - [[#appearance][Appearance]]
     - [[#theme][Theme]]
-    - [[#buffer-local-themes][Buffer-local themes]]
     - [[#text][Text]]
     - [[#disable-unecessary-ui-elements][Disable unecessary UI elements]]
     - [[#relative-line-numbers][Relative line numbers]]
@@ -194,7 +194,7 @@ Detection for the host operating system. Currently, I only use Emacs on Linux, s
     ()
   (eq system-type 'gnu/linux))
 
-(defun is-linux-p
+(defun is-windows-p
     ()
   (or
    (eq system-type 'ms-dos)
@@ -216,17 +216,11 @@ Doom one is beautiful
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package doom-themes
-:defer t
 :config
 (load-theme 'doom-one t)
 (doom-themes-org-config))
 #+END_SRC
 
-*** Buffer-local themes
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package load-theme-buffer-local
-:defer t)
-#+END_SRC
 *** Text
 **** Font
 
@@ -349,11 +343,6 @@ Make yes or no prompts be y or n prompts
 (general-override-mode 1)
 (general-auto-unbind-keys)
 
-(defun universal-argument-file ()
-    (interactive)
-    (let ((current-prefix-arg 4)) ;; emulate C-u
-    (call-interactively 'counsel-fzf))) ;; invoke counsel-file-jump interactively
-
 (general-create-definer tyrant-def
     :keymaps '(normal visual insert emacs motion)
     :prefix "SPC"
@@ -369,8 +358,8 @@ Make yes or no prompts be y or n prompts
     "b" 'switch-to-buffer
 
     ;; Files
-    "t" 'universal-argument-file
     "ff" 'dired-jump
+    "fr" 'counsel-recentf
 
     ;; Language
     "lf" 'french-mode
@@ -384,6 +373,10 @@ Make yes or no prompts be y or n prompts
     ;; Shell
     "s" 'shell
 
+    ;; Projects
+    "SPC" 'projectile-find-file
+    "pb" 'projectile-switch-to-buffer
+    "pf" 'projectile-recentf  
 
     )) 
 #+END_SRC
@@ -638,6 +631,17 @@ Counsel contains ivy enhancements for commonly-used functions.
 
 #+END_SRC
 
+**** Counsel-projectile
+
+Allows for further integration between ivy and projectile.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package counsel-projectile
+:after projectile
+:config
+(counsel-projectile-mode 1))
+#+END_SRC
+
 *** Swiper
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package swiper
@@ -649,11 +653,13 @@ Counsel contains ivy enhancements for commonly-used functions.
 (use-package projectile
 :defer t
 :init
-(tyrant-def 
-"SPC" 'projectile-find-file
-"pb" 'projectile-switch-to-buffer
-"pf" 'projectile-recentf
-)
+(setq projectile-cache-file (concat emacs-cache-dir "projectile.cache")
+      projectile-enable-caching (not noninteractive)
+      projectile-known-projects-file (concat emacs-cache-dir "projectile.projects")
+      projectile-require-project-root 'prompt
+      projectile-files-cache-expire 604800 ; expire after a week
+      projectile-sort-order 'recentf
+      projectile-use-git-grep t) ; use git-grep for text searches
 :config
 (projectile-mode 1)
 )
@@ -999,7 +1005,7 @@ Make the header bullets look prettier
 :init
 (setq org-bullets-face-name "Inconsolata-12")
 (setq org-bullets-bullet-list
-        '("◉" "◎" "⚫" "○" "►" "◇"))
+    '("◉" "◎" "⚫" "○" "►" "◇"))
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 #+END_SRC
 *** Org-Gcal
