@@ -57,7 +57,6 @@ This is my configuration:
   - [[#capture][Capture]]
   - [[#agenda][Agenda]]
   - [[#variable-pitch-mode][Variable Pitch Mode]]
-  - [[#emphasis-configuration][Emphasis configuration]]
   - [[#circular-bullets][Circular Bullets]]
   - [[#autosort][Autosort]]
   - [[#babel][Babel]]
@@ -386,6 +385,7 @@ Make yes or no prompts be y or n prompts
     "SPC" 'projectile-find-file
     "pb" 'projectile-switch-to-buffer
     "pf" 'projectile-recentf  
+    "ps" 'counsel-projectile-switch-project
 
     )) 
 #+END_SRC
@@ -662,20 +662,21 @@ Allows for further integration between ivy and projectile.
 (use-package projectile
 :defer t
 :init
-(setq projectile-project-search-path '("~/Drive")
+(setq projectile-project-root-files '(".project")
+      projectile-project-root-files-functions '(projectile-root-top-down
+						 projectile-root-top-down-recurring
+						 projectile-root-bottom-up
+						 projectile-root-local)
+      projectile-project-search-path '("~/Drive")
       projectile-cache-file (concat emacs-cache-dir "projectile.cache")
-      projectile-enable-caching (not noninteractive)
+      projectile-enable-caching t
       projectile-known-projects-file (concat emacs-cache-dir "projectile.projects")
       projectile-require-project-root 'prompt
       projectile-files-cache-expire 604800 ; expire after a week
       projectile-sort-order 'recentf
       projectile-use-git-grep t) ; use git-grep for text searches
 :config
-(projectile-mode 1)
-
-;; Accept .project files as project root markers
-(push ".project" projectile-project-root-files-bottom-up)
-)
+(projectile-mode 1))
 #+END_SRC
 ** LSP-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -916,16 +917,6 @@ Other org-mode ricing configuratioin:
     org-edit-src-content-indentation 0)
 #+END_SRC
 
-** Emphasis configuration
-#+BEGIN_SRC emacs-lisp :tangle yes
-(setq org-emphasis-alist (quote (("!"  (:foreground "red") )
-             ("/" italic "<i>" "</i>") 
-             ("_" underline "<span style=\"text-decoration:underline;\">" "</span>")
-             ("-" (:overline t) "<span style=\"text-decoration:overline;\">" "</span>")
-             ("=" org-code "<code>" "</code>" verbatim)
-             ("*" org-verbatim "<code>" "</code>" verbatim) 
-            ("+" (:strike-through t) "<del>" "</del>"))))
-#+END_SRC
 ** Circular Bullets
 Make bullets circular
 #+BEGIN_SRC emacs-lisp :tangle yes
