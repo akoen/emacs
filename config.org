@@ -110,7 +110,7 @@ This is my configuration:
 ** Optimizations
 *** Garbage collector
 
-The garbage collector eats up a lot of time during startup, so turn up its memory threshold to prevent it from getting trigerred.
+The garbage collector eats up a lot of time during startup, so turn up its memory threshold to prevent it from getting triggered.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq gc-cons-threshold 402653184
