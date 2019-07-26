@@ -22,12 +22,14 @@ This is my configuration:
     - [[#theme][Theme]]
     - [[#text][Text]]
     - [[#disable-unecessary-ui-elements][Disable unecessary UI elements]]
+    - [[#prompts][Prompts]]
     - [[#relative-line-numbers][Relative line numbers]]
+    - [[#show-matching-parentheses][Show matching parentheses]]
     - [[#smooth-scrolling][Smooth Scrolling]]
     - [[#all-the-icons][All the icons]]
     - [[#doom-modeline][Doom-modeline]]
+  - [[#revert][Revert]]
   - [[#backups][Backups]]
-  - [[#prompts][Prompts]]
   - [[#miscellaneous][Miscellaneous]]
 - [[#keybindings][Keybindings]]
   - [[#general][General]]
@@ -261,6 +263,14 @@ Soft wrapping instead of hard wrapping.
 (setq inhibit-startup-screen t)	; inhibit useless and old-school startup screen
 #+END_SRC
 
+*** Prompts
+
+Make yes or no prompts be y or n prompts
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(fset 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+
 *** Relative line numbers
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -268,6 +278,13 @@ Soft wrapping instead of hard wrapping.
 (setq display-line-numbers-type 'relative
       display-line-numbers-grow-only t
       display-line-numbers-width-start t)
+#+END_SRC
+
+*** Show matching parentheses
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq show-paren-delay 0)
+(show-paren-mode 1)
 #+END_SRC
 
 *** Smooth Scrolling
@@ -295,50 +312,37 @@ A fancy and fast mode-line inspired by minimalistic design
 (use-package doom-modeline
 :hook (after-init . doom-modeline-mode))
 #+END_SRC
+
+** Revert
+
+Automatically reload buffers on file change
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(global-auto-revert-mode 1)
+#+END_SRC
+
 ** Backups
 
 By default, Emacs saves backups relative to the current directory. This is abhorrent. We change this.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq make-backup-files t) ; make backups file even when in version controlled dir
-(setq backup-directory-alist `(("." . "~/.emacs.d/backups"))
-  backup-by-copying t      ; Don't delink hardlinks
-  version-control t        ; Use version numbers on backups
-  delete-old-versions t    ; Automatically delete excess backups
-  kept-new-versions 20     ; how many of the newest versions to keep
-  kept-old-versions 5      ; and how many of the old
-)                          ; which directory to put backups file
-#+END_SRC
-
-** Prompts
-
-Make yes or no prompts be y or n prompts
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(fset 'yes-or-no-p 'y-or-n-p)
+(setq backup-directory-alist (list (cons "." (concat emacs-cache-dir "backups/")))
+      backup-by-copying t      ; Don't delink hardlinks
+      version-control t        ; Use version numbers on backups
+      delete-old-versions t    ; Automatically delete excess backups
+      kept-new-versions 20     ; how many of the newest versions to keep
+      kept-old-versions 5)     ; and how many of the old
+(setq auto-save-file-name-transforms '((".*" (concat enacs-cache-dir "auto-save/") t))) ;transform backups file name
 #+END_SRC
 
 ** Miscellaneous
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(auto-revert-mode 1)
-(setq vc-follow-symlinks t)				       ; don't ask for confirmation when opening symlinked file
-(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)) ) ;transform backups file name
-(setq ring-bell-function 'ignore)	; silent bell when you make a mistake
-;(setq-default coding-system-for-read 'utf-8)	; use utf-8 by default
-;(setq coding-system-for-write 'utf-8)
-(setq sentence-end-double-space nil)	; sentence SHOULD end with only a point.
-(setq initial-scratch-message "Welcome to Emacs") ; print a default message in the empty scratch buffer opened at startup
-(setq x-select-enable-clipboard t)  ; allow pasting selection outside of emacs
+(setq vc-follow-symlinks t)	       ; don't ask for confirmation when opening symlinked file
+(setq ring-bell-function 'ignore)  ; silent bell when you make a mistake
+(setq x-select-enable-clipboard t) ; allow pasting selection outside of emacs
 (setq delete-by-moving-to-trash t) ; move files to trash when deleting
-
-;; Set default font
-
-;; Show matching parentheses
-(setq show-paren-delay 0)
-(show-paren-mode 1)
-
-;; visual line
 #+END_SRC
 
 * Keybindings
