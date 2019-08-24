@@ -334,16 +334,17 @@ By default, Emacs saves backups relative to the current directory. This is abhor
       delete-old-versions t    ; Automatically delete excess backups
       kept-new-versions 20     ; how many of the newest versions to keep
       kept-old-versions 5)     ; and how many of the old
-(setq auto-save-file-name-transforms '((".*" (concat enacs-cache-dir "auto-save/") t))) ;transform backups file name
+(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/.local/cache/auto-save/" t))) ;transform backups file name
 #+END_SRC
 
 ** Miscellaneous
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(setq vc-follow-symlinks t)	       ; don't ask for confirmation when opening symlinked file
-(setq ring-bell-function 'ignore)  ; silent bell when you make a mistake
-(setq x-select-enable-clipboard t) ; allow pasting selection outside of emacs
-(setq delete-by-moving-to-trash t) ; move files to trash when deleting
+(setq vc-follow-symlinks t)	         ; don't ask for confirmation when opening symlinked file
+(setq ring-bell-function 'ignore)    ; silent bell when you make a mistake
+(setq x-select-enable-clipboard t)   ; allow pasting selection outside of emacs
+(setq delete-by-moving-to-trash t)   ; move files to trash when deleting
+(setq sentence-end-double-space nil) ; end sentences with a single space
 #+END_SRC
 
 * Keybindings
