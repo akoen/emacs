@@ -75,6 +75,7 @@ This is my configuration:
     - [[#babel-1][Babel]]
     - [[#org-download][Org Download]]
     - [[#toc-org][Toc-org]]
+    - [[#org-noter][Org-noter]]
 - [[#latex][LaTeX]]
   - [[#reftex][RefTeX]]
 - [[#development][Development]]
@@ -1118,6 +1119,14 @@ The =toc-org= package generates an up-to-date table of contents for us.
   :after org
   :init (add-hook 'org-mode-hook #'toc-org-enable))
 #+END_SRC
+*** Org-noter
+
+Org-noter is used to annotate pdf files in a native org document.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-noter)
+#+END_SRC
+
 * LaTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package latex
