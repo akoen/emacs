@@ -13,16 +13,19 @@
  '(jdee-db-requested-breakpoint-face-colors (cons "#1B2229" "#98be65"))
  '(jdee-db-spec-breakpoint-face-colors (cons "#1B2229" "#3f444a"))
  '(objed-cursor-color "#ff6c6b")
+ '(org-agenda-files
+   (quote
+    ("/home/alex/Drive/Org/school.org" "/home/alex/Drive/Org/cil.org" "/home/alex/Drive/Org/cyc.org" "/home/alex/Drive/Org/hikes-runs.org" "/home/alex/Drive/Org/inbox.org" "/home/alex/Drive/Org/manifesto.org" "/home/alex/Drive/Org/refile.org" "/home/alex/Drive/Org/GCal/gcal-events.org" "/home/alex/Drive/Org/GCal/gcal-school.org" "/home/alex/Drive/Org/GCal/gcal-time-blocking.org")))
  '(package-selected-packages
    (quote
-    (github-modern-theme counsel-projectile yasnippet which-key web-mode use-package toc-org smooth-scrolling projectile ox-tufte ox-pandoc org-pomodoro org-plus-contrib org-gcal org-download org-bullets olivetti ob-ipython neotree lsp-ui load-theme-buffer-local ivy-rich habitica gulp-task-runner gnuplot general focus flycheck-grammalecte flx exec-path-from-shell evil-surround evil-org evil-magit doom-themes doom-modeline deft counsel company-lsp auctex)))
+    (atomic-chrome pdf-tools org-noter github-modern-theme counsel-projectile yasnippet which-key web-mode use-package toc-org smooth-scrolling projectile ox-tufte ox-pandoc org-pomodoro org-plus-contrib org-gcal org-download org-bullets olivetti ob-ipython neotree lsp-ui load-theme-buffer-local ivy-rich habitica gulp-task-runner gnuplot general focus flycheck-grammalecte flx exec-path-from-shell evil-surround evil-org evil-magit doom-themes doom-modeline deft counsel company-lsp auctex)))
  '(recentf-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(doom-modeline-project-dir ((t (:inherit (font-lock-parent-face bold)))))
+ '(fixed-pitch ((t (:family "Fira Mono"))))
  '(org-document-title ((t (:weight bold :height 1.5))))
  '(org-done ((t (:strike-through t :weight bold))))
  '(org-headline-done ((t (:strike-through t))))
@@ -31,4 +34,4 @@
  '(org-level-2 ((t (:height 1.1))))
  '(org-level-3 ((t (:height 1.1))))
  '(org-link ((t (:underline t))))
- '(variable-pitch ((t (:family "Fira Code" :height 1.0)))))
+ '(variable-pitch ((t (:family "Input Sans" :height 1.0)))))

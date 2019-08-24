@@ -52,6 +52,8 @@ This is my configuration:
   - [[#neotree-and-icons][NeoTree and Icons]]
   - [[#deft][Deft]]
   - [[#magit][Magit]]
+  - [[#pdf-tools][PDF-Tools]]
+  - [[#atomic-chrome][Atomic Chrome]]
 - [[#org-mode][Org-mode]]
   - [[#configuration][Configuration]]
     - [[#auto-save][Auto-save]]
@@ -325,6 +327,9 @@ Automatically reload buffers on file change
 ** Backups
 
 By default, Emacs saves backups relative to the current directory. This is abhorrent. We change this.
+
+# TODO fix auto-save
+
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq make-backup-files t) ; make backups file even when in version controlled dir
