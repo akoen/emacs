@@ -806,7 +806,7 @@ Atomic chrome is a package used in conjunction with the =GhostText= firefox exte
     (setq org-use-fast-todo-selection t)
     
     :custom-face 
-    (variable-pitch ((t (:family "Fira Code" :height 1.0))))
+    (variable-pitch ((t (:family "Input Sans" :height 1.0))))
     (org-document-title ((t (:weight bold :height 1.5))))
     (org-done ((t (:strike-through t :weight bold))))
     (org-headline-done ((t (:strike-through t))))
@@ -1217,14 +1217,14 @@ Writing environment
     ;;(focus-mode t)
     (olivetti-mode t)
     (variable-pitch-mode 1) ;; All fonts with variable pitch.
-    (text-scale-increase .5)
+    (text-scale-increase 0.5)
     (display-line-numbers-mode -1)
     (setq-local writemode 2))
    ((= writemode 2)
     ;;(focus-mode -1)
     (olivetti-mode -1)
     (variable-pitch-mode 0) ;; All fonts with variable pitch.
-    (text-scale-decrease .5)
+    (text-scale-decrease 0)
     (display-line-numbers-mode t)
     (setq-local display-line-numbers 'relative)
     (setq-local writemode 1))))
