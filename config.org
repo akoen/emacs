@@ -769,6 +769,28 @@ An inteface to version control system Git
 :after magit)
 #+END_SRC
 
+** PDF-Tools
+
+A replace for Emacs' native DocView
+# TODO Check if display-graphic-p works in daemon mode
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package pdf-tools
+:if (display-graphic-p)
+:mode ("\\.pdf$" . pdf-view-mode)
+:config
+(pdf-tools-install))
+#+END_SRC
+
+** Atomic Chrome
+
+Atomic chrome is a package used in conjunction with the =GhostText= firefox extension to edit text areas using Emacs.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package atomic-chrome
+:config
+(atomic-chrome-start-server))
+#+END_SRC
 * Org-mode
 
 #+BEGIN_SRC emacs-lisp :tangle yes
