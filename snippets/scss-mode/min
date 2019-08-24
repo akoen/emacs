@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: min
+# key: min
+# --
+
+@include min(\$$1) {
+    $0
+}

@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: subsubsection
+# key: sssc
+# --
+
+\subsubsection{${1:subsubsection name}}
+
+$0
