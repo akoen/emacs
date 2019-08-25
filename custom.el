@@ -13,9 +13,6 @@
  '(jdee-db-requested-breakpoint-face-colors (cons "#1B2229" "#98be65"))
  '(jdee-db-spec-breakpoint-face-colors (cons "#1B2229" "#3f444a"))
  '(objed-cursor-color "#ff6c6b")
- '(org-agenda-files
-   (quote
-    ("/home/alex/Drive/Org/school.org" "/home/alex/Drive/Org/cil.org" "/home/alex/Drive/Org/cyc.org" "/home/alex/Drive/Org/hikes-runs.org" "/home/alex/Drive/Org/inbox.org" "/home/alex/Drive/Org/manifesto.org" "/home/alex/Drive/Org/refile.org" "/home/alex/Drive/Org/GCal/gcal-events.org" "/home/alex/Drive/Org/GCal/gcal-school.org" "/home/alex/Drive/Org/GCal/gcal-time-blocking.org")))
  '(package-selected-packages
    (quote
     (atomic-chrome pdf-tools org-noter github-modern-theme counsel-projectile yasnippet which-key web-mode use-package toc-org smooth-scrolling projectile ox-tufte ox-pandoc org-pomodoro org-plus-contrib org-gcal org-download org-bullets olivetti ob-ipython neotree lsp-ui load-theme-buffer-local ivy-rich habitica gulp-task-runner gnuplot general focus flycheck-grammalecte flx exec-path-from-shell evil-surround evil-org evil-magit doom-themes doom-modeline deft counsel company-lsp auctex)))
