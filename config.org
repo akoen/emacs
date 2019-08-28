@@ -83,6 +83,7 @@ This is my configuration:
 - [[#development][Development]]
   - [[#web][Web]]
     - [[#web-mode][Web Mode]]
+  - [[#cc][C/C++]]
 - [[#writing][Writing]]
   - [[#focus][Focus]]
   - [[#olivetti][Olivetti]]
@@ -1178,6 +1179,19 @@ Allow RefTeX to plug into AUCTeX
 (use-package gulp-task-runner
 :defer t)
 #+END_SRC
+** C/C++
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package ccls
+  :defer t
+  :custom
+  (ccls-executable "ccls")
+  (lsp-prefer-flymake nil)
+  (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
+  :hook ((c-mode c++-mode objc-mode) .
+	  (lambda () (require 'ccls) (lsp))))
+#+END_SRC
+
 * Writing
 ** Focus
 #+BEGIN_SRC emacs-lisp :tangle yes
