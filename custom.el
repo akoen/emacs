@@ -30,5 +30,4 @@
  '(org-level-1 ((t (:height 1.1))))
  '(org-level-2 ((t (:height 1.1))))
  '(org-level-3 ((t (:height 1.1))))
- '(org-link ((t (:underline t))))
- '(variable-pitch ((t (:family "Input Sans" :height 1.0)))))
+ '(org-link ((t (:underline t)))))

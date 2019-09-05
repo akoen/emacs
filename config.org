@@ -50,7 +50,6 @@ This is my configuration:
 - [[#utilities][Utilities]]
   - [[#yasnippet][Yasnippet]]
   - [[#neotree-and-icons][NeoTree and Icons]]
-  - [[#deft][Deft]]
   - [[#magit][Magit]]
   - [[#pdf-tools][PDF-Tools]]
   - [[#atomic-chrome][Atomic Chrome]]
@@ -693,14 +692,14 @@ Allows for further integration between ivy and projectile.
 ** LSP-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package lsp-mode
-:commands lsp
-:init)
+  :commands lsp
+  :init)
 
 (use-package lsp-ui
-:commands lsp-ui-mode)
+  :commands lsp-ui-mode)
 
 (use-package company-lsp
-:commands company-lsp)
+  :commands company-lsp)
 #+END_SRC
 
 ** Dired-x
@@ -743,24 +742,6 @@ Displays the folder tree
 (use-package neotree
   :init
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
-#+END_SRC
-** Deft
-An Emacs mode for quickly browsing, filtering, and editing directories of plain text notes, inspired by Notional Velocity
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package deft
-  :config
-	(setq deft-extensions '("org" "md" "markdown" "adoc" "asciidoc" "txt" "tex"))
-  ;; (setq deft-text-mode 'org-mode)
-  (setq deft-use-filename-as-title t)
-  (setq deft-file-naming-rules '((noslash . "-")
-                                 (nospace . "-")))
-  (setq deft-ignore-file-regexp
-    (concat "\\(?:"
-    ".*sync-conflict.*"
-    "\\)"))
-  (setq deft-directory "~/Drive/Org")
-  (setq deft-recursive nil)
-  :general (tyrant-def "fd" 'deft))
 #+END_SRC
 ** Magit
 
@@ -853,11 +834,11 @@ Set up capture templates
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq org-capture-templates
-      '(("t" "Todo" entry (file "~/Drive/Org/refile.org")
+      '(("t" "Todo" entry (file "~/Drive/Tasks/refile.org")
 	 "* TODO %?\n%U" :empty-lines 1)
-	("p" "Protocol" entry (file "~/Drive/Org/refile.org")
+	("p" "Protocol" entry (file "~/Drive/Tasks/refile.org")
 	 "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
-	("L" "Protocol Link" entry (file "~/Drive/Org/refile.org")
+	("L" "Protocol Link" entry (file "~/Drive/Tasks/refile.org")
 	 "* %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n")))
 
 #+END_SRC
@@ -899,8 +880,8 @@ Set agenda settings
 (setq org-deadline-warning-days 7)
 ;;don't show tasks as scheduled if they are already shown as a deadline
 (setq org-agenda-skip-scheduled-if-deadline-is-shown t)
-;;set all files under ~/Drive/Org to be included in the agenda view
-(setq org-agenda-files '("~/Drive/Org" "~/Drive/Org/GCal"))
+;; Set agenda files
+(setq org-agenda-files '("~/Drive/Tasks" "~/Drive/Tasks/GCal"))
 ;;don't give awarning colour to tasks with impending deadlines if they are scheduled to be done
 (setq org-agenda-skip-deadline-prewarning-if-scheduled (quote pre-scheduled))
 #+END_SRC
@@ -1053,9 +1034,9 @@ Make the header bullets look prettier
 (use-package org-gcal
 :config
 (load (locate-user-emacs-file "secrets.org") :noerror :nomessage)
-(setq org-gcal-file-alist '(("arw.koen@gmail.com" . "~/Drive/Org/GCal/gcal-events.org")
-("k3omf96kvjusjmqr2kpr3dnf3c@group.calendar.google.com" . "~/Drive/Org/GCal/gcal-school.org")
-("5vh0tb7krfn47itei3puqqmrvc@group.calendar.google.com" . "~/Drive/Org/GCal/gcal-time-blocking.org")))
+(setq org-gcal-file-alist '(("arw.koen@gmail.com" . "~/Drive/Tasks/GCal/gcal-events.org")
+("k3omf96kvjusjmqr2kpr3dnf3c@group.calendar.google.com" . "~/Drive/Tasks/GCal/gcal-school.org")
+("5vh0tb7krfn47itei3puqqmrvc@group.calendar.google.com" . "~/Drive/Tasks/GCal/gcal-time-blocking.org")))
 (add-hook 'emacs-startup-hook #'org-gcal-sync)
 
 (defun fetch-calendar ()
@@ -1103,7 +1084,7 @@ An emacs major mode for interacting with gnuplot
 
 **** IPython
 
-Babel support for Ipython. For some strange reason, if IPython is not installed, org-capture will throw a JSON readtable error.
+Babel support for Ipython. For some strange reason, if ipython, pip, and jupyter-notebook are not installed, org-capture will throw a JSON readtable error.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ob-ipython
