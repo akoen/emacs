@@ -68,7 +68,6 @@ This is my configuration:
     - [[#evil-org][EVIL-Org]]
     - [[#org-protocol][Org-Protocol]]
     - [[#org-bullets][Org-Bullets]]
-    - [[#org-gcal][Org-Gcal]]
     - [[#org-pomodoro][Org-pomodoro]]
     - [[#ox-tufte][Ox-Tufte]]
     - [[#ox-pandoc][Ox-Pandoc]]
@@ -881,7 +880,7 @@ Set agenda settings
 ;;don't show tasks as scheduled if they are already shown as a deadline
 (setq org-agenda-skip-scheduled-if-deadline-is-shown t)
 ;; Set agenda files
-(setq org-agenda-files '("~/Drive/Tasks" "~/Drive/Tasks/GCal"))
+(setq org-agenda-files '("~/Drive/Tasks"))
 ;;don't give awarning colour to tasks with impending deadlines if they are scheduled to be done
 (setq org-agenda-skip-deadline-prewarning-if-scheduled (quote pre-scheduled))
 #+END_SRC
@@ -1028,21 +1027,6 @@ Make the header bullets look prettier
     '("◉" "◎" "⚫" "○" "►" "◇"))
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 #+END_SRC
-*** Org-Gcal
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package org-gcal
-:config
-(load (locate-user-emacs-file "secrets.org") :noerror :nomessage)
-(setq org-gcal-file-alist '(("arw.koen@gmail.com" . "~/Drive/Tasks/GCal/gcal-events.org")
-("k3omf96kvjusjmqr2kpr3dnf3c@group.calendar.google.com" . "~/Drive/Tasks/GCal/gcal-school.org")
-("5vh0tb7krfn47itei3puqqmrvc@group.calendar.google.com" . "~/Drive/Tasks/GCal/gcal-time-blocking.org")))
-(add-hook 'emacs-startup-hook #'org-gcal-sync)
-
-(defun fetch-calendar ()
-(when (internet-up-p) (org-gcal-fetch))))
-#+END_SRC
-
 *** Org-pomodoro
 
 Support for the Pomodoro technique in org-mode
