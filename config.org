@@ -76,6 +76,7 @@ This is my configuration:
     - [[#org-download][Org Download]]
     - [[#toc-org][Toc-org]]
     - [[#org-noter][Org-noter]]
+    - [[#calfw][Calfw]]
 - [[#latex][LaTeX]]
   - [[#reftex][RefTeX]]
 - [[#development][Development]]
@@ -1099,6 +1100,14 @@ Org-noter is used to annotate pdf files in a native org document.
 (use-package org-noter)
 #+END_SRC
 
+*** Calfw
+
+Displays an intuitive calendar view for the org-mode agenda.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package calfw-org
+:after calfw)
+#+END_SRC
 * LaTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package latex
