@@ -847,7 +847,7 @@ Refile configuration
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 ; Targets include this file and any file contributing to the agenda - up to 9 levels deep
-(setq org-refile-targets (quote ((nil :maxlevel . 9)
+(setq org-refile-targets (quote ((nil :maxlevel . 1)
 (org-agenda-files :maxlevel . 9))))
 
 ; Use full outline paths for refile targets - we file directly with IDO
@@ -1105,6 +1105,12 @@ Org-noter is used to annotate pdf files in a native org document.
 Displays an intuitive calendar view for the org-mode agenda.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+(use-package calfw
+:defer t
+:general (tyrant-def "os" 'cfw:open-org-calendar))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle yes
 (use-package calfw-org
 :after calfw)
 #+END_SRC
@@ -1161,7 +1167,7 @@ Allow RefTeX to plug into AUCTeX
   :custom
   (ccls-executable "ccls")
   (lsp-prefer-flymake nil)
-  (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
+  (flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
   :hook ((c-mode c++-mode objc-mode) .
 	  (lambda () (require 'ccls) (lsp))))
 #+END_SRC
