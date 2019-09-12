@@ -884,6 +884,9 @@ Set agenda settings
 (setq org-agenda-files '("~/Drive/Tasks"))
 ;;don't give awarning colour to tasks with impending deadlines if they are scheduled to be done
 (setq org-agenda-skip-deadline-prewarning-if-scheduled (quote pre-scheduled))
+;; Skip done items in agenda
+(setq org-agenda-skip-scheduled-if-done t)
+(setq org-agenda-skip-deadline-if-done t)
 #+END_SRC
 
 Custom composite agenda view
