@@ -887,6 +887,8 @@ Set agenda settings
 ;; Skip done items in agenda
 (setq org-agenda-skip-scheduled-if-done t)
 (setq org-agenda-skip-deadline-if-done t)
+;; align tags
+(setq org-agenda-tags-column -120)
 #+END_SRC
 
 Custom composite agenda view
