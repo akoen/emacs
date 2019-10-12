@@ -889,7 +889,7 @@ Set agenda settings
 (setq org-agenda-skip-scheduled-if-done t)
 (setq org-agenda-skip-deadline-if-done t)
 ;; align tags
-(setq org-agenda-tags-column -120)
+(setq org-agenda-tags-column -100)
 #+END_SRC
 
 ** Variable Pitch Mode
