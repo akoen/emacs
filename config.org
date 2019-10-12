@@ -68,6 +68,7 @@ This is my configuration:
     - [[#evil-org][EVIL-Org]]
     - [[#org-protocol][Org-Protocol]]
     - [[#org-bullets][Org-Bullets]]
+    - [[#org-super-agenda][org-super-agenda]]
     - [[#org-pomodoro][Org-pomodoro]]
     - [[#ox-tufte][Ox-Tufte]]
     - [[#ox-pandoc][Ox-Pandoc]]
@@ -1019,6 +1020,32 @@ Make the header bullets look prettier
     '("◉" "◎" "⚫" "○" "►" "◇"))
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 #+END_SRC
+*** org-super-agenda
+
+A package which allows for much greater customization of the org agenda.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-super-agenda
+  :after org-agenda
+  :init
+  (setq org-super-agenda-groups '((:name "High Priority"
+					 :time-grid t
+					 :priority "A")
+				  (:name "Personal"
+                                         :time-grid t
+                                         :tag "personal")
+                                  (:name "School"
+                                         :time-grid t
+					 :file-path "school"))
+	org-super-agenda-header-map (make-sparse-keymap))
+
+;; :general (tyrant-def "" 'org-pomodoro))
+(bind-keys ("C-c 0" . my-org-super-agenda))
+
+:config
+(org-super-agenda-mode))
+#+END_SRC
+
 *** Org-pomodoro
 
 Support for the Pomodoro technique in org-mode
