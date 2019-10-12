@@ -1050,8 +1050,7 @@ Support for the Pomodoro technique in org-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-pomodoro
 :defer t
-:init
-(tyrant-def "op" 'org-pomodoro))
+:general (tyrant-def "op" 'org-pomodoro))
 #+END_SRC
 
 *** Ox-Tufte
