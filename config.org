@@ -891,20 +891,6 @@ Set agenda settings
 (setq org-agenda-tags-column -120)
 #+END_SRC
 
-Custom composite agenda view
-#+BEGIN_SRC emacs-lisp :tangle yes
-(setq org-agenda-custom-commands
-'(("c" "Simple agenda view"
-((agenda "")
-(alltodo "")))
-("h" "Daily habits" 
-         ((agenda ""))
-         ((org-agenda-show-log t)
-          (org-agenda-days 7)
-          (org-agenda-log-mode-items '(state))
-          (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp ":DAILY:")))))
-)
-#+END_SRC
 ** Variable Pitch Mode
 
 We use a font that's easier on the eyes for long blocks of text
