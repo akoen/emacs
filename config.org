@@ -1037,10 +1037,7 @@ A package which allows for much greater customization of the org agenda.
                                   (:name "School"
                                          :time-grid t
 					 :file-path "school"))
-	org-super-agenda-header-map (make-sparse-keymap))
-
-;; :general (tyrant-def "" 'org-pomodoro))
-(bind-keys ("C-c 0" . my-org-super-agenda))
+	org-super-agenda-header-map (make-sparse-keymap)) ;; removes custom keybindings which are in opposition to evil-org
 
 :config
 (org-super-agenda-mode))
