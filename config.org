@@ -1031,16 +1031,20 @@ A package which allows for much greater customization of the org agenda.
   (setq org-super-agenda-groups '((:name "High Priority"
 					 :time-grid t
 					 :priority "A")
+				  (:name "Habits"
+					 :time-grid t
+					 :tag "habit")
 				  (:name "Personal"
-                                         :time-grid t
-                                         :tag "personal")
-                                  (:name "School"
-                                         :time-grid t
+					 :time-grid t
+					 :and (:tag "personal"
+						    :not (:tag "habit")))
+				  (:name "School"
+					 :time-grid t
 					 :file-path "school"))
 	org-super-agenda-header-map (make-sparse-keymap)) ;; removes custom keybindings which are in opposition to evil-org
 
-:config
-(org-super-agenda-mode))
+  :config
+  (org-super-agenda-mode))
 #+END_SRC
 
 *** Org-pomodoro
