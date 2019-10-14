@@ -831,12 +831,15 @@ Automatically archive DONE entries
 
 ** Capture
 
-Set up capture templates
+Set up capture templates. The backquoted list allows me to selectively evaluate parts of the list with a , (in this case the concat statement).
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq org-capture-templates
-      '(("t" "Todo" entry (file "~/Drive/Tasks/refile.org")
+      `(("t" "Todo" entry (file "~/Drive/Tasks/refile.org")
 	 "* TODO %?\n%U" :empty-lines 1)
+	("j" "Journal" entry
+	 (file+datetree+prompt ,(concat "~/Drive/Areas/Journaling/" (format-time-string "%Y") "/" (format-time-string "%Y") ".org"))
+	 "* %?")
 	("p" "Protocol" entry (file "~/Drive/Tasks/refile.org")
 	 "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
 	("L" "Protocol Link" entry (file "~/Drive/Tasks/refile.org")
