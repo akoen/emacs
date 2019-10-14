@@ -64,20 +64,20 @@ This is my configuration:
   - [[#autosort][Autosort]]
   - [[#babel][Babel]]
   - [[#packages][Packages]]
-    - [[#org-modules][Org-modules]]
+    - [[#org-modules][org-modules]]
+    - [[#org-checklist][org-checklist]]
     - [[#evil-org][EVIL-Org]]
-    - [[#org-protocol][Org-Protocol]]
-    - [[#org-bullets][Org-Bullets]]
+    - [[#org-protocol][org-Protocol]]
+    - [[#org-bullets][org-Bullets]]
     - [[#org-super-agenda][org-super-agenda]]
-    - [[#org-pomodoro][Org-pomodoro]]
-    - [[#ox-tufte][Ox-Tufte]]
-    - [[#ox-pandoc][Ox-Pandoc]]
-    - [[#habitica][Habitica]]
-    - [[#babel-1][Babel]]
-    - [[#org-download][Org Download]]
-    - [[#toc-org][Toc-org]]
-    - [[#org-noter][Org-noter]]
-    - [[#calfw][Calfw]]
+    - [[#org-pomodoro][org-pomodoro]]
+    - [[#ox-tufte][ox-Tufte]]
+    - [[#ox-pandoc][ox-Pandoc]]
+    - [[#babel-1][babel]]
+    - [[#org-download][org download]]
+    - [[#toc-org][toc-org]]
+    - [[#org-noter][org-noter]]
+    - [[#calfw][calfw]]
 - [[#latex][LaTeX]]
   - [[#reftex][RefTeX]]
 - [[#development][Development]]
@@ -789,9 +789,10 @@ Atomic chrome is a package used in conjunction with the =GhostText= firefox exte
     :config
     ; log time when task is marked DONE
     (setq org-log-done 'time)
-    
     ; allow changing to any todo state from a menu
     (setq org-use-fast-todo-selection t)
+    ; block setting task to DONE if there are incomplete subtasks
+    (setq org-enforce-todo-dependencies t)
     
     :custom-face 
     (variable-pitch ((t (:family "Input Sans" :height 1.0))))
@@ -978,13 +979,20 @@ Enable support for various babel languages
 #+END_SRC
 
 ** Packages
-*** Org-modules
+*** org-modules
 #+BEGIN_SRC emacs-lisp :tangle yes
 (require 'org-install)
 (setq org-modules '(org-habit))
 (org-load-modules-maybe t)
 #+END_SRC
 
+*** org-checklist
+
+Provides additional options for org checklists such as resetting when parent is marked DONE.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(require 'org-checklist)
+#+END_SRC
 *** EVIL-Org
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package evil-org
@@ -998,7 +1006,7 @@ Enable support for various babel languages
   (evil-org-agenda-set-keys))
 #+END_SRC
 
-*** Org-Protocol
+*** org-Protocol
 
 Allows for external applications to trigger custom actions without external dependencies
 
@@ -1013,7 +1021,7 @@ Allows for external applications to trigger custom actions without external depe
 
 #+END_SRC
 
-*** Org-Bullets
+*** org-Bullets
 Make the header bullets look prettier
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-bullets
@@ -1050,7 +1058,7 @@ A package which allows for much greater customization of the org agenda.
   (org-super-agenda-mode))
 #+END_SRC
 
-*** Org-pomodoro
+*** org-pomodoro
 
 Support for the Pomodoro technique in org-mode
 
@@ -1060,11 +1068,11 @@ Support for the Pomodoro technique in org-mode
 :general (tyrant-def "op" 'org-pomodoro))
 #+END_SRC
 
-*** Ox-Tufte
+*** ox-Tufte
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ox-tufte)
 #+END_SRC
-*** Ox-Pandoc
+*** ox-Pandoc
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ox-pandoc
 :config
@@ -1075,11 +1083,7 @@ Support for the Pomodoro technique in org-mode
     (?4 "to html5 and open." org-pandoc-export-to-html5-and-open)
     (?$ "as html5." org-pandoc-export-as-html5))))
 #+END_SRC
-*** Habitica
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package habitica)
-#+END_SRC
-*** Babel
+*** babel
 **** Gnuplot
 
 An emacs major mode for interacting with gnuplot
@@ -1096,7 +1100,7 @@ Babel support for Ipython. For some strange reason, if ipython, pip, and jupyter
 (use-package ob-ipython
 :defer t)
 #+END_SRC
-*** Org Download
+*** org download
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-download
 :defer t
@@ -1104,7 +1108,7 @@ Babel support for Ipython. For some strange reason, if ipython, pip, and jupyter
 (add-hook 'org-mode-hook 'org-download-enable)
 (add-hook 'dired-mode-hook 'org-download-enable))
 #+END_SRC
-*** Toc-org
+*** toc-org
 
 The =toc-org= package generates an up-to-date table of contents for us.
 
@@ -1113,7 +1117,7 @@ The =toc-org= package generates an up-to-date table of contents for us.
   :after org
   :init (add-hook 'org-mode-hook #'toc-org-enable))
 #+END_SRC
-*** Org-noter
+*** org-noter
 
 Org-noter is used to annotate pdf files in a native org document.
 
@@ -1121,7 +1125,7 @@ Org-noter is used to annotate pdf files in a native org document.
 (use-package org-noter)
 #+END_SRC
 
-*** Calfw
+*** calfw
 
 Displays an intuitive calendar view for the org-mode agenda.
 
