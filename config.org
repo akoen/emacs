@@ -821,7 +821,7 @@ Atomic chrome is a package used in conjunction with the =GhostText= firefox exte
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq org-todo-keywords
-      (quote ((sequence "TODO(t)" "SOMEDAY(s)" "|" "DONE(d)" "FAILED(f)"))))
+      (quote ((sequence "TODO(t)" "SOMEDAY(s)" "MAYBE(m)" "|" "DONE(d)" "FAILED(f)"))))
 #+END_SRC
 
 Automatically archive DONE entries
