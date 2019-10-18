@@ -51,6 +51,7 @@ This is my configuration:
   - [[#projectile][Projectile]]
   - [[#lsp-mode][LSP-mode]]
   - [[#dired-x][Dired-x]]
+  - [[#libvterm][libvterm]]
 - [[#utilities][Utilities]]
   - [[#yasnippet][Yasnippet]]
   - [[#neotree-and-icons][NeoTree and Icons]]
@@ -728,6 +729,13 @@ Adds additional functionalit on top of dired
             ))
 #+END_SRC
 
+** libvterm
+
+An Emacs module which implements a bridge to [[https://github.com/neovim/libvterm][libvterm]] to display a terminal within a buffer.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package vterm)
+#+END_SRC
 * Utilities
 Utilities which add functionality to emacs
 ** Yasnippet
