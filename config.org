@@ -848,7 +848,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq org-capture-templates
       `(("t" "Todo" entry (file "~/Drive/Tasks/refile.org")
-	 "* TODO %?\n%U" :empty-lines 1)
+	 "* TODO %?")
 	("j" "Journal" entry
 	 (file+datetree+prompt ,(concat "~/Drive/Areas/Journaling/" (format-time-string "%Y") "/" (format-time-string "%Y") ".org"))
 	 "* %?")
