@@ -18,7 +18,7 @@
  '(objed-cursor-color "#ff6c6b")
  '(package-selected-packages
    (quote
-    (vterm org-super-agenda calfw-org calfw ccls atomic-chrome pdf-tools org-noter github-modern-theme counsel-projectile yasnippet which-key web-mode use-package toc-org smooth-scrolling projectile ox-tufte ox-pandoc org-pomodoro org-plus-contrib org-gcal org-download org-bullets olivetti ob-ipython neotree lsp-ui load-theme-buffer-local ivy-rich habitica gulp-task-runner gnuplot general focus flycheck-grammalecte flx exec-path-from-shell evil-surround evil-org evil-magit doom-themes doom-modeline deft counsel company-lsp auctex)))
+    (ox-clip htmllize vterm org-super-agenda calfw-org calfw ccls atomic-chrome pdf-tools org-noter github-modern-theme counsel-projectile yasnippet which-key web-mode use-package toc-org smooth-scrolling projectile ox-tufte ox-pandoc org-pomodoro org-plus-contrib org-gcal org-download org-bullets olivetti ob-ipython neotree lsp-ui load-theme-buffer-local ivy-rich habitica gulp-task-runner gnuplot general focus flycheck-grammalecte flx exec-path-from-shell evil-surround evil-org evil-magit doom-themes doom-modeline deft counsel company-lsp auctex)))
  '(recentf-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

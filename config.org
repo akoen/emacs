@@ -4,11 +4,7 @@ I've been experimenting with using Emacs as my primary editor, and I've been lik
 
 This is my configuration:
 
-* TODO Reorganize to separate configuration vs functionality
-
-
 * Table of Contents                                               :TOC_3_gh:
-- [[#reorganize-to-separate-configuration-vs-functionality][Reorganize to separate configuration vs functionality]]
 - [[#initialization][Initialization]]
   - [[#lexical-binding][Lexical binding]]
   - [[#personal-information][Personal Information]]
@@ -78,6 +74,7 @@ This is my configuration:
     - [[#org-pomodoro][org-pomodoro]]
     - [[#ox-tufte][ox-Tufte]]
     - [[#ox-pandoc][ox-Pandoc]]
+    - [[#org-oxclip][org-oxclip]]
     - [[#babel-1][babel]]
     - [[#org-download][org download]]
     - [[#toc-org][toc-org]]
@@ -1096,6 +1093,15 @@ Support for the Pomodoro technique in org-mode
     (?L "to latex-pdf." org-pandoc-export-to-latex-pdf)
     (?4 "to html5 and open." org-pandoc-export-to-html5-and-open)
     (?$ "as html5." org-pandoc-export-as-html5))))
+#+END_SRC
+*** org-oxclip
+Let you copy formatted org-mode content to the clipboard. Requires the package =xclip= to run.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package htmlize
+  :after org)
+(use-package ox-clip
+  :after org)
 #+END_SRC
 *** babel
 **** Gnuplot
