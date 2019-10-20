@@ -190,6 +190,7 @@ Since the code is automatically compiled during runtime, if the configuration ha
 (require 'use-package)
 
 (setq use-package-always-ensure t)
+(use-package use-package-ensure-system-package)
 #+END_SRC
 
 ** Detection
@@ -1118,6 +1119,7 @@ Babel support for Ipython. For some strange reason, if ipython, pip, and jupyter
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ob-ipython
+:ensure-system-package (ipython pip jupyter-notebook)
 :defer t)
 #+END_SRC
 *** org download
