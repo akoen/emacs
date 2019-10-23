@@ -38,7 +38,7 @@ This is my configuration:
   - [[#which-key][Which Key]]
   - [[#evil][EVIL]]
     - [[#esc-quits-everything][ESC quits everything]]
-    - [[#evil-surround][Evil-surround]]
+    - [[#evil-surround][evil-surround]]
   - [[#completion][Completion]]
     - [[#ivy][Ivy]]
     - [[#ivy-rich][Ivy-Rich]]
@@ -48,6 +48,8 @@ This is my configuration:
   - [[#lsp-mode][LSP-mode]]
   - [[#dired-x][Dired-x]]
   - [[#libvterm][libvterm]]
+    - [[#evil-snipe][evil-snipe]]
+  - [[#smartparens][Smartparens]]
 - [[#utilities][Utilities]]
   - [[#yasnippet][Yasnippet]]
   - [[#neotree-and-icons][NeoTree and Icons]]
@@ -476,7 +478,7 @@ This code allows us to quit basically everything using ESC.
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
 #+END_SRC
 
-*** Evil-surround
+*** evil-surround
 
 This package emulates surround.vim by Tim Pope
 
@@ -734,6 +736,30 @@ An Emacs module which implements a bridge to [[https://github.com/neovim/libvter
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package vterm)
 #+END_SRC
+*** evil-snipe
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package evil-snipe
+  :init
+  (setq evil-snipe-smart-case t
+	evil-snipe-scope 'line
+	evil-snipe-repeat-scope 'visible
+	evil-snipe-char-fold t)
+  :config 
+  (evil-snipe-mode +1)
+  (evil-snipe-override-mode +1))
+#+END_SRC
+
+** Smartparens
+
+[[https://github.com/Fuco1/smartparens][Utility]] for managing parenthesis in Emacs
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package smartparens
+  :init
+  (smartparens-global-mode 1))
+#+END_SRC
+
 * Utilities
 Utilities which add functionality to emacs
 ** Yasnippet
