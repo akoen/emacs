@@ -1181,6 +1181,18 @@ Displays an intuitive calendar view for the org-mode agenda.
 (use-package calfw
 :defer t
 :general (tyrant-def "os" 'cfw:open-org-calendar))
+:config
+;; better frame. Taken from doom-emacs
+(setq cfw:face-item-separator-color nil
+        cfw:render-line-breaker 'cfw:render-line-breaker-none
+        cfw:fchar-junction ?╋
+        cfw:fchar-vertical-line ?┃
+        cfw:fchar-horizontal-line ?━
+        cfw:fchar-left-junction ?┣
+        cfw:fchar-right-junction ?┫
+        cfw:fchar-top-junction ?┯
+        cfw:fchar-top-left-corner ?┏
+        cfw:fchar-top-right-corner ?┓)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle yes
