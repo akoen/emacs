@@ -1128,7 +1128,8 @@ Let you copy formatted org-mode content to the clipboard. Requires the package =
 (use-package htmlize
   :after org)
 (use-package ox-clip
-  :after org)
+  :after org
+  :ensure-system-package (xclip))
 #+END_SRC
 *** babel
 **** Gnuplot
