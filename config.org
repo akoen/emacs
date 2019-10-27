@@ -38,7 +38,7 @@ This is my configuration:
   - [[#which-key][Which Key]]
   - [[#evil][EVIL]]
     - [[#esc-quits-everything][ESC quits everything]]
-    - [[#evil-surround][Evil-surround]]
+    - [[#evil-surround][evil-surround]]
   - [[#completion][Completion]]
     - [[#ivy][Ivy]]
     - [[#ivy-rich][Ivy-Rich]]
@@ -48,6 +48,8 @@ This is my configuration:
   - [[#lsp-mode][LSP-mode]]
   - [[#dired-x][Dired-x]]
   - [[#libvterm][libvterm]]
+    - [[#evil-snipe][evil-snipe]]
+  - [[#smartparens][Smartparens]]
 - [[#utilities][Utilities]]
   - [[#yasnippet][Yasnippet]]
   - [[#neotree-and-icons][NeoTree and Icons]]
@@ -476,7 +478,7 @@ This code allows us to quit basically everything using ESC.
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
 #+END_SRC
 
-*** Evil-surround
+*** evil-surround
 
 This package emulates surround.vim by Tim Pope
 
@@ -735,6 +737,30 @@ An Emacs module which implements a bridge to [[https://github.com/neovim/libvter
 (use-package vterm
 :general (tyrant-def "tn" 'vterm))
 #+END_SRC
+*** evil-snipe
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package evil-snipe
+  :init
+  (setq evil-snipe-smart-case t
+	evil-snipe-scope 'line
+	evil-snipe-repeat-scope 'visible
+	evil-snipe-char-fold t)
+  :config 
+  (evil-snipe-mode +1)
+  (evil-snipe-override-mode +1))
+#+END_SRC
+
+** Smartparens
+
+[[https://github.com/Fuco1/smartparens][Utility]] for managing parenthesis in Emacs
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package smartparens
+  :init
+  (smartparens-global-mode 1))
+#+END_SRC
+
 * Utilities
 Utilities which add functionality to emacs
 ** Yasnippet
@@ -1103,7 +1129,8 @@ Let you copy formatted org-mode content to the clipboard. Requires the package =
 (use-package htmlize
   :after org)
 (use-package ox-clip
-  :after org)
+  :after org
+  :ensure-system-package (xclip))
 #+END_SRC
 *** babel
 **** Gnuplot
@@ -1156,6 +1183,18 @@ Displays an intuitive calendar view for the org-mode agenda.
 (use-package calfw
 :defer t
 :general (tyrant-def "os" 'cfw:open-org-calendar))
+:config
+;; better frame. Taken from doom-emacs
+(setq cfw:face-item-separator-color nil
+        cfw:render-line-breaker 'cfw:render-line-breaker-none
+        cfw:fchar-junction ?╋
+        cfw:fchar-vertical-line ?┃
+        cfw:fchar-horizontal-line ?━
+        cfw:fchar-left-junction ?┣
+        cfw:fchar-right-junction ?┫
+        cfw:fchar-top-junction ?┯
+        cfw:fchar-top-left-corner ?┏
+        cfw:fchar-top-right-corner ?┓)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle yes
