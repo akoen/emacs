@@ -49,7 +49,7 @@ This is my configuration:
   - [[#dired-x][Dired-x]]
   - [[#libvterm][libvterm]]
     - [[#evil-snipe][evil-snipe]]
-  - [[#smartparens][Smartparens]]
+  - [[#smartparens][smartparens]]
 - [[#utilities][Utilities]]
   - [[#yasnippet][Yasnippet]]
   - [[#neotree-and-icons][NeoTree and Icons]]
@@ -750,14 +750,22 @@ An Emacs module which implements a bridge to [[https://github.com/neovim/libvter
   (evil-snipe-override-mode +1))
 #+END_SRC
 
-** Smartparens
+** smartparens
 
 [[https://github.com/Fuco1/smartparens][Utility]] for managing parenthesis in Emacs
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package smartparens
   :init
-  (smartparens-global-mode 1))
+  (smartparens-global-mode 1)
+  (sp-with-modes '(org-mode)
+    (sp-local-pair "=" "=")
+    (sp-local-pair "*" "*")
+    (sp-local-pair "/" "/")
+    (sp-local-pair "_" "_")
+    (sp-local-pair "+" "+")
+    (sp-local-pair "<" ">")
+    (sp-local-pair "[" "]")))
 #+END_SRC
 
 * Utilities
@@ -1208,7 +1216,6 @@ Displays an intuitive calendar view for the org-mode agenda.
 (add-hook 'LaTeX-mode-hook
         (lambda ()
         (prettify-symbols-mode)))
-        ;(smartparens-mode)
 (add-hook 'LaTeX-mode-hook 'visual-line-mode)
 (setq TeX-save-query nil)
 (setq TeX-auto-save t)
