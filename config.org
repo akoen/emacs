@@ -732,7 +732,8 @@ Adds additional functionalit on top of dired
 An Emacs module which implements a bridge to [[https://github.com/neovim/libvterm][libvterm]] to display a terminal within a buffer.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package vterm)
+(use-package vterm
+:general (tyrant-def "tn" 'vterm))
 #+END_SRC
 * Utilities
 Utilities which add functionality to emacs
