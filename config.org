@@ -1258,12 +1258,17 @@ Allow RefTeX to plug into AUCTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ccls
   :defer t
+  :ensure-system-package ccls
   :custom
-  (ccls-executable "ccls")
+  (ccls-executable (executable-find "ccls"))
   (lsp-prefer-flymake nil)
   (flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
   :hook ((c-mode c++-mode objc-mode) .
 	  (lambda () (require 'ccls) (lsp))))
+
+(use-package google-c-style
+  :hook ((c-mode c++-mode) . google-set-c-style)
+  (c-mode-common . google-make-newline-indent))
 #+END_SRC
 
 * Writing
