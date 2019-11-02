@@ -49,7 +49,6 @@ This is my configuration:
     - [[#counsel][Counsel]]
     - [[#swiper][Swiper]]
   - [[#projectile][Projectile]]
-  - [[#lsp-mode][LSP-mode]]
   - [[#dired-x][Dired-x]]
   - [[#libvterm][libvterm]]
     - [[#evil-snipe][evil-snipe]]
@@ -91,7 +90,9 @@ This is my configuration:
 - [[#development][Development]]
   - [[#web][Web]]
     - [[#web-mode][Web Mode]]
+  - [[#lsp-mode][LSP-mode]]
   - [[#cc][C/C++]]
+  - [[#cmake][CMake]]
 - [[#writing][Writing]]
   - [[#focus][Focus]]
   - [[#olivetti][Olivetti]]
@@ -683,37 +684,18 @@ Allows for further integration between ivy and projectile.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package projectile
-:defer t
-:init
-(setq projectile-project-root-files '(".project")
-      projectile-project-root-files-functions '(projectile-root-top-down
-						 projectile-root-top-down-recurring
-						 projectile-root-bottom-up
-						 projectile-root-local)
-      projectile-project-search-path '("~/Drive")
-      projectile-cache-file (concat emacs-cache-dir "projectile.cache")
-      projectile-enable-caching t
-      projectile-known-projects-file (concat emacs-cache-dir "projectile.projects")
-      projectile-require-project-root 'prompt
-      projectile-files-cache-expire 604800 ; expire after a week
-      projectile-sort-order 'recentf
-      projectile-use-git-grep t) ; use git-grep for text searches
-:config
-(projectile-mode 1))
+  :defer 1
+  :custom
+  (projectile-cache-file (concat emacs-cache-dir "projectile.cache"))
+  (projectile-enable-caching t)
+  (projectile-known-projects-file (concat emacs-cache-dir "projectile.projects"))
+  (projectile-require-project-root 'prompt)
+  (projectile-files-cache-expire 604800) ; expire after a week
+  (projectile-sort-order 'recentf)
+  (projectile-use-git-grep t) ; use git-grep for text searches
+  :config
+  (projectile-mode 1))
 #+END_SRC
-** LSP-mode
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package lsp-mode
-  :commands lsp
-  :init)
-
-(use-package lsp-ui
-  :commands lsp-ui-mode)
-
-(use-package company-lsp
-  :commands company-lsp)
-#+END_SRC
-
 ** Dired-x
 
 Adds additional functionalit on top of dired
@@ -1257,22 +1239,90 @@ Allow RefTeX to plug into AUCTeX
 (use-package gulp-task-runner
 :defer t)
 #+END_SRC
+** LSP-mode
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package lsp-mode
+  :hook ((c-mode c++-mode dart-mode java-mode python-mode xml-mode) . lsp)
+  :commands lsp
+  :custom
+  (lsp-prefer-flymake nil))
+
+(use-package lsp-ui)
+
+(use-package company-lsp)
+#+END_SRC
+
 ** C/C++
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ccls
   :defer t
+  :after projectile
   :ensure-system-package ccls
   :custom
   (ccls-executable (executable-find "ccls"))
-  (lsp-prefer-flymake nil)
-  (flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
+  (projectile-project-root-files-top-down-recurring
+   (append '("compile_commands.json" ".ccls")
+           projectile-project-root-files-top-down-recurring))
+  :config
+  (add-to-list 'projectile-globally-ignored-directories ".ccls-cache")
   :hook ((c-mode c++-mode objc-mode) .
-	  (lambda () (require 'ccls) (lsp))))
+         (lambda () (require 'ccls) (lsp))))
 
 (use-package google-c-style
   :hook ((c-mode c++-mode) . google-set-c-style)
   (c-mode-common . google-make-newline-indent))
+#+END_SRC
+
+To configure a new C program:
+1. Create a =CMakeLists.txt= file. Eg:
+#+BEGIN_SRC cmake :tangle no
+cmake_minimum_required(VERSION 3.10)
+
+# set the project name
+project(Tutorial)
+
+# add the executable
+add_executable(Tutorial tutorial.cxx)
+#+END_SRC
+
+2. Run the following commands:
+#+BEGIN_SRC shell :tangle no
+cmake -H. -BDebug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
+ln -s Debug/compile_commands.json
+#+END_SRC
+
+
+
+** CMake
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package cmake-mode
+:mode ("CMAKELists\\.txt\\'" "\\.cmake\\'"))
+
+(use-package cmake-font-lock
+  :after (cmake-mode)
+  :hook (cmake-mode . cmake-font-lock-activate))
+
+(use-package cmake-ide
+  :after projectile
+  :hook (c++-mode . my/cmake-ide-find-project)
+  :preface
+  (defun my/cmake-ide-find-project ()
+    "Finds the directory of the project for cmake-ide."
+    (with-eval-after-load 'projectile
+      (setq cmake-ide-project-dir (projectile-project-root))
+      (setq cmake-ide-build-dir (concat cmake-ide-project-dir "build")))
+    (setq cmake-ide-compile-command
+	  (concat "cd " cmake-ide-build-dir " && cmake .. && make"))
+    (cmake-ide-load-db))
+
+  (defun my/switch-to-compilation-window ()
+    "Switches to the *compilation* buffer after compilation."
+    (other-window 1))
+  :bind ([remap comment-region] . cmake-ide-compile)
+  :init (cmake-ide-setup)
+  :config (advice-add 'cmake-ide-compile :after #'my/switch-to-compilation-window))
 #+END_SRC
 
 * Writing

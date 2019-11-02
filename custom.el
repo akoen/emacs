@@ -5,7 +5,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ccls-executable "ccls")
+ '(ccls-executable nil t)
  '(counsel-projectile-mode t nil (counsel-projectile))
  '(custom-safe-themes
    (quote
@@ -18,7 +18,7 @@
  '(objed-cursor-color "#ff6c6b")
  '(package-selected-packages
    (quote
-    (smartparens evil-snipe use-package-ensure-system-package ox-clip htmllize vterm org-super-agenda calfw-org calfw ccls atomic-chrome pdf-tools org-noter github-modern-theme counsel-projectile yasnippet which-key web-mode use-package toc-org smooth-scrolling projectile ox-tufte ox-pandoc org-pomodoro org-plus-contrib org-gcal org-download org-bullets olivetti ob-ipython neotree lsp-ui load-theme-buffer-local ivy-rich habitica gulp-task-runner gnuplot general focus flycheck-grammalecte flx exec-path-from-shell evil-surround evil-org evil-magit doom-themes doom-modeline deft counsel company-lsp auctex)))
+    (cmake-ide cmake-font-lock cmake-mode google-c-style smartparens evil-snipe use-package-ensure-system-package ox-clip htmllize vterm org-super-agenda calfw-org calfw ccls atomic-chrome pdf-tools org-noter github-modern-theme counsel-projectile yasnippet which-key web-mode use-package toc-org smooth-scrolling projectile ox-tufte ox-pandoc org-pomodoro org-plus-contrib org-gcal org-download org-bullets olivetti ob-ipython neotree lsp-ui load-theme-buffer-local ivy-rich habitica gulp-task-runner gnuplot general focus flycheck-grammalecte flx exec-path-from-shell evil-surround evil-org evil-magit doom-themes doom-modeline deft counsel company-lsp auctex)))
  '(recentf-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
