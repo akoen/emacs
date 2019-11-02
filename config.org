@@ -4,7 +4,11 @@ I've been experimenting with using Emacs as my primary editor, and I've been lik
 
 This is my configuration:
 
+* List of current minor bugs
+1. evil-snipe 's' keybinding doesn't activate immediately
+
 * Table of Contents                                               :TOC_3_gh:
+- [[#list-of-current-minor-bugs][List of current minor bugs]]
 - [[#initialization][Initialization]]
   - [[#lexical-binding][Lexical binding]]
   - [[#personal-information][Personal Information]]
