@@ -723,7 +723,8 @@ Allows for further integration between ivy and projectile.
   (projectile-sort-order 'recentf)
   (projectile-use-git-grep t) ; use git-grep for text searches
   :config
-  (add-to-list 'projectile-project-root-files ".project")
+  (setq projectile-project-root-files-bottom-up
+	(append '(".project")))
   (projectile-mode 1))
 #+END_SRC
 ** Dired-x
