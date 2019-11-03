@@ -713,19 +713,18 @@ Allows for further integration between ivy and projectile.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package projectile
-  :defer 1
-  :custom
-  (projectile-cache-file (concat emacs-cache-dir "projectile.cache"))
-  (projectile-enable-caching t)
-  (projectile-known-projects-file (concat emacs-cache-dir "projectile.projects"))
-  (projectile-require-project-root 'prompt)
-  (projectile-files-cache-expire 604800) ; expire after a week
-  (projectile-sort-order 'recentf)
-  (projectile-use-git-grep t) ; use git-grep for text searches
+  :init
+  (setq projectile-cache-file (concat emacs-cache-dir "projectile.cache")
+	projectile-enable-caching t
+	projectile-known-projects-file (concat emacs-cache-dir "projectile.projects")
+	projectile-require-project-root 'prompt
+	projectile-files-cache-expire 604800 ; expire after a week
+	projectile-sort-order 'recentf
+	projectile-use-git-grep t) ; use git-grep for text searches
   :config
+  (projectile-mode +1)
   (setq projectile-project-root-files-bottom-up
-	(append '(".project")))
-  (projectile-mode 1))
+	(append '(".project"))))
 #+END_SRC
 ** Dired-x
 
@@ -775,12 +774,12 @@ An Emacs module which implements a bridge to [[https://github.com/neovim/libvter
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package smartparens
   :defer 1
-  :custom
-  ;; Don't highlight - overly distracting
-  (sp-highlight-pair-overlay nil)
-  (sp-highlight-wrap-overlay nil)
-  (sp-highlight-wrap-tag-overlay nil)
   :init
+  ;; Don't highlight - overly distracting
+  (setq sp-highlight-pair-overlay nil
+        sp-highlight-wrap-overlay nil
+	sp-highlight-wrap-tag-overlay nil)
+  :config
   (smartparens-global-mode 1)
   (sp-with-modes '(org-mode)
     (sp-local-pair "=" "=")
@@ -1271,8 +1270,8 @@ Allow RefTeX to plug into AUCTeX
 (use-package lsp-mode
   :hook ((c-mode c++-mode dart-mode java-mode python-mode xml-mode) . lsp)
   :commands lsp
-  :custom
-  (lsp-prefer-flymake nil))
+  :init
+  (setq lsp-prefer-flymake nil))
 
 (use-package lsp-ui)
 
@@ -1286,13 +1285,13 @@ Allow RefTeX to plug into AUCTeX
   :defer t
   :after projectile
   :ensure-system-package ccls
-  :custom
-  (ccls-executable (executable-find "ccls"))
-  (projectile-project-root-files-top-down-recurring
-   (append '("compile_commands.json" ".ccls")
-           projectile-project-root-files-top-down-recurring))
+  :init
+  (setq ccls-executable (executable-find "ccls"))
   :config
   (add-to-list 'projectile-globally-ignored-directories ".ccls-cache")
+  (setq projectile-project-root-files-top-down-recurring
+        (append '("compile_commands.json" ".ccls")
+                projectile-project-root-files-top-down-recurring))
   :hook ((c-mode c++-mode objc-mode) .
          (lambda () (require 'ccls) (lsp))))
 
