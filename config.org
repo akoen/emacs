@@ -780,15 +780,15 @@ An Emacs module which implements a bridge to [[https://github.com/neovim/libvter
         sp-highlight-wrap-overlay nil
 	sp-highlight-wrap-tag-overlay nil)
   :config
-  (smartparens-global-mode 1)
-  (sp-with-modes '(org-mode)
-    (sp-local-pair "=" "=")
-    (sp-local-pair "*" "*")
-    (sp-local-pair "/" "/")
-    (sp-local-pair "_" "_")
-    (sp-local-pair "+" "+")
-    (sp-local-pair "<" ">")
-    (sp-local-pair "[" "]")))
+  (smartparens-global-mode 1))
+  ;; (sp-with-modes '(org-mode)
+  ;;   (sp-local-pair "=" "=")
+  ;;   (sp-local-pair "*" "*")
+  ;;   (sp-local-pair "/" "/")
+  ;;   (sp-local-pair "_" "_")
+  ;;   (sp-local-pair "+" "+")
+  ;;   (sp-local-pair "<" ">")
+  ;;   (sp-local-pair "[" "]")))
 #+END_SRC
 
 * Utilities
@@ -1488,6 +1488,16 @@ Set up emacs to use proselint, a linter for prose (what a surprise!)
                                   (file "~/Drive/Tasks/Templates/weekly-review.org")))))
     (progn
       (org-capture nil "w")
+      (org-capture-finalize t)
+      (org-speed-move-safe 'outline-up-heading)
+      (org-narrow-to-subtree))))
+
+(defun my/monthly-review ()
+  (interactive)
+  (let ((org-capture-templates '(("m" "Monthly Review" entry (file+datetree "~/Drive/Tasks/reviews.org")
+                                  (file "~/Drive/Tasks/Templates/monthly-review.org")))))
+    (progn
+      (org-capture nil "m")
       (org-capture-finalize t)
       (org-speed-move-safe 'outline-up-heading)
       (org-narrow-to-subtree))))
