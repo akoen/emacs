@@ -34,7 +34,7 @@ This is my configuration:
     - [[#doom-modeline][Doom-modeline]]
   - [[#revert][Revert]]
   - [[#backups][Backups]]
-  - [[#miscellaneous][Miscellaneous]]
+  - [[#better-defaults][Better Defaults]]
 - [[#keybindings][Keybindings]]
   - [[#general][General]]
   - [[#hydra][Hydra]]
@@ -60,6 +60,7 @@ This is my configuration:
   - [[#neotree-and-icons][NeoTree and Icons]]
   - [[#magit][Magit]]
   - [[#pdf-tools][PDF-Tools]]
+  - [[#aggressive-indent][Aggressive-indent]]
 - [[#org-mode][Org-mode]]
   - [[#configuration][Configuration]]
     - [[#auto-save][Auto-save]]
@@ -357,14 +358,16 @@ By default, Emacs saves backups relative to the current directory. This is abhor
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/.local/cache/auto-save/" t))) ;transform backups file name
 #+END_SRC
 
-** Miscellaneous
+** Better Defaults
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(setq vc-follow-symlinks t)	         ; don't ask for confirmation when opening symlinked file
-(setq ring-bell-function 'ignore)    ; silent bell when you make a mistake
-(setq x-select-enable-clipboard t)   ; allow pasting selection outside of emacs
-(setq delete-by-moving-to-trash t)   ; move files to trash when deleting
-(setq sentence-end-double-space nil) ; end sentences with a single space
+(setq-default vc-follow-symlinks t	        ; don't ask for confirmation when opening symlinked file
+	      indent-tabs-mode nil		; prefer spaces
+	      tab-width	4			; set width for tabs
+	      ring-bell-function 'ignore	; silent bell when you make a mistake
+	      x-select-enable-clipboard t	; allow pasting selection outside of emacs
+	      delete-by-moving-to-trash t	; move files to trash when deleting
+	      sentence-end-double-space nil)	; end sentences with a single space
 #+END_SRC
 
 * Keybindings
@@ -841,6 +844,16 @@ A replacement for Emacs' native DocView
 :config
 (pdf-tools-install :no-query))
 #+END_SRC
+** Aggressive-indent
+
+Forces proper indenting after every change.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package aggressive-indent
+:init
+(global-aggressive-indent-mode 1))
+#+END_SRC
+
 * Org-mode
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -941,19 +954,14 @@ Refile configuration
 Set agenda settings
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-;;warn me of any deadlines in next 7 days
-(setq org-deadline-warning-days 7)
-;;don't show tasks as scheduled if they are already shown as a deadline
-(setq org-agenda-skip-scheduled-if-deadline-is-shown t)
-;; Set agenda files
-(setq org-agenda-files '("~/Drive/Tasks"))
-;;don't give awarning colour to tasks with impending deadlines if they are scheduled to be done
-(setq org-agenda-skip-deadline-prewarning-if-scheduled (quote pre-scheduled))
-;; Skip done items in agenda
-(setq org-agenda-skip-scheduled-if-done t)
-(setq org-agenda-skip-deadline-if-done t)
-;; align tags
-(setq org-agenda-tags-column -100)
+(setq org-deadline-warning-days 7                                            ;;warn me of any deadlines in next 7 days
+      org-agenda-skip-scheduled-if-deadline-is-shown t                       ;;don't show tasks as scheduled if they are already shown as a deadline
+      org-agenda-files '("~/Drive/Tasks")                                    ;; Set agenda files
+      org-agenda-skip-deadline-prewarning-if-scheduled (quote pre-scheduled) ;;don't give awarning colour to tasks with impending deadlines if they are scheduled to be done
+      org-agenda-skip-scheduled-if-done t                                    ;; Skip done items in agenda
+      org-agenda-skip-deadline-if-done t
+      org-agenda-tags-column -100                                            ;; align tags
+      org-agenda-skip-unavailable-files t)
 #+END_SRC
 
 ** Variable Pitch Mode
@@ -985,6 +993,7 @@ Other org-mode ricing configuratioin:
     org-hide-emphasis-markers t ; hide the markers for italics and bold
     org-pretty-entities t       ; show entities as UTF8 characters
     org-src-tab-acts-natively t
+    org-src-preserve-indentation t ; use native major-mode indentation
     org-edit-src-content-indentation 0)
 #+END_SRC
 
