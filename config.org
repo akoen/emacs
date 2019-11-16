@@ -94,6 +94,7 @@ This is my configuration:
   - [[#lsp-mode][LSP-mode]]
   - [[#cc][C/C++]]
   - [[#cmake][CMake]]
+  - [[#python][Python]]
 - [[#writing][Writing]]
   - [[#focus][Focus]]
   - [[#olivetti][Olivetti]]
@@ -1349,6 +1350,21 @@ ln -s Debug/compile_commands.json
   :config (advice-add 'cmake-ide-compile :after #'my/switch-to-compilation-window))
 #+END_SRC
 
+** Python
+
+As always, trying to make use of LSP.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package lsp-python-ms
+  :defer 0.3
+  :init
+  (setq lsp-python-ms-dir (concat emacs-local-dir "packages/mspyls/")))
+
+(use-package python
+  :delight "π "
+  :bind (("M-[" . python-nav-backward-block)
+         ("M-]" . python-nav-forward-block)))
+#+END_SRC
 * Writing
 ** Focus
 #+BEGIN_SRC emacs-lisp :tangle yes
