@@ -854,7 +854,7 @@ A replacement for Emacs' native DocView
     (setq org-enforce-todo-dependencies t)
     
     :custom-face 
-    (variable-pitch ((t (:family "Input Sans" :height 1.0))))
+    (variable-pitch ((t (:family "Input Sans Narrow" :height 1.0))))
     (org-document-title ((t (:weight bold :height 1.5))))
     (org-done ((t (:strike-through t :weight bold))))
     (org-headline-done ((t (:strike-through t))))
@@ -1284,7 +1284,6 @@ Allow RefTeX to plug into AUCTeX
 (use-package ccls
   :defer t
   :after projectile
-  :ensure-system-package ccls
   :init
   (setq ccls-executable (executable-find "ccls"))
   :config
