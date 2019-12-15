@@ -34,7 +34,7 @@ This is my configuration:
     - [[#doom-modeline][Doom-modeline]]
   - [[#revert][Revert]]
   - [[#backups][Backups]]
-  - [[#miscellaneous][Miscellaneous]]
+  - [[#better-defaults][Better Defaults]]
 - [[#keybindings][Keybindings]]
   - [[#general][General]]
   - [[#hydra][Hydra]]
@@ -60,6 +60,7 @@ This is my configuration:
   - [[#neotree-and-icons][NeoTree and Icons]]
   - [[#magit][Magit]]
   - [[#pdf-tools][PDF-Tools]]
+  - [[#aggressive-indent][Aggressive-indent]]
 - [[#org-mode][Org-mode]]
   - [[#configuration][Configuration]]
     - [[#auto-save][Auto-save]]
@@ -94,6 +95,7 @@ This is my configuration:
   - [[#lsp-mode][LSP-mode]]
   - [[#cc][C/C++]]
   - [[#cmake][CMake]]
+  - [[#python][Python]]
 - [[#writing][Writing]]
   - [[#focus][Focus]]
   - [[#olivetti][Olivetti]]
@@ -356,14 +358,16 @@ By default, Emacs saves backups relative to the current directory. This is abhor
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/.local/cache/auto-save/" t))) ;transform backups file name
 #+END_SRC
 
-** Miscellaneous
+** Better Defaults
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(setq vc-follow-symlinks t)	         ; don't ask for confirmation when opening symlinked file
-(setq ring-bell-function 'ignore)    ; silent bell when you make a mistake
-(setq x-select-enable-clipboard t)   ; allow pasting selection outside of emacs
-(setq delete-by-moving-to-trash t)   ; move files to trash when deleting
-(setq sentence-end-double-space nil) ; end sentences with a single space
+(setq-default vc-follow-symlinks t	        ; don't ask for confirmation when opening symlinked file
+	      indent-tabs-mode nil		; prefer spaces
+	      tab-width	4			; set width for tabs
+	      ring-bell-function 'ignore	; silent bell when you make a mistake
+	      x-select-enable-clipboard t	; allow pasting selection outside of emacs
+	      delete-by-moving-to-trash t	; move files to trash when deleting
+	      sentence-end-double-space nil)	; end sentences with a single space
 #+END_SRC
 
 * Keybindings
@@ -780,15 +784,15 @@ An Emacs module which implements a bridge to [[https://github.com/neovim/libvter
         sp-highlight-wrap-overlay nil
 	sp-highlight-wrap-tag-overlay nil)
   :config
-  (smartparens-global-mode 1)
-  (sp-with-modes '(org-mode)
-    (sp-local-pair "=" "=")
-    (sp-local-pair "*" "*")
-    (sp-local-pair "/" "/")
-    (sp-local-pair "_" "_")
-    (sp-local-pair "+" "+")
-    (sp-local-pair "<" ">")
-    (sp-local-pair "[" "]")))
+  (smartparens-global-mode 1))
+  ;; (sp-with-modes '(org-mode)
+  ;;   (sp-local-pair "=" "=")
+  ;;   (sp-local-pair "*" "*")
+  ;;   (sp-local-pair "/" "/")
+  ;;   (sp-local-pair "_" "_")
+  ;;   (sp-local-pair "+" "+")
+  ;;   (sp-local-pair "<" ">")
+  ;;   (sp-local-pair "[" "]")))
 #+END_SRC
 
 * Utilities
@@ -840,6 +844,16 @@ A replacement for Emacs' native DocView
 :config
 (pdf-tools-install :no-query))
 #+END_SRC
+** Aggressive-indent
+
+Forces proper indenting after every change.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package aggressive-indent
+:init
+(global-aggressive-indent-mode 1))
+#+END_SRC
+
 * Org-mode
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -940,19 +954,14 @@ Refile configuration
 Set agenda settings
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-;;warn me of any deadlines in next 7 days
-(setq org-deadline-warning-days 7)
-;;don't show tasks as scheduled if they are already shown as a deadline
-(setq org-agenda-skip-scheduled-if-deadline-is-shown t)
-;; Set agenda files
-(setq org-agenda-files '("~/Drive/Tasks"))
-;;don't give awarning colour to tasks with impending deadlines if they are scheduled to be done
-(setq org-agenda-skip-deadline-prewarning-if-scheduled (quote pre-scheduled))
-;; Skip done items in agenda
-(setq org-agenda-skip-scheduled-if-done t)
-(setq org-agenda-skip-deadline-if-done t)
-;; align tags
-(setq org-agenda-tags-column -100)
+(setq org-deadline-warning-days 7                                            ;;warn me of any deadlines in next 7 days
+      org-agenda-skip-scheduled-if-deadline-is-shown t                       ;;don't show tasks as scheduled if they are already shown as a deadline
+      org-agenda-files '("~/Drive/Tasks")                                    ;; Set agenda files
+      org-agenda-skip-deadline-prewarning-if-scheduled (quote pre-scheduled) ;;don't give awarning colour to tasks with impending deadlines if they are scheduled to be done
+      org-agenda-skip-scheduled-if-done t                                    ;; Skip done items in agenda
+      org-agenda-skip-deadline-if-done t
+      org-agenda-tags-column -100                                            ;; align tags
+      org-agenda-skip-unavailable-files t)
 #+END_SRC
 
 ** Variable Pitch Mode
@@ -984,6 +993,7 @@ Other org-mode ricing configuratioin:
     org-hide-emphasis-markers t ; hide the markers for italics and bold
     org-pretty-entities t       ; show entities as UTF8 characters
     org-src-tab-acts-natively t
+    org-src-preserve-indentation t ; use native major-mode indentation
     org-edit-src-content-indentation 0)
 #+END_SRC
 
@@ -1348,6 +1358,21 @@ ln -s Debug/compile_commands.json
   :config (advice-add 'cmake-ide-compile :after #'my/switch-to-compilation-window))
 #+END_SRC
 
+** Python
+
+As always, trying to make use of LSP.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package lsp-python-ms
+  :defer 0.3
+  :init
+  (setq lsp-python-ms-dir (concat emacs-local-dir "packages/mspyls/")))
+
+(use-package python
+  :delight "π "
+  :bind (("M-[" . python-nav-backward-block)
+         ("M-]" . python-nav-forward-block)))
+#+END_SRC
 * Writing
 ** Focus
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1394,6 +1419,8 @@ Writing environment
     (variable-pitch-mode 1) ;; All fonts with variable pitch.
     (text-scale-increase 0.5)
     (display-line-numbers-mode -1)
+    (setq english-mode 1)
+    (call-interactively #'english-mode)
     (setq-local writemode 2))
    ((= writemode 2)
     ;;(focus-mode -1)
@@ -1401,6 +1428,8 @@ Writing environment
     (variable-pitch-mode 0) ;; All fonts with variable pitch.
     (text-scale-decrease 0)
     (display-line-numbers-mode t)
+    (setq english-mode 2)
+    (call-interactively #'english-mode)
     (setq-local display-line-numbers 'relative)
     (setq-local writemode 1))))
 #+END_SRC
@@ -1429,22 +1458,22 @@ Writing environment
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defvar englishmode 1 "Set default English mode state.")
 (defun english-mode ()
-"Toggle English spellchecking"
-(interactive)
-(cond
-    ((= englishmode 1)
-        (message "Enabled English Mode")
-        (flycheck-mode 1)
-        (setq flycheck-checker 'proselint)
-        (flyspell-mode 1)
-        ;(setq ispell-current-dictionary "en_CA")
-        (ispell-change-dictionary "english")
-        (setq englishmode 2))
-    ((= englishmode 2)
-        (message "Disabled English mode")
-        (flycheck-mode -1)
-        (flyspell-mode -1)
-        (setq englishmode 1))))
+  "Toggle English spellchecking"
+  (interactive)
+  (cond
+   ((= englishmode 1)
+    (message "Enabled English Mode")
+    (flycheck-mode 1)
+    (setq flycheck-checker 'proselint)
+    (flyspell-mode 1)
+					;(setq ispell-current-dictionary "en_CA")
+    (ispell-change-dictionary "english")
+    (setq englishmode 2))
+   ((= englishmode 2)
+    (message "Disabled English mode")
+    (flycheck-mode -1)
+    (flyspell-mode -1)
+    (setq englishmode 1))))
 #+END_SRC
 ** Ispell
 
@@ -1487,6 +1516,16 @@ Set up emacs to use proselint, a linter for prose (what a surprise!)
                                   (file "~/Drive/Tasks/Templates/weekly-review.org")))))
     (progn
       (org-capture nil "w")
+      (org-capture-finalize t)
+      (org-speed-move-safe 'outline-up-heading)
+      (org-narrow-to-subtree))))
+
+(defun my/monthly-review ()
+  (interactive)
+  (let ((org-capture-templates '(("m" "Monthly Review" entry (file+datetree "~/Drive/Tasks/reviews.org")
+                                  (file "~/Drive/Tasks/Templates/monthly-review.org")))))
+    (progn
+      (org-capture nil "m")
       (org-capture-finalize t)
       (org-speed-move-safe 'outline-up-heading)
       (org-narrow-to-subtree))))
