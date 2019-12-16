@@ -487,17 +487,20 @@ Allows for traditional vim bindings inside of emacs
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; load evil
 (use-package evil
+  :bind
+  (("C-f" . forward-word)
+   ("C-b" . backward-word))
   :init ;; tweak evil's configuration before loading it
-    (setq evil-search-module 'evil-search)
-    (setq evil-want-C-u-scroll t)
+  (setq evil-search-module 'evil-search)
+  (setq evil-want-C-u-scroll t)
   :config ;; tweak evil after loading it
-    ;; Make movement keys work like they should
-    (define-key evil-normal-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
-    (define-key evil-normal-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
-    (define-key evil-motion-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
-    (define-key evil-motion-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
-    ; Make horizontal movement cross lines                                    
-    (setq-default evil-cross-lines t)
+  ;; Make movement keys work like they should
+  (define-key evil-normal-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
+  (define-key evil-normal-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
+  (define-key evil-motion-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
+  (define-key evil-motion-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
+                                        ; Make horizontal movement cross lines                                    
+  (setq-default evil-cross-lines t)
   (evil-mode 1))
 #+END_SRC
 
