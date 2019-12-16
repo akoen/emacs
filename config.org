@@ -386,37 +386,46 @@ By default, Emacs saves backups relative to the current directory. This is abhor
     :non-normal-prefix "C-SPC")
 
 (tyrant-def
-    ;; Buffer
-    "w" 'save-buffer
-    "z" 'previous-buffer
-    "x" 'next-buffer
-    "b" 'switch-to-buffer
+  ;; Misc
+  "u" 'universal-argument
 
-    ;; Files
-    "." 'find-file
-    "fl" 'load-file
-    "ff" 'dired-jump
-    "fr" 'counsel-recentf
+  ;; Buffer
+  "w" 'save-buffer
+  "z" 'previous-buffer
+  "x" 'next-buffer
+  "b" 'switch-to-buffer
 
-    ;; Language
-    "lf" 'french-mode
-    "le" 'english-mode
-    "lg" 'writing-mode
+  ;; Files
+  "." 'find-file
+  "fl" 'load-file
+  "ff" 'dired-jump
+  "fr" 'counsel-recentf
 
-    ;; Org mode
-    "oa" 'org-agenda
-    "oc" 'org-capture
+  ;; Language
+  "lf" 'french-mode
+  "le" 'english-mode
+  "lg" 'writing-mode
 
-    ;; Shell
-    "s" 'shell
+  ;; Org mode
+  "oa" 'org-agenda
+  "oc" 'org-capture
 
-    ;; Projects
-    "SPC" 'projectile-find-file
-    "pb" 'projectile-switch-to-buffer
-    "pf" 'projectile-recentf  
-    "ps" 'counsel-projectile-switch-project
+  ;; Search
+  "sb" 'swiper
+  "sp" 'counsel-projectile-rg
 
-    )) 
+  ;; Projects
+  "SPC" 'projectile-find-file
+  "pb" 'projectile-switch-to-buffer
+  "pf" 'projectile-recentf  
+  "ps" 'counsel-projectile-switch-project
+
+  ;; Code
+  "cc" 'compile
+  "cr" 'lsp-rename
+  "cl" 'lsp-find-definition
+
+  )) 
 #+END_SRC
 
 ** Hydra
