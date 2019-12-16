@@ -1293,8 +1293,13 @@ Allow RefTeX to plug into AUCTeX
   (setq lsp-prefer-flymake nil))
 
 (use-package lsp-ui)
-
 (use-package company-lsp)
+
+(use-package dap-mode
+  :after lsp-mode
+  :config
+  (dap-mode t)
+  (dap-ui-mode t))
 #+END_SRC
 
 ** C/C++
