@@ -1,14 +1,12 @@
 #+TITLE: Alex Koen's Emacs configuration
 
-I've been experimenting with using Emacs as my primary editor, and I've been liking it more and more due to it's flexibility and extensibility. In order to become more comfortable with this editor, I need to learn elisp properly and maybe switch to emacs keybindings (I do love vim though...)
+I've now been using Emacs as my primary editor for over a year. It's phenomenal—if somewhat cubersome at times—and I have learned a great deal about myself throughout this journey. I have made every possible effort to write this code as properly as possible and with the appropriate documentation. However, there are bound to be errors and inconsistencies. If you are looking for inspiration, here are my favourite sources:
 
-This is my configuration:
+[[https://github.com/hlissner/doom-emacs]]
 
-* List of current minor bugs
-1. evil-snipe 's' keybinding doesn't activate immediately
+Alright, here we go:
 
-* Table of Contents                                               :TOC_3_gh:
-- [[#list-of-current-minor-bugs][List of current minor bugs]]
+* Table of Contents                                                :TOC_3_gh:
 - [[#initialization][Initialization]]
   - [[#lexical-binding][Lexical binding]]
   - [[#personal-information][Personal Information]]
