@@ -100,11 +100,8 @@ Alright, here we go:
 - [[#functions][Functions]]
   - [[#compile-org-to-pdf][Compile org to pdf]]
   - [[#writing-function][Writing Function]]
-  - [[#french-mode][French mode]]
   - [[#english-mode][English Mode]]
   - [[#ispell][Ispell]]
-  - [[#flycheck-grammalecte][Flycheck-grammalecte]]
-  - [[#flycheck-proselint][Flycheck-proselint]]
 - [[#organization][Organization]]
   - [[#reviews][Reviews]]
 - [[#post-initialization][Post Initialization]]
@@ -400,9 +397,9 @@ By default, Emacs saves backups relative to the current directory. This is abhor
   "fr" 'counsel-recentf
 
   ;; Language
-  "lf" 'french-mode
   "le" 'english-mode
   "lg" 'writing-mode
+  "lb" 'ispell-buffer
 
   ;; Org mode
   "oa" 'org-agenda
@@ -1448,27 +1445,6 @@ Writing environment
     (setq-local display-line-numbers 'relative)
     (setq-local writemode 1))))
 #+END_SRC
-** French mode
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (defvar frenchmode 1 "Set default French mode state.")
-  (defun french-mode ()
-    "Toggle french spellchecking"
-    (interactive)
-    (cond
-     ((= frenchmode 1)
-      (message "Enabled French Mode")
-      (flycheck-mode 1)
-      (setq flycheck-checker 'francais-grammalecte)
-      (flyspell-mode 1)
-      ; (setq ispell-local-dictionary "francais")
-      (ispell-change-dictionary "francais")
-      (setq frenchmode 2))
-     ((= frenchmode 2)
-      (message "Disabled French mode")
-      (flycheck-mode -1)
-      (flyspell-mode -1)
-      (setq frenchmode 1))))
-#+END_SRC
 ** English Mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defvar englishmode 1 "Set default English mode state.")
@@ -1498,29 +1474,6 @@ Writing environment
 :config
   (setq ispell-program-name "aspell")
 )
-#+END_SRC
-** Flycheck-grammalecte
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package flycheck-grammalecte
-:config
-(setq flycheck-grammalecte-report-spellcheck t)
-(setq flycheck-grammalecte-report-apos nil)
-(setq flycheck-grammalecte-report-nbsp nil)
-(setq flycheck-grammalecte-report-esp nil))
-#+END_SRC
-** Flycheck-proselint
-Set up emacs to use proselint, a linter for prose (what a surprise!)
-#+BEGIN_SRC emacs-lisp :tangle yes
-(flycheck-define-checker proselint
-  "A linter for prose."
-  :command ("proselint" source-inplace)
-  :error-patterns
-  ((warning line-start (file-name) ":" line ":" column ": "
-	    (id (one-or-more (not (any " "))))
-	    (message) line-end))
-  :modes (text-mode markdown-mode gfm-mode org-mode))
-
-(add-to-list 'flycheck-checkers 'proselint)
 #+END_SRC
 * Organization
 ** Reviews
