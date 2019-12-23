@@ -1433,6 +1433,7 @@ Writing environment
     (display-line-numbers-mode -1)
     (setq english-mode 1)
     (call-interactively #'english-mode)
+    (set-input-method 'TeX)
     (setq-local writemode 2))
    ((= writemode 2)
     ;;(focus-mode -1)
@@ -1442,6 +1443,7 @@ Writing environment
     (display-line-numbers-mode t)
     (setq english-mode 2)
     (call-interactively #'english-mode)
+    (set-input-method 'default)
     (setq-local display-line-numbers 'relative)
     (setq-local writemode 1))))
 #+END_SRC
