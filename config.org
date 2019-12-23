@@ -485,12 +485,12 @@ Allows for traditional vim bindings inside of emacs
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; load evil
 (use-package evil
-  :bind
-  (("C-f" . forward-word)
-   ("C-b" . backward-word))
   :init ;; tweak evil's configuration before loading it
   (setq evil-search-module 'evil-search)
   (setq evil-want-C-u-scroll t)
+  :bind
+  ;; (("C-f" . forward-word)
+   ;; ("C-b" . backward-word))
   :config ;; tweak evil after loading it
   ;; Make movement keys work like they should
   (define-key evil-normal-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
@@ -1019,7 +1019,7 @@ Make bullets circular
 
 ** Autosort
 #+BEGIN_SRC emacs-lisp :tangle yes
-(defun yant/org-entry-has-subentries ()
+(defun my/org-entry-has-subentries ()
   "Any entry with subheadings"
   (let ((subtree-end (save-excursion (org-end-of-subtree t))))
     (save-excursion
@@ -1028,22 +1028,22 @@ Make bullets circular
       (when (< (point) subtree-end)
 	(re-search-forward "^\*+ " subtree-end t)))))
 
-(defun yant/org-entry-sort-by-property nil
+(defun my/org-entry-sort-by-property nil
   (let ((property (org-entry-get (point) "SORT" 'INHERIT)))
     (when (and (not (seq-empty-p property))
-	       (yant/org-entry-has-subentries))
+	       (my/org-entry-has-subentries))
       (funcall #'org-sort-entries nil (string-to-char property) nil nil nil)))
   (let ((property_second (org-entry-get (point) "SORT_AFTER" 'INHERIT)))
     (when (and (not (seq-empty-p property_second))
-	       (yant/org-entry-has-subentries))
+	       (my/org-entry-has-subentries))
       (funcall #'org-sort-entries nil (string-to-char property_second) nil nil nil))))
 
-(defun yant/org-buffer-sort-by-property (&optional MATCH)
+(defun my/org-buffer-sort-by-property (&optional MATCH)
   (interactive)
-  (org-map-entries #'yant/org-entry-sort-by-property MATCH 'file)
+  (org-map-entries #'my/org-entry-sort-by-property MATCH 'file)
   (org-set-startup-visibility))
 
-(add-hook 'org-mode-hook #'yant/org-buffer-sort-by-property)
+(add-hook 'org-mode-hook #'my/org-buffer-sort-by-property)
 #+END_SRC
 ** Babel
 
