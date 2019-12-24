@@ -12,7 +12,7 @@ Alright, here we go:
   - [[#personal-information][Personal Information]]
   - [[#optimizations][Optimizations]]
     - [[#garbage-collector][Garbage collector]]
-  - [[#set-variables][Set Variables]]
+  - [[#set-directories][Set Directories]]
   - [[#package-management][Package Management]]
     - [[#package-settings][Package Settings]]
     - [[#manually-set-load-path][Manually Set Load Path]]
@@ -131,19 +131,22 @@ The garbage collector eats up a lot of time during startup, so turn up its memor
       gc-cons-percentage 0.6)
 #+END_SRC
 
-** Set Variables
+** Set Directories
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(defvar emacs-dir (file-truename user-emacs-directory)
+(defconst emacs-dir (file-truename user-emacs-directory)
   "The currently loaded .emacs.d directory.")
 
-(defvar emacs-local-dir (concat emacs-dir ".local/")
+(defconst emacs-local-dir (concat emacs-dir ".local/")
   "Root directory for local storage. Do not share across systems.")
 
-(defvar emacs-cache-dir (concat emacs-local-dir "cache/")
+(defconst emacs-cache-dir (concat emacs-local-dir "cache/")
   "Directory for volatile local storage.")
 
-(defvar emacs-packages-dir (concat emacs-local-dir "packages/")
+(defconst emacs-etc-dir (concat emacs-local-dir "etc/")
+  "Directory for non-volatile local storage")
+
+(defconst emacs-packages-dir (concat emacs-local-dir "packages/")
   "Where pacakges are stored.")
 #+END_SRC
 
@@ -343,18 +346,18 @@ By default, Emacs saves backups relative to the current directory. This is abhor
 
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(setq make-backup-files t) ; make backups file even when in version controlled dir
-(setq backup-directory-alist (list (cons "." (concat emacs-cache-dir "backups/")))
-      backup-by-copying t      ; Don't delink hardlinks
-      version-control t        ; Use version numbers on backups
-      delete-old-versions t    ; Automatically delete excess backups
-      kept-new-versions 20     ; how many of the newest versions to keep
-      kept-old-versions 5)     ; and how many of the old
-(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/.local/cache/auto-save/" t))) ;transform backups file name
+(setq make-backup-files t ; make backups file even when in version controlled dir
+      backup-directory-alist (list (cons "." (concat emacs-cache-dir "backups/")))
+      backup-by-copying t  ; Don't delink hardlinks
+      version-control t  ; Use version numbers on backups
+      delete-old-versions t  ; Automatically delete excess backups
+      kept-new-versions 20  ; how many of the newest versions to keep
+      kept-old-versions 5  ; and how many of the old
+      auto-save-file-name-transforms '((".*" "~/.emacs.d/.local/cache/auto-save/" t)) ;transform backups file name
+      auto-save-list-file-name (concat emacs-cache-dir "autosave"))
 #+END_SRC
 
 ** Better Defaults
-
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq-default vc-follow-symlinks t	        ; don't ask for confirmation when opening symlinked file
 	      indent-tabs-mode nil		; prefer spaces
@@ -412,7 +415,6 @@ By default, Emacs saves backups relative to the current directory. This is abhor
   ;; Projects
   "SPC" 'projectile-find-file
   "pb" 'projectile-switch-to-buffer
-  "pf" 'projectile-recentf  
   "ps" 'counsel-projectile-switch-project
 
   ;; Code
@@ -682,7 +684,9 @@ Counsel contains ivy enhancements for commonly-used functions.
 :diminish (ivy-mode . "")
 :bind
 (("C-x b" . ivy-switch-buffer)
-    ("C-x C-f" . counsel-find-file))
+ ("C-x C-f" . counsel-find-file))
+:init
+(setq recentf-save-file (concat emacs-cache-dir "recentf"))
 :config
 (define-key ivy-minibuffer-map [escape] 'minibuffer-keyboard-quit)
 
@@ -832,7 +836,9 @@ An inteface to version control system Git
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package magit
 :defer t
-:general (tyrant-def "gs" 'magit-status))
+:general (tyrant-def "gs" 'magit-status)
+:init
+(setq transient-history-file (concat emacs-etc-dir "transient/history")))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1288,13 +1294,16 @@ Allow RefTeX to plug into AUCTeX
   :hook ((c-mode c++-mode dart-mode java-mode python-mode xml-mode) . lsp)
   :commands lsp
   :init
-  (setq lsp-prefer-flymake nil))
+  (setq lsp-prefer-flymake nil
+        lsp-session-file (concat emacs-etc-dir "lsp-session")))
 
 (use-package lsp-ui)
 (use-package company-lsp)
 
 (use-package dap-mode
   :after lsp-mode
+  :init
+  (setq dap--breakpoints-file (concat emacs-etc-dir "dap-breakpoints"))
   :config
   (dap-mode t)
   (dap-ui-mode t))
@@ -1378,7 +1387,7 @@ As always, trying to make use of LSP.
 (use-package lsp-python-ms
   :defer 0.3
   :init
-  (setq lsp-python-ms-dir (concat emacs-local-dir "packages/mspyls/")))
+  (setq lsp-python-ms-dir (concat emacs-etc-dir "mspyls/")))
 
 (use-package python
   :delight "π "
@@ -1443,7 +1452,6 @@ Writing environment
     (display-line-numbers-mode t)
     (setq english-mode 2)
     (call-interactively #'english-mode)
-    (set-input-method 'default)
     (setq-local display-line-numbers 'relative)
     (setq-local writemode 1))))
 #+END_SRC
