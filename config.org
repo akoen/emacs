@@ -150,6 +150,19 @@ The garbage collector eats up a lot of time during startup, so turn up its memor
   "Where pacakges are stored.")
 #+END_SRC
 
+Non emacs-specific directories:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defconst drive-dir "~/Drive/"
+  "The root Drive directory, where all documents are stored.")
+
+(defconst archive-dir (concat drive-dir "Archive/")
+  "Archive directory")
+
+(defconst tasks-dir (concat drive-dir "Tasks/")
+  "Tasks directory")
+#+END_SRC
+
 ** Package Management
 
 *** Package Settings
@@ -343,7 +356,6 @@ Automatically reload buffers on file change
 By default, Emacs saves backups relative to the current directory. This is abhorrent. We change this.
 
 # TODO fix auto-save
-
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq make-backup-files t ; make backups file even when in version controlled dir
@@ -871,25 +883,27 @@ Forces proper indenting after every change.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org
-    :ensure org-plus-contrib
-    :config
-    ; log time when task is marked DONE
-    (setq org-log-done 'time)
-    ; allow changing to any todo state from a menu
-    (setq org-use-fast-todo-selection t)
-    ; block setting task to DONE if there are incomplete subtasks
-    (setq org-enforce-todo-dependencies t)
-    
-    :custom-face 
-    (variable-pitch ((t (:family "Input Sans Narrow" :height 1.0))))
-    (org-document-title ((t (:weight bold :height 1.5))))
-    (org-done ((t (:strike-through t :weight bold))))
-    (org-headline-done ((t (:strike-through t))))
-    (org-level-1 ((t (:height 1.1))))
-    (org-level-2 ((t (:height 1.1))))
-    (org-level-3 ((t (:height 1.1))))
-    (org-link ((t (:underline t))))
-    (org-image-actual-width (/ (display-pixel-width) 2)))
+  :ensure org-plus-contrib
+  :init
+  (setq org-directory tasks-dir
+        org-archive-location (concat archive-dir "Tasks/archive_" (format-time-string "%Y") ".org::datetree/"))
+  
+  (setq org-log-done 'time) ; log time when task is marked DONE
+  (setq org-use-fast-todo-selection t) ; allow changing to any todo state from a menu
+  (setq org-enforce-todo-dependencies t) ; block setting task to DONE if there are incomplete subtasks
+
+
+  
+  :custom-face 
+  (variable-pitch ((t (:family "Input Sans Narrow" :height 1.0))))
+  (org-document-title ((t (:weight bold :height 1.5))))
+  (org-done ((t (:strike-through t :weight bold))))
+  (org-headline-done ((t (:strike-through t))))
+  (org-level-1 ((t (:height 1.1))))
+  (org-level-2 ((t (:height 1.1))))
+  (org-level-3 ((t (:height 1.1))))
+  (org-link ((t (:underline t))))
+  (org-image-actual-width (/ (display-pixel-width) 2)))
 #+END_SRC
 
 ** Configuration
