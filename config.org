@@ -94,6 +94,7 @@ Alright, here we go:
   - [[#cc][C/C++]]
   - [[#cmake][CMake]]
   - [[#python][Python]]
+  - [[#lua][Lua]]
 - [[#writing][Writing]]
   - [[#focus][Focus]]
   - [[#olivetti][Olivetti]]
@@ -808,14 +809,6 @@ An Emacs module which implements a bridge to [[https://github.com/neovim/libvter
 	sp-highlight-wrap-tag-overlay nil)
   :config
   (smartparens-global-mode 1))
-  ;; (sp-with-modes '(org-mode)
-  ;;   (sp-local-pair "=" "=")
-  ;;   (sp-local-pair "*" "*")
-  ;;   (sp-local-pair "/" "/")
-  ;;   (sp-local-pair "_" "_")
-  ;;   (sp-local-pair "+" "+")
-  ;;   (sp-local-pair "<" ">")
-  ;;   (sp-local-pair "[" "]")))
 #+END_SRC
 
 * Utilities
@@ -1408,6 +1401,15 @@ As always, trying to make use of LSP.
   :bind (("M-[" . python-nav-backward-block)
          ("M-]" . python-nav-forward-block)))
 #+END_SRC
+** Lua
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package lua-mode
+  :delight "Λ "
+  :mode "\\.lua\\'"
+  :interpreter ("lua" . lua-mode))
+#+END_SRC
+
 * Writing
 ** Focus
 #+BEGIN_SRC emacs-lisp :tangle yes
