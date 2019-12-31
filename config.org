@@ -82,6 +82,7 @@ Alright, here we go:
     - [[#org-oxclip][org-oxclip]]
     - [[#babel-1][babel]]
     - [[#org-download][org download]]
+    - [[#org-web-tools][org-web-tools]]
     - [[#toc-org][toc-org]]
     - [[#org-noter][org-noter]]
     - [[#calfw][calfw]]
@@ -1207,6 +1208,10 @@ Babel support for Ipython. For some strange reason, if ipython, pip, and jupyter
 :init
 (add-hook 'org-mode-hook 'org-download-enable)
 (add-hook 'dired-mode-hook 'org-download-enable))
+#+END_SRC
+*** org-web-tools
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-web-tools)
 #+END_SRC
 *** toc-org
 
