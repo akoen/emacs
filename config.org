@@ -938,7 +938,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 	("p" "Protocol" entry (file "~/Drive/Tasks/refile.org")
 	 "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
 	("L" "Protocol Link" entry (file "~/Drive/Tasks/refile.org")
-	 "* %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n")))
+	 "%(org-web-tools--url-as-readable-org \"%:link\")" :immediate-finish t)))
 
 #+END_SRC
 
