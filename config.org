@@ -1,20 +1,18 @@
 #+TITLE: Alex Koen's Emacs configuration
 
-I've been experimenting with using Emacs as my primary editor, and I've been liking it more and more due to it's flexibility and extensibility. In order to become more comfortable with this editor, I need to learn elisp properly and maybe switch to emacs keybindings (I do love vim though...)
+I've now been using Emacs as my primary editor for over a year. It's phenomenal—if somewhat cubersome at times—and I have learned a great deal about myself throughout this journey. I have made every possible effort to write this code as properly as possible and with the appropriate documentation. However, there are bound to be errors and inconsistencies. If you are looking for inspiration, here are my favourite sources:
 
-This is my configuration:
+[[https://github.com/hlissner/doom-emacs]]
 
-* List of current minor bugs
-1. evil-snipe 's' keybinding doesn't activate immediately
+Alright, here we go:
 
-* Table of Contents                                               :TOC_3_gh:
-- [[#list-of-current-minor-bugs][List of current minor bugs]]
+* Table of Contents                                                :TOC_3_gh:
 - [[#initialization][Initialization]]
   - [[#lexical-binding][Lexical binding]]
   - [[#personal-information][Personal Information]]
   - [[#optimizations][Optimizations]]
     - [[#garbage-collector][Garbage collector]]
-  - [[#set-variables][Set Variables]]
+  - [[#set-directories][Set Directories]]
   - [[#package-management][Package Management]]
     - [[#package-settings][Package Settings]]
     - [[#manually-set-load-path][Manually Set Load Path]]
@@ -84,6 +82,7 @@ This is my configuration:
     - [[#org-oxclip][org-oxclip]]
     - [[#babel-1][babel]]
     - [[#org-download][org download]]
+    - [[#org-web-tools][org-web-tools]]
     - [[#toc-org][toc-org]]
     - [[#org-noter][org-noter]]
     - [[#calfw][calfw]]
@@ -96,17 +95,15 @@ This is my configuration:
   - [[#cc][C/C++]]
   - [[#cmake][CMake]]
   - [[#python][Python]]
+  - [[#lua][Lua]]
 - [[#writing][Writing]]
   - [[#focus][Focus]]
   - [[#olivetti][Olivetti]]
 - [[#functions][Functions]]
   - [[#compile-org-to-pdf][Compile org to pdf]]
   - [[#writing-function][Writing Function]]
-  - [[#french-mode][French mode]]
   - [[#english-mode][English Mode]]
   - [[#ispell][Ispell]]
-  - [[#flycheck-grammalecte][Flycheck-grammalecte]]
-  - [[#flycheck-proselint][Flycheck-proselint]]
 - [[#organization][Organization]]
   - [[#reviews][Reviews]]
 - [[#post-initialization][Post Initialization]]
@@ -136,20 +133,36 @@ The garbage collector eats up a lot of time during startup, so turn up its memor
       gc-cons-percentage 0.6)
 #+END_SRC
 
-** Set Variables
+** Set Directories
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(defvar emacs-dir (file-truename user-emacs-directory)
+(defconst emacs-dir (file-truename user-emacs-directory)
   "The currently loaded .emacs.d directory.")
 
-(defvar emacs-local-dir (concat emacs-dir ".local/")
+(defconst emacs-local-dir (concat emacs-dir ".local/")
   "Root directory for local storage. Do not share across systems.")
 
-(defvar emacs-cache-dir (concat emacs-local-dir "cache/")
+(defconst emacs-cache-dir (concat emacs-local-dir "cache/")
   "Directory for volatile local storage.")
 
-(defvar emacs-packages-dir (concat emacs-local-dir "packages/")
+(defconst emacs-etc-dir (concat emacs-local-dir "etc/")
+  "Directory for non-volatile local storage")
+
+(defconst emacs-packages-dir (concat emacs-local-dir "packages/")
   "Where pacakges are stored.")
+#+END_SRC
+
+Non emacs-specific directories:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defconst drive-dir "~/Drive/"
+  "The root Drive directory, where all documents are stored.")
+
+(defconst archive-dir (concat drive-dir "Archive/")
+  "Archive directory")
+
+(defconst tasks-dir (concat drive-dir "Tasks/")
+  "Tasks directory")
 #+END_SRC
 
 ** Package Management
@@ -346,20 +359,19 @@ By default, Emacs saves backups relative to the current directory. This is abhor
 
 # TODO fix auto-save
 
-
 #+BEGIN_SRC emacs-lisp :tangle yes
-(setq make-backup-files t) ; make backups file even when in version controlled dir
-(setq backup-directory-alist (list (cons "." (concat emacs-cache-dir "backups/")))
-      backup-by-copying t      ; Don't delink hardlinks
-      version-control t        ; Use version numbers on backups
-      delete-old-versions t    ; Automatically delete excess backups
-      kept-new-versions 20     ; how many of the newest versions to keep
-      kept-old-versions 5)     ; and how many of the old
-(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/.local/cache/auto-save/" t))) ;transform backups file name
+(setq make-backup-files t ; make backups file even when in version controlled dir
+      backup-directory-alist (list (cons "." (concat emacs-cache-dir "backups/")))
+      backup-by-copying t  ; Don't delink hardlinks
+      version-control t  ; Use version numbers on backups
+      delete-old-versions t  ; Automatically delete excess backups
+      kept-new-versions 20  ; how many of the newest versions to keep
+      kept-old-versions 5  ; and how many of the old
+      auto-save-file-name-transforms '((".*" "~/.emacs.d/.local/cache/auto-save/" t)) ;transform backups file name
+      auto-save-list-file-name (concat emacs-cache-dir "autosave"))
 #+END_SRC
 
 ** Better Defaults
-
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq-default vc-follow-symlinks t	        ; don't ask for confirmation when opening symlinked file
 	      indent-tabs-mode nil		; prefer spaces
@@ -386,37 +398,45 @@ By default, Emacs saves backups relative to the current directory. This is abhor
     :non-normal-prefix "C-SPC")
 
 (tyrant-def
-    ;; Buffer
-    "w" 'save-buffer
-    "z" 'previous-buffer
-    "x" 'next-buffer
-    "b" 'switch-to-buffer
+  ;; Misc
+  "u" 'universal-argument
 
-    ;; Files
-    "." 'find-file
-    "fl" 'load-file
-    "ff" 'dired-jump
-    "fr" 'counsel-recentf
+  ;; Buffer
+  "w" 'save-buffer
+  "z" 'previous-buffer
+  "x" 'next-buffer
+  "b" 'switch-to-buffer
 
-    ;; Language
-    "lf" 'french-mode
-    "le" 'english-mode
-    "lg" 'writing-mode
+  ;; Files
+  "." 'find-file
+  "fl" 'load-file
+  "ff" 'dired-jump
+  "fr" 'counsel-recentf
 
-    ;; Org mode
-    "oa" 'org-agenda
-    "oc" 'org-capture
+  ;; Language
+  "le" 'english-mode
+  "lg" 'writing-mode
+  "lb" 'ispell-buffer
 
-    ;; Shell
-    "s" 'shell
+  ;; Org mode
+  "oa" 'org-agenda
+  "oc" 'org-capture
 
-    ;; Projects
-    "SPC" 'projectile-find-file
-    "pb" 'projectile-switch-to-buffer
-    "pf" 'projectile-recentf  
-    "ps" 'counsel-projectile-switch-project
+  ;; Search
+  "sb" 'swiper
+  "sp" 'counsel-projectile-rg
 
-    )) 
+  ;; Projects
+  "SPC" 'projectile-find-file
+  "pb" 'projectile-switch-to-buffer
+  "ps" 'counsel-projectile-switch-project
+
+  ;; Code
+  "cc" 'compile
+  "cr" 'lsp-rename
+  "cl" 'lsp-find-definition
+
+  )) 
 #+END_SRC
 
 ** Hydra
@@ -479,16 +499,19 @@ Allows for traditional vim bindings inside of emacs
 ;; load evil
 (use-package evil
   :init ;; tweak evil's configuration before loading it
-    (setq evil-search-module 'evil-search)
-    (setq evil-want-C-u-scroll t)
+  (setq evil-search-module 'evil-search)
+  (setq evil-want-C-u-scroll t)
+  :bind
+  ;; (("C-f" . forward-word)
+   ;; ("C-b" . backward-word))
   :config ;; tweak evil after loading it
-    ;; Make movement keys work like they should
-    (define-key evil-normal-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
-    (define-key evil-normal-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
-    (define-key evil-motion-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
-    (define-key evil-motion-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
-    ; Make horizontal movement cross lines                                    
-    (setq-default evil-cross-lines t)
+  ;; Make movement keys work like they should
+  (define-key evil-normal-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
+  (define-key evil-normal-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
+  (define-key evil-motion-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
+  (define-key evil-motion-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
+                                        ; Make horizontal movement cross lines                                    
+  (setq-default evil-cross-lines t)
   (evil-mode 1))
 #+END_SRC
 
@@ -675,7 +698,9 @@ Counsel contains ivy enhancements for commonly-used functions.
 :diminish (ivy-mode . "")
 :bind
 (("C-x b" . ivy-switch-buffer)
-    ("C-x C-f" . counsel-find-file))
+ ("C-x C-f" . counsel-find-file))
+:init
+(setq recentf-save-file (concat emacs-cache-dir "recentf"))
 :config
 (define-key ivy-minibuffer-map [escape] 'minibuffer-keyboard-quit)
 
@@ -785,14 +810,6 @@ An Emacs module which implements a bridge to [[https://github.com/neovim/libvter
 	sp-highlight-wrap-tag-overlay nil)
   :config
   (smartparens-global-mode 1))
-  ;; (sp-with-modes '(org-mode)
-  ;;   (sp-local-pair "=" "=")
-  ;;   (sp-local-pair "*" "*")
-  ;;   (sp-local-pair "/" "/")
-  ;;   (sp-local-pair "_" "_")
-  ;;   (sp-local-pair "+" "+")
-  ;;   (sp-local-pair "<" ">")
-  ;;   (sp-local-pair "[" "]")))
 #+END_SRC
 
 * Utilities
@@ -825,7 +842,9 @@ An inteface to version control system Git
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package magit
 :defer t
-:general (tyrant-def "gs" 'magit-status))
+:general (tyrant-def "gs" 'magit-status)
+:init
+(setq transient-history-file (concat emacs-etc-dir "transient/history")))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -859,25 +878,27 @@ Forces proper indenting after every change.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org
-    :ensure org-plus-contrib
-    :config
-    ; log time when task is marked DONE
-    (setq org-log-done 'time)
-    ; allow changing to any todo state from a menu
-    (setq org-use-fast-todo-selection t)
-    ; block setting task to DONE if there are incomplete subtasks
-    (setq org-enforce-todo-dependencies t)
-    
-    :custom-face 
-    (variable-pitch ((t (:family "Input Sans" :height 1.0))))
-    (org-document-title ((t (:weight bold :height 1.5))))
-    (org-done ((t (:strike-through t :weight bold))))
-    (org-headline-done ((t (:strike-through t))))
-    (org-level-1 ((t (:height 1.1))))
-    (org-level-2 ((t (:height 1.1))))
-    (org-level-3 ((t (:height 1.1))))
-    (org-link ((t (:underline t))))
-    (org-image-actual-width (/ (display-pixel-width) 2)))
+  :ensure org-plus-contrib
+  :init
+  (setq org-directory tasks-dir
+        org-archive-location (concat archive-dir "Tasks/archive_" (format-time-string "%Y") ".org::datetree/"))
+  
+  (setq org-log-done 'time) ; log time when task is marked DONE
+  (setq org-use-fast-todo-selection t) ; allow changing to any todo state from a menu
+  (setq org-enforce-todo-dependencies t) ; block setting task to DONE if there are incomplete subtasks
+
+
+  
+  :custom-face 
+  (variable-pitch ((t (:family "Input Sans Narrow" :height 1.0))))
+  (org-document-title ((t (:weight bold :height 1.5))))
+  (org-done ((t (:strike-through t :weight bold))))
+  (org-headline-done ((t (:strike-through t))))
+  (org-level-1 ((t (:height 1.1))))
+  (org-level-2 ((t (:height 1.1))))
+  (org-level-3 ((t (:height 1.1))))
+  (org-link ((t (:underline t))))
+  (org-image-actual-width (/ (display-pixel-width) 2)))
 #+END_SRC
 
 ** Configuration
@@ -918,7 +939,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 	("p" "Protocol" entry (file "~/Drive/Tasks/refile.org")
 	 "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
 	("L" "Protocol Link" entry (file "~/Drive/Tasks/refile.org")
-	 "* %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n")))
+	 "%(org-web-tools--url-as-readable-org \"%:link\")" :immediate-finish t)))
 
 #+END_SRC
 
@@ -1010,7 +1031,7 @@ Make bullets circular
 
 ** Autosort
 #+BEGIN_SRC emacs-lisp :tangle yes
-(defun yant/org-entry-has-subentries ()
+(defun my/org-entry-has-subentries ()
   "Any entry with subheadings"
   (let ((subtree-end (save-excursion (org-end-of-subtree t))))
     (save-excursion
@@ -1019,22 +1040,22 @@ Make bullets circular
       (when (< (point) subtree-end)
 	(re-search-forward "^\*+ " subtree-end t)))))
 
-(defun yant/org-entry-sort-by-property nil
+(defun my/org-entry-sort-by-property nil
   (let ((property (org-entry-get (point) "SORT" 'INHERIT)))
     (when (and (not (seq-empty-p property))
-	       (yant/org-entry-has-subentries))
+	       (my/org-entry-has-subentries))
       (funcall #'org-sort-entries nil (string-to-char property) nil nil nil)))
   (let ((property_second (org-entry-get (point) "SORT_AFTER" 'INHERIT)))
     (when (and (not (seq-empty-p property_second))
-	       (yant/org-entry-has-subentries))
+	       (my/org-entry-has-subentries))
       (funcall #'org-sort-entries nil (string-to-char property_second) nil nil nil))))
 
-(defun yant/org-buffer-sort-by-property (&optional MATCH)
+(defun my/org-buffer-sort-by-property (&optional MATCH)
   (interactive)
-  (org-map-entries #'yant/org-entry-sort-by-property MATCH 'file)
+  (org-map-entries #'my/org-entry-sort-by-property MATCH 'file)
   (org-set-startup-visibility))
 
-(add-hook 'org-mode-hook #'yant/org-buffer-sort-by-property)
+(add-hook 'org-mode-hook #'my/org-buffer-sort-by-property)
 #+END_SRC
 ** Babel
 
@@ -1189,6 +1210,10 @@ Babel support for Ipython. For some strange reason, if ipython, pip, and jupyter
 (add-hook 'org-mode-hook 'org-download-enable)
 (add-hook 'dired-mode-hook 'org-download-enable))
 #+END_SRC
+*** org-web-tools
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-web-tools)
+#+END_SRC
 *** toc-org
 
 The =toc-org= package generates an up-to-date table of contents for us.
@@ -1282,11 +1307,19 @@ Allow RefTeX to plug into AUCTeX
   :hook ((c-mode c++-mode dart-mode java-mode python-mode xml-mode) . lsp)
   :commands lsp
   :init
-  (setq lsp-prefer-flymake nil))
+  (setq lsp-prefer-flymake nil
+        lsp-session-file (concat emacs-etc-dir "lsp-session")))
 
 (use-package lsp-ui)
-
 (use-package company-lsp)
+
+(use-package dap-mode
+  :after lsp-mode
+  :init
+  (setq dap--breakpoints-file (concat emacs-etc-dir "dap-breakpoints"))
+  :config
+  (dap-mode t)
+  (dap-ui-mode t))
 #+END_SRC
 
 ** C/C++
@@ -1295,7 +1328,6 @@ Allow RefTeX to plug into AUCTeX
 (use-package ccls
   :defer t
   :after projectile
-  :ensure-system-package ccls
   :init
   (setq ccls-executable (executable-find "ccls"))
   :config
@@ -1368,13 +1400,22 @@ As always, trying to make use of LSP.
 (use-package lsp-python-ms
   :defer 0.3
   :init
-  (setq lsp-python-ms-dir (concat emacs-local-dir "packages/mspyls/")))
+  (setq lsp-python-ms-dir (concat emacs-etc-dir "mspyls/")))
 
 (use-package python
   :delight "π "
   :bind (("M-[" . python-nav-backward-block)
          ("M-]" . python-nav-forward-block)))
 #+END_SRC
+** Lua
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package lua-mode
+  :delight "Λ "
+  :mode "\\.lua\\'"
+  :interpreter ("lua" . lua-mode))
+#+END_SRC
+
 * Writing
 ** Focus
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1423,6 +1464,7 @@ Writing environment
     (display-line-numbers-mode -1)
     (setq english-mode 1)
     (call-interactively #'english-mode)
+    (set-input-method 'TeX)
     (setq-local writemode 2))
    ((= writemode 2)
     ;;(focus-mode -1)
@@ -1434,27 +1476,6 @@ Writing environment
     (call-interactively #'english-mode)
     (setq-local display-line-numbers 'relative)
     (setq-local writemode 1))))
-#+END_SRC
-** French mode
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (defvar frenchmode 1 "Set default French mode state.")
-  (defun french-mode ()
-    "Toggle french spellchecking"
-    (interactive)
-    (cond
-     ((= frenchmode 1)
-      (message "Enabled French Mode")
-      (flycheck-mode 1)
-      (setq flycheck-checker 'francais-grammalecte)
-      (flyspell-mode 1)
-      ; (setq ispell-local-dictionary "francais")
-      (ispell-change-dictionary "francais")
-      (setq frenchmode 2))
-     ((= frenchmode 2)
-      (message "Disabled French mode")
-      (flycheck-mode -1)
-      (flyspell-mode -1)
-      (setq frenchmode 1))))
 #+END_SRC
 ** English Mode
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1485,29 +1506,6 @@ Writing environment
 :config
   (setq ispell-program-name "aspell")
 )
-#+END_SRC
-** Flycheck-grammalecte
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package flycheck-grammalecte
-:config
-(setq flycheck-grammalecte-report-spellcheck t)
-(setq flycheck-grammalecte-report-apos nil)
-(setq flycheck-grammalecte-report-nbsp nil)
-(setq flycheck-grammalecte-report-esp nil))
-#+END_SRC
-** Flycheck-proselint
-Set up emacs to use proselint, a linter for prose (what a surprise!)
-#+BEGIN_SRC emacs-lisp :tangle yes
-(flycheck-define-checker proselint
-  "A linter for prose."
-  :command ("proselint" source-inplace)
-  :error-patterns
-  ((warning line-start (file-name) ":" line ":" column ": "
-	    (id (one-or-more (not (any " "))))
-	    (message) line-end))
-  :modes (text-mode markdown-mode gfm-mode org-mode))
-
-(add-to-list 'flycheck-checkers 'proselint)
 #+END_SRC
 * Organization
 ** Reviews
