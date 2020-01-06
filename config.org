@@ -844,6 +844,7 @@ A replacement for Emacs' native DocView
 :config
 (pdf-tools-install :no-query))
 #+END_SRC
+
 ** Aggressive-indent
 
 Forces proper indenting after every change.
@@ -1248,7 +1249,7 @@ Displays an intuitive calendar view for the org-mode agenda.
 (setq TeX-source-correlate-method 'synctex)
 ;; inhibit the question to start a server process
 (setq TeX-source-correlate-start-server t)
-(setq TeX-view-program-selection '((output-pdf "Zathura"))))
+(setq TeX-view-program-selection '((output-pdf "Okular"))))
 (set-default 'preview-scale-function 2.0)
 #+END_SRC
 
