@@ -881,14 +881,11 @@ Forces proper indenting after every change.
   :ensure org-plus-contrib
   :init
   (setq org-directory tasks-dir
-        org-archive-location (concat archive-dir "Tasks/archive_" (format-time-string "%Y") ".org::datetree/"))
-  
-  (setq org-log-done 'time) ; log time when task is marked DONE
-  (setq org-use-fast-todo-selection t) ; allow changing to any todo state from a menu
-  (setq org-enforce-todo-dependencies t) ; block setting task to DONE if there are incomplete subtasks
-
-
-  
+        org-archive-location (concat archive-dir "Tasks/archive_" (format-time-string "%Y") ".org::datetree/")
+        org-use-fast-todo-selection t ; allow changing to any todo state from a menu
+        org-enforce-todo-dependencies t ; block setting task to DONE if there are incomplete subtasks
+        org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id ; use unique ID's for links
+        org-clone-delete-id t)
   :custom-face 
   (variable-pitch ((t (:family "Input Sans Narrow" :height 1.0))))
   (org-document-title ((t (:weight bold :height 1.5))))
