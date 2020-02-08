@@ -691,11 +691,18 @@ Utilities which add functionality to emacs
 
 A package with which you can insert code or text snippets based on templates.
 
+We define a function to autocomplete snippets. See [[https://github.com/joaotavora/yasnippet/issues/998]]
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package yasnippet
-:config
-(yas-global-mode 1)
-(setq yas-triggers-in-field t))
+  :init
+  (defun my/yas-try-expanding-auto-snippets ()
+    (when (and (boundp 'yas-minor-mode) yas-minor-mode)
+      (let ((yas-buffer-local-condition ''(require-snippet-condition . auto)))
+        (yas-expand))))
+  (add-hook 'post-command-hook #'my/yas-try-expanding-auto-snippets)
+  :config
+  (yas-global-mode 1)
+  (setq yas-triggers-in-field t))
 #+END_SRC
 
 ** NeoTree and Icons
