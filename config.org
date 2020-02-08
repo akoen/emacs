@@ -403,8 +403,7 @@ By default, Emacs saves backups relative to the current directory. This is abhor
   "u" 'universal-argument
 
   ;; Buffer
-  "z" 'previous-buffer
-  "x" 'next-buffer
+  "`" 'evil-switch-to-windows-last-buffer
   "b" 'switch-to-buffer
 
   ;; Files
@@ -1423,17 +1422,6 @@ Writing environment
 #+END_SRC
 
 * Functions
-** Compile org to pdf
-#+BEGIN_SRC emacs-lisp :tangle yes
-(defun org-compile-pdf ()
-  (interactive)
-  (if (memq 'org-latex-export-to-pdf after-save-hook)
-      (progn
-        (remove-hook 'after-save-hook 'org-latex-export-to-pdf t)
-        (message "Disabled org pdf export on save for current buffer..."))
-    (add-hook 'after-save-hook 'org-latex-export-to-pdf nil t)
-    (message "Enabled org pdf export on save for current buffer...")))
-#+END_SRC
 ** Writing Function
 
 #+BEGIN_SRC emacs-lisp :tangle yes
