@@ -853,14 +853,14 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq org-capture-templates
       `(("t" "Todo" entry (file "~/Drive/Tasks/refile.org")
-	 "* TODO %?")
-	("j" "Journal" entry
-	 (file+datetree+prompt ,(concat "~/Drive/Areas/Journaling/" (format-time-string "%Y") "/" (format-time-string "%Y") ".org"))
-	 "* %?")
-	("p" "Protocol" entry (file "~/Drive/Tasks/refile.org")
-	 "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
-	("L" "Protocol Link" entry (file "~/Drive/Tasks/refile.org")
-	 "%(org-web-tools--url-as-readable-org \"%:link\")" :immediate-finish t)))
+         "* TODO %?")
+        ("j" "Journal" entry
+         (file+datetree+prompt ,(concat "~/Drive/Areas/Journaling/" (format-time-string "%Y") "/" (format-time-string "%Y") ".org"))
+         "* %?")
+        ("p" "Protocol" entry (file "~/Drive/Tasks/refile.org")
+         "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
+        ("L" "Protocol Link" entry (file "~/Drive/Tasks/refile.org")
+         "%(org-web-tools--url-as-readable-org \"%:link\")" :immediate-finish t)))
 
 #+END_SRC
 
@@ -964,6 +964,21 @@ TODO Temprarily removed
 #+END_SRC
 
 ** Packages
+*** org-roam
+
+[[https://github.com/jethrokuan/org-roam]]
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-roam
+  :after org
+  :hook (org-mode . org-roam-mode)
+  :straight (:host github :repo "jethrokuan/org-roam")
+  :init
+  (setq org-roam-directory (concat tasks-dir "brain/"))
+  :general (tyrant-def
+             "ol" 'org-roam
+             "oi" 'org-roam-insert
+             "of" 'org-roam-find-file))
+#+END_SRC
 *** org-modules
 #+BEGIN_SRC emacs-lisp :tangle yes
 (require 'org-install)
