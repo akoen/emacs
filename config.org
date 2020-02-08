@@ -298,16 +298,15 @@ By default, Emacs saves backups relative to the current directory. This is abhor
   "u" 'universal-argument
 
   ;; Buffer
-  "w" 'save-buffer
   "z" 'previous-buffer
-  "x" 'next-buffer
-  "b" 'switch-to-buffer
+  "`" 'evil-switch-to-windows-last-buffer
 
   ;; Files
   "." 'find-file
   "fl" 'load-file
   "ff" 'dired-jump
   "fr" 'counsel-recentf
+  "fs" 'save-buffer
 
   ;; Language
   "le" 'english-mode
