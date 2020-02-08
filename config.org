@@ -820,7 +820,7 @@ Forces proper indenting after every change.
 *** Emphasis
 
 (enabled) Replace underline with highlight
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle yes
 (setq org-emphasis-alist
       (quote (("*" bold)
               ("/" italic)
