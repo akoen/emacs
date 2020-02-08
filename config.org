@@ -48,6 +48,7 @@ Alright, here we go:
     - [[#ivy-rich][Ivy-Rich]]
     - [[#counsel][Counsel]]
     - [[#swiper][Swiper]]
+  - [[#flycheck][Flycheck]]
   - [[#projectile][Projectile]]
   - [[#dired-x][Dired-x]]
   - [[#libvterm][libvterm]]
@@ -206,10 +207,10 @@ Since the code is automatically compiled during runtime, if the configuration ha
 (unless (assoc-default "org" package-archives)
   (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t))
 
-(package-initialize)
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
-  (package-install 'use-package))
+(package-install 'use-package))
+(package-initialize)
 (require 'use-package)
 
 (setq use-package-always-ensure t)
@@ -267,7 +268,7 @@ Colours inspired by the new GitHub theme colours.
 **** Font
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(set-default-font "Fira Code 12")
+(set-frame-font "Fira Code 12")
 (set-face-attribute 'default nil :height 100)
 #+END_SRC
 
@@ -402,7 +403,6 @@ By default, Emacs saves backups relative to the current directory. This is abhor
   "u" 'universal-argument
 
   ;; Buffer
-  "w" 'save-buffer
   "z" 'previous-buffer
   "x" 'next-buffer
   "b" 'switch-to-buffer
@@ -412,6 +412,7 @@ By default, Emacs saves backups relative to the current directory. This is abhor
   "fl" 'load-file
   "ff" 'dired-jump
   "fr" 'counsel-recentf
+  "fs" 'save-buffer
 
   ;; Language
   "le" 'english-mode
@@ -470,7 +471,6 @@ The Hydra is vanquished once Hercules, any binding that isn't the Hydra's head, 
 * Core Utilities
 
 Utilities which are essential for rational operation of emacs
-
 ** Exec Path From Shell
 
 This sets the variable exec-path to the normal shell's PATH variable. This doesn't normally get set in daemon mode.
@@ -737,6 +737,10 @@ Allows for further integration between ivy and projectile.
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package swiper
 :bind (("M-s" . swiper)))
+#+END_SRC
+** Flycheck
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package flycheck)
 #+END_SRC
 ** Projectile
 
@@ -1059,7 +1063,8 @@ Make bullets circular
 
 Enable support for various babel languages
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+TODO Temprarily removed
+#+BEGIN_SRC emacs-lisp :tangle no
 (setq org-confirm-babel-evaluate nil)
 (org-babel-do-load-languages
 'org-babel-load-languages
@@ -1183,23 +1188,6 @@ Let you copy formatted org-mode content to the clipboard. Requires the package =
   :ensure-system-package (xclip))
 #+END_SRC
 *** babel
-**** Gnuplot
-
-An emacs major mode for interacting with gnuplot
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package gnuplot)
-#+END_SRC
-
-**** IPython
-
-Babel support for Ipython. For some strange reason, if ipython, pip, and jupyter-notebook are not installed, org-capture will throw a JSON readtable error.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package ob-ipython
-:ensure-system-package (ipython pip jupyter-notebook)
-:defer t)
-#+END_SRC
 *** org download
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-download
