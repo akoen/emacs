@@ -1343,6 +1343,16 @@ Writing environment
 * Organization
 ** Reviews
 #+BEGIN_SRC emacs-lisp :tangle yes
+(defun my/daily-review ()
+  (interactive)
+  (let ((org-capture-templates '(("d" "Daily Review" entry (file+datetree "~/Drive/Tasks/reviews.org")
+                                  (file "~/Drive/Tasks/Templates/daily-review.org")))))
+    (progn
+      (org-capture nil "d")
+      (org-capture-finalize t)
+      (org-speed-move-safe 'outline-up-heading)
+      (org-narrow-to-subtree))))
+
 (defun my/weekly-review ()
   (interactive)
   (let ((org-capture-templates '(("w" "Weekly Review" entry (file+datetree "~/Drive/Tasks/reviews.org")
