@@ -6,110 +6,6 @@ I've now been using Emacs as my primary editor for over a year. It's phenomenal�
 
 Alright, here we go:
 
-* Table of Contents                                                :TOC_3_gh:
-- [[#initialization][Initialization]]
-  - [[#lexical-binding][Lexical binding]]
-  - [[#personal-information][Personal Information]]
-  - [[#optimizations][Optimizations]]
-    - [[#garbage-collector][Garbage collector]]
-  - [[#set-directories][Set Directories]]
-  - [[#package-management][Package Management]]
-    - [[#package-settings][Package Settings]]
-    - [[#manually-set-load-path][Manually Set Load Path]]
-    - [[#initialize-package-management][Initialize Package Management]]
-  - [[#detection][Detection]]
-    - [[#detect-operating-system][Detect Operating System]]
-    - [[#detect-internet-connection][Detect Internet Connection]]
-  - [[#appearance][Appearance]]
-    - [[#theme][Theme]]
-    - [[#text][Text]]
-    - [[#disable-unecessary-ui-elements][Disable unecessary UI elements]]
-    - [[#prompts][Prompts]]
-    - [[#relative-line-numbers][Relative line numbers]]
-    - [[#show-matching-parentheses][Show matching parentheses]]
-    - [[#smooth-scrolling][Smooth Scrolling]]
-    - [[#all-the-icons][All the icons]]
-    - [[#doom-modeline][Doom-modeline]]
-  - [[#revert][Revert]]
-  - [[#backups][Backups]]
-  - [[#better-defaults][Better Defaults]]
-- [[#keybindings][Keybindings]]
-  - [[#general][General]]
-  - [[#hydra][Hydra]]
-    - [[#zooming][Zooming]]
-- [[#core-utilities][Core Utilities]]
-  - [[#exec-path-from-shell][Exec Path From Shell]]
-  - [[#which-key][Which Key]]
-  - [[#evil][EVIL]]
-    - [[#esc-quits-everything][ESC quits everything]]
-    - [[#evil-surround][evil-surround]]
-  - [[#completion][Completion]]
-    - [[#ivy][Ivy]]
-    - [[#ivy-rich][Ivy-Rich]]
-    - [[#counsel][Counsel]]
-    - [[#swiper][Swiper]]
-  - [[#flycheck][Flycheck]]
-  - [[#projectile][Projectile]]
-  - [[#dired-x][Dired-x]]
-  - [[#libvterm][libvterm]]
-    - [[#evil-snipe][evil-snipe]]
-  - [[#smartparens][Smartparens]]
-- [[#utilities][Utilities]]
-  - [[#yasnippet][Yasnippet]]
-  - [[#neotree-and-icons][NeoTree and Icons]]
-  - [[#magit][Magit]]
-  - [[#pdf-tools][PDF-Tools]]
-  - [[#aggressive-indent][Aggressive-indent]]
-- [[#org-mode][Org-mode]]
-  - [[#configuration][Configuration]]
-    - [[#auto-save][Auto-save]]
-    - [[#keywords][keywords]]
-  - [[#capture][Capture]]
-  - [[#agenda][Agenda]]
-  - [[#variable-pitch-mode][Variable Pitch Mode]]
-  - [[#circular-bullets][Circular Bullets]]
-  - [[#autosort][Autosort]]
-  - [[#babel][Babel]]
-  - [[#packages][Packages]]
-    - [[#org-modules][org-modules]]
-    - [[#org-checklist][org-checklist]]
-    - [[#evil-org][EVIL-Org]]
-    - [[#org-protocol][org-Protocol]]
-    - [[#org-bullets][org-Bullets]]
-    - [[#org-super-agenda][org-super-agenda]]
-    - [[#org-pomodoro][org-pomodoro]]
-    - [[#ox-tufte][ox-Tufte]]
-    - [[#ox-pandoc][ox-Pandoc]]
-    - [[#org-oxclip][org-oxclip]]
-    - [[#babel-1][babel]]
-    - [[#org-download][org download]]
-    - [[#org-web-tools][org-web-tools]]
-    - [[#toc-org][toc-org]]
-    - [[#org-noter][org-noter]]
-    - [[#calfw][calfw]]
-- [[#latex][LaTeX]]
-  - [[#reftex][RefTeX]]
-- [[#development][Development]]
-  - [[#web][Web]]
-    - [[#web-mode][Web Mode]]
-  - [[#lsp-mode][LSP-mode]]
-  - [[#cc][C/C++]]
-  - [[#cmake][CMake]]
-  - [[#python][Python]]
-  - [[#lua][Lua]]
-- [[#writing][Writing]]
-  - [[#focus][Focus]]
-  - [[#olivetti][Olivetti]]
-- [[#functions][Functions]]
-  - [[#compile-org-to-pdf][Compile org to pdf]]
-  - [[#writing-function][Writing Function]]
-  - [[#english-mode][English Mode]]
-  - [[#ispell][Ispell]]
-- [[#organization][Organization]]
-  - [[#reviews][Reviews]]
-- [[#post-initialization][Post Initialization]]
-  - [[#restore-garbage-collector][Restore garbage collector]]
-
 * Initialization
 ** Lexical binding
 
@@ -846,7 +742,7 @@ An inteface to version control system Git
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package magit
 :defer t
-:general (tyrant-def "gs" 'magit-status)
+:general (tyrant-def "gg" 'magit-status)
 :init
 (setq transient-history-file (concat emacs-etc-dir "transient/history")))
 #+END_SRC
@@ -854,18 +750,6 @@ An inteface to version control system Git
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package evil-magit
 :after magit)
-#+END_SRC
-
-** PDF-Tools
-
-A replacement for Emacs' native DocView
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package pdf-tools
-:mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
-:magic ("%PDF" . pdf-view-mode)
-:config
-(pdf-tools-install :no-query))
 #+END_SRC
 
 ** Aggressive-indent
@@ -1198,49 +1082,6 @@ Let you copy formatted org-mode content to the clipboard. Requires the package =
 *** org-web-tools
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-web-tools)
-#+END_SRC
-*** toc-org
-
-The =toc-org= package generates an up-to-date table of contents for us.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package toc-org
-  :after org
-  :init (add-hook 'org-mode-hook #'toc-org-enable))
-#+END_SRC
-*** org-noter
-
-Org-noter is used to annotate pdf files in a native org document.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package org-noter)
-#+END_SRC
-
-*** calfw
-
-Displays an intuitive calendar view for the org-mode agenda.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package calfw
-:defer t
-:general (tyrant-def "os" 'cfw:open-org-calendar))
-:config
-;; better frame. Taken from doom-emacs
-(setq cfw:face-item-separator-color nil
-        cfw:render-line-breaker 'cfw:render-line-breaker-none
-        cfw:fchar-junction ?╋
-        cfw:fchar-vertical-line ?┃
-        cfw:fchar-horizontal-line ?━
-        cfw:fchar-left-junction ?┣
-        cfw:fchar-right-junction ?┫
-        cfw:fchar-top-junction ?┯
-        cfw:fchar-top-left-corner ?┏
-        cfw:fchar-top-right-corner ?┓)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package calfw-org
-:after calfw)
 #+END_SRC
 * LaTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
