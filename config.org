@@ -63,56 +63,25 @@ Non emacs-specific directories:
 #+END_SRC
 
 ** Package Management
-
-*** Package Settings
-
-We’re going to set the load-path ourselves and avoid calling (package-initilize) (for performance reasons) so we need to set package--init-file-ensured to true to tell package.el to not automatically call it on our behalf. Additionally we’re setting package-enable-at-startup to nil so that packages will not automatically be loaded for us since use-package will be handling that.
+We are using [[https://github.com/raxod502/straight.el][straight.el]] for package management.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(setq load-prefer-newer t
-      package-user-dir (expand-file-name "elpa" emacs-packages-dir)
-      package--init-file-ensured t
-      package-enable-at-startup nil)
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+  (straight-use-package 'use-package)
+  (setq straight-use-package-by-default t)
 
-(unless (file-directory-p package-user-dir)
-  (make-directory package-user-dir t))
 #+END_SRC
-
-*** Manually Set Load Path
-
-We’re going to set the load path ourselves so that we don’t have to call package-initialize at runtime and incur a large performance hit. This load-path will actually be faster than the one created by package-initialize because it appends the elpa packages to the end of the load path. Otherwise any time a builtin package was required it would have to search all of third party paths first.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(setq load-path (append load-path (directory-files package-user-dir t "^[^.]" t)))
-#+END_SRC
-
-*** Initialize Package Management
-
-Next we are going to require package.el and add our additional package archives, ‘melpa’ and ‘org’. Afterwards we need to initialize our packages and then ensure that use-package is installed, which we promptly install if it’s missing. Finally we load use-package and tell it to always install any missing packages.
-
-Note that this entire block is wrapped in eval-when-compile. The effect of this is to perform all of the package initialization during compilation so that when byte compiled, all of this time consuming code is skipped. This can be done because the result of byte compiling use-package statements results in the macro being fully expanded at which point use-package isn’t actually required any longer.
-
-Since the code is automatically compiled during runtime, if the configuration hasn’t already been previously compiled manually then all of the package initialization will still take place at startup.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-;; bootstrap use-package
-(require 'package)
-
-(unless (assoc-default "melpa" package-archives)
-  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t))
-(unless (assoc-default "org" package-archives)
-  (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t))
-
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-(package-install 'use-package))
-(package-initialize)
-(require 'use-package)
-
-(setq use-package-always-ensure t)
-(use-package use-package-ensure-system-package)
-#+END_SRC
-
 ** Detection
 
 *** Detect Operating System
@@ -785,8 +754,6 @@ Forces proper indenting after every change.
   (org-level-3 ((t (:height 1.1))))
   (org-link ((t (:underline t))))
   (org-image-actual-width (/ (display-pixel-width) 2)))
-
-
 #+END_SRC
 
 ** Configuration
@@ -823,7 +790,35 @@ Replace underline with highlight
                (:strike-through t))
               )))
 #+END_SRC
-** Capture
+*** Autosort
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defun my/org-entry-has-subentries ()
+  "Any entry with subheadings"
+  (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+    (save-excursion
+      (org-back-to-heading)
+      (forward-line 1)
+      (when (< (point) subtree-end)
+	(re-search-forward "^\*+ " subtree-end t)))))
+
+(defun my/org-entry-sort-by-property nil
+  (let ((property (org-entry-get (point) "SORT" 'INHERIT)))
+    (when (and (not (seq-empty-p property))
+	       (my/org-entry-has-subentries))
+      (funcall #'org-sort-entries nil (string-to-char property) nil nil nil)))
+  (let ((property_second (org-entry-get (point) "SORT_AFTER" 'INHERIT)))
+    (when (and (not (seq-empty-p property_second))
+	       (my/org-entry-has-subentries))
+      (funcall #'org-sort-entries nil (string-to-char property_second) nil nil nil))))
+
+(defun my/org-buffer-sort-by-property (&optional MATCH)
+  (interactive)
+  (org-map-entries #'my/org-entry-sort-by-property MATCH 'file)
+  (org-set-startup-visibility))
+
+(add-hook 'org-mode-hook #'my/org-buffer-sort-by-property)
+#+END_SRC
+*** Capture
 
 Set up capture templates. The backquoted list allows me to selectively evaluate parts of the list with a , (in this case the concat statement).
 
@@ -869,7 +864,7 @@ Refile configuration
 (setq org-refile-target-verify-function 'bh/verify-refile-target)
 #+END_SRC
 
-** Agenda
+*** Agenda
 
 Set agenda settings
 
@@ -884,7 +879,7 @@ Set agenda settings
       org-agenda-skip-unavailable-files t)
 #+END_SRC
 
-** Variable Pitch Mode
+*** Variable Pitch Mode
 
 We use a font that's easier on the eyes for long blocks of text
 
@@ -917,7 +912,7 @@ Other org-mode ricing configuratioin:
     org-edit-src-content-indentation 0)
 #+END_SRC
 
-** Circular Bullets
+*** Circular Bullets
 Make bullets circular
 #+BEGIN_SRC emacs-lisp :tangle yes
 (font-lock-add-keywords 'org-mode
@@ -927,35 +922,7 @@ Make bullets circular
 			   0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "→")))))
 #+END_SRC
 
-** Autosort
-#+BEGIN_SRC emacs-lisp :tangle yes
-(defun my/org-entry-has-subentries ()
-  "Any entry with subheadings"
-  (let ((subtree-end (save-excursion (org-end-of-subtree t))))
-    (save-excursion
-      (org-back-to-heading)
-      (forward-line 1)
-      (when (< (point) subtree-end)
-	(re-search-forward "^\*+ " subtree-end t)))))
-
-(defun my/org-entry-sort-by-property nil
-  (let ((property (org-entry-get (point) "SORT" 'INHERIT)))
-    (when (and (not (seq-empty-p property))
-	       (my/org-entry-has-subentries))
-      (funcall #'org-sort-entries nil (string-to-char property) nil nil nil)))
-  (let ((property_second (org-entry-get (point) "SORT_AFTER" 'INHERIT)))
-    (when (and (not (seq-empty-p property_second))
-	       (my/org-entry-has-subentries))
-      (funcall #'org-sort-entries nil (string-to-char property_second) nil nil nil))))
-
-(defun my/org-buffer-sort-by-property (&optional MATCH)
-  (interactive)
-  (org-map-entries #'my/org-entry-sort-by-property MATCH 'file)
-  (org-set-startup-visibility))
-
-(add-hook 'org-mode-hook #'my/org-buffer-sort-by-property)
-#+END_SRC
-** Babel
+*** Babel
 
 Enable support for various babel languages
 
@@ -976,12 +943,12 @@ TODO Temprarily removed
 (org-load-modules-maybe t)
 #+END_SRC
 
-*** org-checklist
+*** (disabled) org-checklist
 
 Provides additional options for org checklists such as resetting when parent is marked DONE.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(require 'org-checklist)
+;(require 'org-checklist)
 #+END_SRC
 *** EVIL-Org
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -996,7 +963,7 @@ Provides additional options for org checklists such as resetting when parent is 
   (evil-org-agenda-set-keys))
 #+END_SRC
 
-*** org-Protocol
+*** org-protocol
 
 Allows for external applications to trigger custom actions without external dependencies
 
@@ -1011,7 +978,7 @@ Allows for external applications to trigger custom actions without external depe
 
 #+END_SRC
 
-*** org-Bullets
+*** org-bullets
 Make the header bullets look prettier
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-bullets
@@ -1058,10 +1025,6 @@ Support for the Pomodoro technique in org-mode
 :general (tyrant-def "op" 'org-pomodoro))
 #+END_SRC
 
-*** ox-Tufte
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package ox-tufte)
-#+END_SRC
 *** ox-Pandoc
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ox-pandoc
@@ -1080,10 +1043,8 @@ Let you copy formatted org-mode content to the clipboard. Requires the package =
 (use-package htmlize
   :after org)
 (use-package ox-clip
-  :after org
-  :ensure-system-package (xclip))
+  :after org)
 #+END_SRC
-*** babel
 *** org download
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-download
@@ -1099,7 +1060,8 @@ Let you copy formatted org-mode content to the clipboard. Requires the package =
 * LaTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package latex
-:ensure auctex
+:straight auctex
+:defer t
 :config
 (add-hook 'LaTeX-mode-hook
         (lambda ()
