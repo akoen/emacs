@@ -820,8 +820,8 @@ Forces proper indenting after every change.
 #+END_SRC
 *** Emphasis
 
-Replace underline with highlight
-#+BEGIN_SRC emacs-lisp :tangle yes
+(enabled) Replace underline with highlight
+#+BEGIN_SRC emacs-lisp :tangle no
 (setq org-emphasis-alist
       (quote (("*" bold)
               ("/" italic)
@@ -831,6 +831,23 @@ Replace underline with highlight
               ("+"
                (:strike-through t))
               )))
+#+END_SRC
+
+(disabled) Custom highlight face. From [[https://emacs.stackexchange.com/questions/38216/custom-faces-in-org-9-0]].
+
+#+BEGIN_SRC emacs-lisp :tangle no
+;;; Create highlighter face for marking up text in org-mode
+(defface font-lock-highlight-face
+   '((t (:inherit org-default :background "#585858")))
+   "Face for highlighting text")
+(defvar font-lock-highlight-face 'font-lock-highlight-face)
+
+;;; Add keywords
+(defun add-highlight-keywords()
+  "adds custom keywords for highlighting text in org-mode."
+  (font-lock-add-keywords nil
+    '(("\\(!\\)\\([^[:space:]][^\n\r\t]+[^[:space:]]\\)\\(!\\)" . 'font-lock-highlight-face ))))
+(add-hook 'org-mode-hook 'add-highlight-keywords)
 #+END_SRC
 *** Capture
 
