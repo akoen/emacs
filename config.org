@@ -325,7 +325,7 @@ By default, Emacs saves backups relative to the current directory. This is abhor
   ;; Projects
   "SPC" 'projectile-find-file
   "pb" 'projectile-switch-to-buffer
-  "ps" 'counsel-projectile-switch-project
+  "pp" 'counsel-projectile-switch-project
 
   ;; Code
   "cc" 'compile
@@ -770,6 +770,7 @@ Forces proper indenting after every change.
         org-use-fast-todo-selection t ; allow changing to any todo state from a menu
         org-enforce-todo-dependencies t ; block setting task to DONE if there are incomplete subtasks
         org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id ; use unique ID's for links
+        org-id-locations-file (concat tasks-dir ".orgids")
         org-clone-delete-id t)
   :custom-face 
   (variable-pitch ((t (:family "Input Sans Narrow" :height 1.0))))
@@ -781,6 +782,8 @@ Forces proper indenting after every change.
   (org-level-3 ((t (:height 1.1))))
   (org-link ((t (:underline t))))
   (org-image-actual-width (/ (display-pixel-width) 2)))
+
+
 #+END_SRC
 
 ** Configuration
@@ -792,21 +795,31 @@ Forces proper indenting after every change.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq org-todo-keywords
-      (quote ((sequence "TODO(t)" "SOMEDAY(s)" "MAYBE(m)" "|" "DONE(d)" "FAILED(f)"))))
+      (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+              (sequence "SOMEDAY(s@)" "WAITING(w@)" "HOLD(h@)" "|" "CANCELLED(c@)")))
+      org-todo-state-tags-triggers
+      (quote (("CANCELLED" ("CANCELLED" . t))
+              ("WAITING" ("WAITING" . t))
+              ("HOLD" ("WAITING") ("HOLD" . t))
+              (done ("WAITING") ("HOLD"))
+              ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
+              ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
+              ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
 #+END_SRC
+*** Emphasis
 
-Automatically archive DONE entries
-
+Replace underline with highlight
 #+BEGIN_SRC emacs-lisp :tangle yes
-(defun channing/archive-when-done ()
-    "Archive current entry if it is marked as DONE (see `org-done-keywords')"
-    (when (org-entry-is-done-p)
-        (org-archive-to-archive-sibling)))
-        
-;(add-hook 'org-after-todo-state-change-hook
-;    'channing/archive-when-done)
+(setq org-emphasis-alist
+      (quote (("*" bold)
+              ("/" italic)
+              ("_" (:background "#585858"))
+              ("=" org-verbatim verbatim)
+              ("~" org-code verbatim)
+              ("+"
+               (:strike-through t))
+              )))
 #+END_SRC
-
 ** Capture
 
 Set up capture templates. The backquoted list allows me to selectively evaluate parts of the list with a , (in this case the concat statement).
