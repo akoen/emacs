@@ -981,6 +981,35 @@ Make bullets circular
 (add-hook 'org-mode-hook #'my/org-buffer-sort-by-property)
 #+END_SRC
 ** Packages
+*** org-roam
+
+TODO [[https://github.com/jethrokuan/org-roam]]. This should be updated when we install straight.el
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-roam
+  :load-path "~/.emacs.d/elisp/org-roam"
+  :after org
+  :hook (org-mode . org-roam-mode)
+  :init
+  (setq org-roam-directory (concat tasks-dir "brain/"))
+  :general (tyrant-def
+             "ol" 'org-roam
+             "oi" 'org-roam-insert
+             "of" 'org-roam-find-file))
+#+END_SRC
+
+(disabled)
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package org-roam
+  :after org
+  :hook (org-mode . org-roam-mode)
+  :straight (:host github :repo "jethrokuan/org-roam")
+  :init
+  (setq org-roam-directory (concat tasks-dir "brain/"))
+  :general (tyrant-def
+             "ol" 'org-roam
+             "oi" 'org-roam-insert
+             "of" 'org-roam-find-file))
+#+END_SRC
 *** org-modules
 #+BEGIN_SRC emacs-lisp :tangle yes
 (require 'org-install)
