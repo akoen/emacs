@@ -1345,7 +1345,7 @@ Writing environment
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defun my/daily-review ()
   (interactive)
-  (let ((org-capture-templates '(("d" "Daily Review" entry (file+datetree "~/Drive/Tasks/reviews.org")
+  (let ((org-capture-templates '(("d" "Daily Review" entry (file+datetree (lambda () (concat tasks-dir "reviews_" (format-time-string "%Y") ".org")))
                                   (file "~/Drive/Tasks/Templates/daily-review.org")))))
     (progn
       (org-capture nil "d")
@@ -1355,7 +1355,7 @@ Writing environment
 
 (defun my/weekly-review ()
   (interactive)
-  (let ((org-capture-templates '(("w" "Weekly Review" entry (file+datetree "~/Drive/Tasks/reviews.org")
+  (let ((org-capture-templates '(("w" "Weekly Review" entry (file+datetree (lambda () (concat tasks-dir "reviews_" (format-time-string "%Y") ".org")))
                                   (file "~/Drive/Tasks/Templates/weekly-review.org")))))
     (progn
       (org-capture nil "w")
@@ -1365,7 +1365,7 @@ Writing environment
 
 (defun my/monthly-review ()
   (interactive)
-  (let ((org-capture-templates '(("m" "Monthly Review" entry (file+datetree "~/Drive/Tasks/reviews.org")
+  (let ((org-capture-templates '(("m" "Monthly Review" entry (file+datetree (lambda () (concat tasks-dir "reviews_" (format-time-string "%Y") ".org")))
                                   (file "~/Drive/Tasks/Templates/monthly-review.org")))))
     (progn
       (org-capture nil "m")
