@@ -445,6 +445,11 @@ This package emulates surround.vim by Tim Pope
   (global-evil-surround-mode 1))
 #+END_SRC
 
+*** evil-nerd-commenter
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package evil-nerd-commenter)
+#+END_SRC
+
 ** Completion
 *** Ivy
 
@@ -820,7 +825,7 @@ Replace underline with highlight
                (:strike-through t))
               )))
 #+END_SRC
-** Capture
+*** Capture
 
 Set up capture templates. The backquoted list allows me to selectively evaluate parts of the list with a , (in this case the concat statement).
 
@@ -866,7 +871,7 @@ Refile configuration
 (setq org-refile-target-verify-function 'bh/verify-refile-target)
 #+END_SRC
 
-** Agenda
+*** Agenda
 
 Set agenda settings
 
@@ -881,7 +886,7 @@ Set agenda settings
       org-agenda-skip-unavailable-files t)
 #+END_SRC
 
-** Variable Pitch Mode
+*** Variable Pitch Mode
 
 We use a font that's easier on the eyes for long blocks of text
 
@@ -914,7 +919,7 @@ Other org-mode ricing configuratioin:
     org-edit-src-content-indentation 0)
 #+END_SRC
 
-** Circular Bullets
+*** Circular Bullets
 Make bullets circular
 #+BEGIN_SRC emacs-lisp :tangle yes
 (font-lock-add-keywords 'org-mode
@@ -924,7 +929,7 @@ Make bullets circular
 			   0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "→")))))
 #+END_SRC
 
-** Autosort
+*** Autosort
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defun my/org-entry-has-subentries ()
   "Any entry with subheadings"
