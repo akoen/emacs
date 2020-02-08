@@ -413,6 +413,10 @@ This package emulates surround.vim by Tim Pope
   (global-evil-surround-mode 1))
 #+END_SRC
 
+*** evil-nerd-commenter
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package evil-nerd-commenter)
+#+END_SRC
 ** Completion
 *** Ivy
 
