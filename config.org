@@ -163,7 +163,7 @@ Colours inspired by the new GitHub theme colours.
 **** Font
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(set-default-font "Fira Code 12")
+(set-frame-font "Fira Code 12")
 (set-face-attribute 'default nil :height 100)
 #+END_SRC
 
