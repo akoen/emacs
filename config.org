@@ -980,18 +980,6 @@ Make bullets circular
 
 (add-hook 'org-mode-hook #'my/org-buffer-sort-by-property)
 #+END_SRC
-** Babel
-
-Enable support for various babel languages
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(setq org-confirm-babel-evaluate nil)
-(org-babel-do-load-languages
-'org-babel-load-languages
-'((gnuplot . t)
-(ipython .t)))
-#+END_SRC
-
 ** Packages
 *** org-modules
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1102,36 +1090,6 @@ Let you copy formatted org-mode content to the clipboard. Requires the package =
 (use-package ox-clip
   :after org
   :ensure-system-package (xclip))
-#+END_SRC
-*** babel
-**** Gnuplot
-
-An emacs major mode for interacting with gnuplot
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package gnuplot)
-#+END_SRC
-
-**** IPython
-
-Babel support for Ipython. For some strange reason, if ipython, pip, and jupyter-notebook are not installed, org-capture will throw a JSON readtable error.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package ob-ipython
-:ensure-system-package (ipython pip jupyter-notebook)
-:defer t)
-#+END_SRC
-*** org download
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package org-download
-:defer t
-:init
-(add-hook 'org-mode-hook 'org-download-enable)
-(add-hook 'dired-mode-hook 'org-download-enable))
-#+END_SRC
-*** org-web-tools
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package org-web-tools)
 #+END_SRC
 * LaTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
