@@ -975,7 +975,7 @@ Make bullets circular
   (org-map-entries #'my/org-entry-sort-by-property MATCH 'file)
   (org-set-startup-visibility))
 
-(add-hook 'org-mode-hook #'my/org-buffer-sort-by-property)
+;(add-hook 'org-mode-hook #'my/org-buffer-sort-by-property)
 #+END_SRC
 ** Packages
 *** org-roam
