@@ -796,7 +796,7 @@ Forces proper indenting after every change.
         org-hide-emphasis-markers t ; hide the markers for italics and bold
         org-pretty-entities t)       ; show entities as UTF8 characters
   :custom-face 
-  (variable-pitch ((t (:family "Input Sans Narrow" :height 1.0))))
+  (variable-pitch ((t (:family "Open Sans" :height 1.0))))
   (org-document-title ((t (:weight bold :height 1.5))))
   (org-done ((t (:strike-through t :weight bold))))
   (org-headline-done ((t (:strike-through t))))
