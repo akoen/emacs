@@ -279,6 +279,13 @@ By default, Emacs saves backups relative to the current directory. This is abhor
 #+END_SRC
 
 * Keybindings
+** Unbind RET
+
+Unbind return from evil, so that org-return-follows-link works.
+#+BEGIN_SRC emacs-lisp :tangle yes
+(with-eval-after-load 'evil-maps
+  (define-key evil-motion-state-map (kbd "RET") nil))
+#+END_SRC
 ** General
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; load general
