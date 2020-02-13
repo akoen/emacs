@@ -295,10 +295,9 @@ Unbind return from evil, so that org-return-follows-link works.
 (general-auto-unbind-keys)
 
 (general-create-definer tyrant-def
-  :states 'normal
-  :keymaps 'dired-mode-map
-  :prefix "SPC"
-  :non-normal-prefix "C-SPC")
+    :keymaps '(normal visual insert emacs motion)
+    :prefix "SPC"
+    :non-normal-prefix "C-SPC")
 
 (tyrant-def
   ;; Misc
