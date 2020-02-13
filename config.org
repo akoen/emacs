@@ -994,7 +994,8 @@ TODO [[https://github.com/jethrokuan/org-roam]]. This should be updated when we 
   :after org
   :hook (org-mode . org-roam-mode)
   :init
-  (setq org-roam-directory (concat tasks-dir "brain/"))
+  (setq org-roam-directory (concat tasks-dir "brain/")
+        org-roam-link-representation 'title)
   :general (tyrant-def
              "or" 'org-roam
              "oi" 'org-roam-insert
