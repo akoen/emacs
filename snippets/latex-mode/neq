@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: neq
+# key: !=
+# condition: 'auto
+# --
+\neq
