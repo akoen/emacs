@@ -834,7 +834,7 @@ Forces proper indenting after every change.
 (setq org-emphasis-alist
       (quote (("*" bold)
               ("/" italic)
-              ("_" (:background "#faf2af"))
+              ("_" (:background "#595959"))
               ("=" org-verbatim verbatim)
               ("~" org-code verbatim)
               ("+"
