@@ -776,7 +776,6 @@ Forces proper indenting after every change.
 :init
 (global-aggressive-indent-mode 1))
 #+END_SRC
-
 * Org-mode
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -996,7 +995,7 @@ TODO [[https://github.com/jethrokuan/org-roam]]. This should be updated when we 
   :init
   (setq org-roam-directory (concat tasks-dir "brain/"))
   :general (tyrant-def
-             "ol" 'org-roam
+             "or" 'org-roam
              "oi" 'org-roam-insert
              "of" 'org-roam-find-file))
 #+END_SRC
