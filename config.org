@@ -159,6 +159,12 @@ Colours inspired by the new GitHub theme colours.
 :defer t)
 #+END_SRC
 
+**** Writing theme
+
+My own theme!
+#+BEGIN_SRC emacs-lisp :tangle yes
+(add-to-list 'custom-theme-load-path (concat emacs-dir "elisp/writing-theme"))
+#+END_SRC
 *** Text
 **** Font
 
@@ -796,7 +802,7 @@ Forces proper indenting after every change.
         org-hide-emphasis-markers t ; hide the markers for italics and bold
         org-pretty-entities t)       ; show entities as UTF8 characters
   :custom-face 
-  (variable-pitch ((t (:family "Input Sans Narrow" :height 1.0))))
+  (variable-pitch ((t (:family "Whitney" :height 1.0)))) ; Alternatively, Office Code Pro is second best
   (org-document-title ((t (:weight bold :height 1.5))))
   (org-done ((t (:strike-through t :weight bold))))
   (org-headline-done ((t (:strike-through t))))
@@ -804,6 +810,7 @@ Forces proper indenting after every change.
   (org-level-2 ((t (:height 1.1))))
   (org-level-3 ((t (:height 1.1))))
   (org-link ((t (:underline t))))
+
   (org-image-actual-width (/ (display-pixel-width) 2)))
 #+END_SRC
 
@@ -834,7 +841,7 @@ Forces proper indenting after every change.
 (setq org-emphasis-alist
       (quote (("*" bold)
               ("/" italic)
-              ("_" (:background "#585858"))
+              ("_" (:background "#faf2af"))
               ("=" org-verbatim verbatim)
               ("~" org-code verbatim)
               ("+"
@@ -1182,7 +1189,10 @@ Allow RefTeX to plug into AUCTeX
   (setq lsp-prefer-flymake nil
         lsp-session-file (concat emacs-etc-dir "lsp-session")))
 
-(use-package lsp-ui)
+(use-package lsp-ui
+  :config
+  (setq lsp-ui-doc-enable nil
+        lsp-ui-sideline-show-hover nil))
 (use-package company-lsp)
 
 (use-package dap-mode
@@ -1376,10 +1386,7 @@ Writing environment
   (let ((org-capture-templates '(("d" "Daily Review" entry (file+datetree (lambda () (concat tasks-dir "reviews_" (format-time-string "%Y") ".org")))
                                   (file "~/Drive/Tasks/Templates/daily-review.org")))))
     (progn
-      (org-capture nil "d")
-      (org-capture-finalize t)
-      (org-speed-move-safe 'outline-up-heading)
-      (org-narrow-to-subtree))))
+      (org-capture nil "d"))))
 
 (defun my/weekly-review ()
   (interactive)
