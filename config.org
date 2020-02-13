@@ -984,6 +984,38 @@ Make bullets circular
 ;(add-hook 'org-mode-hook #'my/org-buffer-sort-by-property)
 #+END_SRC
 ** Packages
+*** org-download
+Automatically insert images via drag-and-drop
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-download
+  :after org
+  :config
+  (setq org-download-screenshot-method "maim -s %s")
+  (defun my-org-download-method (link)
+    "This is a helper function for org-download.
+It creates a folder in the root directory named after the
+org filename (sans extension) and puts all images from that file in there.
+Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0bc532770e9533b4fc549438/init.el#L701"
+    (let ((filename
+           (file-name-nondirectory
+            (car (url-path-and-query
+                  (url-generic-parse-url link)))))
+          ;; Create folder name with current buffer name, and place in root dir
+          (dirname (concat "./img/"
+                           (replace-regexp-in-string " " "_" (downcase (file-name-base buffer-file-name))))))
+
+      ;; Add timestamp to filename
+      (setq filename-with-timestamp (format "%s%s.%s"
+                                            (file-name-sans-extension filename)
+                                            (format-time-string org-download-timestamp)
+                                            (file-name-extension filename)))
+      ;; Create folder if necessary
+      (unless (file-exists-p dirname)
+        (make-directory dirname))
+      (expand-file-name filename-with-timestamp dirname)))
+  (setq org-download-method 'my-org-download-method))
+#+END_SRC
 *** org-roam
 
 TODO [[https://github.com/jethrokuan/org-roam]]. This should be updated when we install straight.el
