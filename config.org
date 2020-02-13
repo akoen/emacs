@@ -158,13 +158,6 @@ Colours inspired by the new GitHub theme colours.
 (use-package github-modern-theme
 :defer t)
 #+END_SRC
-
-**** Writing theme
-
-My own theme!
-#+BEGIN_SRC emacs-lisp :tangle yes
-(add-to-list 'custom-theme-load-path (concat emacs-dir "elisp/writing-theme"))
-#+END_SRC
 *** Text
 **** Font
 
