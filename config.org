@@ -59,6 +59,8 @@ Non emacs-specific directories:
 
 (defconst tasks-dir (concat drive-dir "Tasks/")
   "Tasks directory")
+
+(defconst brain-dir (concat drive-dir "Brain/org/"))
 #+END_SRC
 
 ** Package Management
@@ -1025,7 +1027,7 @@ TODO [[https://github.com/jethrokuan/org-roam]]. This should be updated when we 
   :after org
   :hook (org-mode . org-roam-mode)
   :init
-  (setq org-roam-directory (concat tasks-dir "brain/")
+  (setq org-roam-directory brain-dir
         org-roam-link-representation 'title)
   :general (tyrant-def
              "or" 'org-roam
@@ -1145,6 +1147,14 @@ Support for the Pomodoro technique in org-mode
     (?L "to latex-pdf." org-pandoc-export-to-latex-pdf)
     (?4 "to html5 and open." org-pandoc-export-to-html5-and-open)
     (?$ "as html5." org-pandoc-export-as-html5))))
+#+END_SRC
+*** ox-hugo
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package ox-hugo
+  :after ox
+  :init
+  (setq org-hugo-set-lastmod t
+        org-hugo-default-section-directory "notes"))
 #+END_SRC
 *** org-oxclip
 Let you copy formatted org-mode content to the clipboard. Requires the package =xclip= to run.
