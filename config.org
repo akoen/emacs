@@ -67,6 +67,11 @@ Non emacs-specific directories:
 *** straight.el
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+;; Tell straight.el about the profiles we are going to be using.
+(setq straight-profiles
+      '((nil . "default.el")
+        ;; Packages which are pinned to a specific commit.
+        (pinned . "pinned.el")))
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -81,7 +86,14 @@ Non emacs-specific directories:
   (load bootstrap-file nil 'nomessage))
 (setq straight-use-package-by-default t)
 (straight-use-package 'use-package)
-
+(autoload #'straight-x-pull-all "straight-x")
+(autoload #'straight-x-freeze-versions "straight-x")
+(let ((straight-current-profile 'pinned))
+  (straight-use-package 'org-plus-contrib)
+  (straight-use-package 'org)
+  ;; Pin org-mode version.
+  (add-to-list 'straight-x-pinned-packages
+               '("org" . "1b3cc4e4631a07c41632040439b73c1938714308")))
 #+END_SRC
 ** Detection
 
