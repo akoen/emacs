@@ -64,56 +64,25 @@ Non emacs-specific directories:
 #+END_SRC
 
 ** Package Management
-
-*** Package Settings
-
-We’re going to set the load-path ourselves and avoid calling (package-initilize) (for performance reasons) so we need to set package--init-file-ensured to true to tell package.el to not automatically call it on our behalf. Additionally we’re setting package-enable-at-startup to nil so that packages will not automatically be loaded for us since use-package will be handling that.
+*** straight.el
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(setq load-prefer-newer t
-      package-user-dir (expand-file-name "elpa" emacs-packages-dir)
-      package--init-file-ensured t
-      package-enable-at-startup nil)
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+(setq straight-use-package-by-default t)
+(straight-use-package 'use-package)
 
-(unless (file-directory-p package-user-dir)
-  (make-directory package-user-dir t))
 #+END_SRC
-
-*** Manually Set Load Path
-
-We’re going to set the load path ourselves so that we don’t have to call package-initialize at runtime and incur a large performance hit. This load-path will actually be faster than the one created by package-initialize because it appends the elpa packages to the end of the load path. Otherwise any time a builtin package was required it would have to search all of third party paths first.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(setq load-path (append load-path (directory-files package-user-dir t "^[^.]" t)))
-#+END_SRC
-
-*** Initialize Package Management
-
-Next we are going to require package.el and add our additional package archives, ‘melpa’ and ‘org’. Afterwards we need to initialize our packages and then ensure that use-package is installed, which we promptly install if it’s missing. Finally we load use-package and tell it to always install any missing packages.
-
-Note that this entire block is wrapped in eval-when-compile. The effect of this is to perform all of the package initialization during compilation so that when byte compiled, all of this time consuming code is skipped. This can be done because the result of byte compiling use-package statements results in the macro being fully expanded at which point use-package isn’t actually required any longer.
-
-Since the code is automatically compiled during runtime, if the configuration hasn’t already been previously compiled manually then all of the package initialization will still take place at startup.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-;; bootstrap use-package
-(require 'package)
-
-(unless (assoc-default "melpa" package-archives)
-  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t))
-(unless (assoc-default "org" package-archives)
-  (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t))
-
-(package-initialize)
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-(require 'use-package)
-
-(setq use-package-always-ensure t)
-(use-package use-package-ensure-system-package)
-#+END_SRC
-
 ** Detection
 
 *** Detect Operating System
@@ -777,10 +746,9 @@ Forces proper indenting after every change.
 (global-aggressive-indent-mode 1))
 #+END_SRC
 * Org-mode
-
 #+BEGIN_SRC emacs-lisp :tangle yes
+(straight-use-package 'org-plus-contrib)
 (use-package org
-  :ensure org-plus-contrib
   :init
   (setq org-directory tasks-dir
         org-archive-location (concat archive-dir "Tasks/archive_" (format-time-string "%Y") ".org::datetree/")
@@ -1016,8 +984,8 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
 #+END_SRC
 *** org-roam
 
-TODO [[https://github.com/jethrokuan/org-roam]]. This should be updated when we install straight.el
-#+BEGIN_SRC emacs-lisp :tangle yes
+(disabled) TODO [[https://github.com/jethrokuan/org-roam]]. This should be updated when we install straight.el
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package org-roam
   :load-path "~/.emacs.d/elisp/org-roam"
   :after org
@@ -1032,15 +1000,16 @@ TODO [[https://github.com/jethrokuan/org-roam]]. This should be updated when we 
 #+END_SRC
 
 (disabled)
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-roam
   :after org
   :hook (org-mode . org-roam-mode)
   :straight (:host github :repo "jethrokuan/org-roam")
   :init
-  (setq org-roam-directory (concat tasks-dir "brain/"))
+  (setq org-roam-directory brain-dir
+        org-roam-link-representation 'title)
   :general (tyrant-def
-             "ol" 'org-roam
+             "or" 'org-roam
              "oi" 'org-roam-insert
              "of" 'org-roam-find-file))
 #+END_SRC
@@ -1159,13 +1128,12 @@ Let you copy formatted org-mode content to the clipboard. Requires the package =
 (use-package htmlize
   :after org)
 (use-package ox-clip
-  :after org
-  :ensure-system-package (xclip))
+  :after org)
 #+END_SRC
 * LaTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package latex
-:ensure auctex
+:straight auctex
 :config
 (add-hook 'LaTeX-mode-hook
         (lambda ()
