@@ -790,6 +790,7 @@ Forces proper indenting after every change.
         org-id-locations-file (concat tasks-dir ".orgids")
         org-clone-delete-id t
         org-catch-invisible-edits 'show
+        org-confirm-babel-evaluate nil ; do not ask for confirmation
         org-return-follows-link t
         org-startup-indented t    ; indent each level of heading
         org-hide-emphasis-markers t ; hide the markers for italics and bold
