@@ -60,7 +60,11 @@ Non emacs-specific directories:
 (defconst tasks-dir (concat drive-dir "Tasks/")
   "Tasks directory")
 
-(defconst brain-dir (concat drive-dir "Brain/org/"))
+(defconst brain-dir (concat drive-dir "Brain/org/")
+  "Braindump directory")
+
+(defconst dotfiles-dir "~/.dotfiles"
+  "Dotfiles directory")
 #+END_SRC
 
 ** Package Management
@@ -300,6 +304,9 @@ Unbind return from evil, so that org-return-follows-link works.
   "SPC" 'projectile-find-file
   "pb" 'projectile-switch-to-buffer
   "pp" 'counsel-projectile-switch-project
+  "pd" 'my/projectile-find-file-in-project-dotfiles
+  "pt" 'my/projectile-find-file-in-project-tasks
+  "pc" 'my/projectile-find-file-in-project-config
 
   ;; Code
   "cc" 'compile
@@ -619,16 +626,35 @@ Allows for further integration between ivy and projectile.
 (use-package projectile
   :init
   (setq projectile-cache-file (concat emacs-cache-dir "projectile.cache")
-	projectile-enable-caching t
-	projectile-known-projects-file (concat emacs-cache-dir "projectile.projects")
-	projectile-require-project-root 'prompt
-	projectile-files-cache-expire 604800 ; expire after a week
-	projectile-sort-order 'recentf
-	projectile-use-git-grep t) ; use git-grep for text searches
+        projectile-enable-caching t
+        projectile-known-projects-file (concat emacs-cache-dir "projectile.projects")
+        projectile-require-project-root 'prompt
+        projectile-files-cache-expire 604800 ; expire after a week
+        projectile-sort-order 'recentf
+        projectile-use-git-grep t) ; use git-grep for text searches
   :config
   (projectile-mode +1)
   (setq projectile-project-root-files-bottom-up
-	(append '(".project"))))
+        (append '(".project"))))
+#+END_SRC
+
+*** Projectile for specific projects
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defun my/projectile-find-file-in-project-config ()
+  (interactive)
+  (let ((default-directory emacs-dir))
+    (counsel-projectile-find-file)))
+
+(defun my/projectile-find-file-in-project-tasks ()
+  (interactive)
+  (let ((default-directory tasks-dir))
+    (counsel-projectile-find-file)))
+
+(defun my/projectile-find-file-in-project-dotfiles ()
+  (interactive)
+  (let ((default-directory dotfiles-dir))
+    (counsel-projectile-find-file)))
 #+END_SRC
 ** Dired-x
 
