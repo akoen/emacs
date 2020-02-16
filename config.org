@@ -94,6 +94,8 @@ Non emacs-specific directories:
   ;; Pin org-mode version.
   (add-to-list 'straight-x-pinned-packages
                '("org" . "1b3cc4e4631a07c41632040439b73c1938714308")))
+(defalias 'straight-pull-all #'straight-x-pull-all)
+(defalias 'straight-freeze-versions #'straight-x-freeze-versions)
 #+END_SRC
 ** Detection
 
