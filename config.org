@@ -1012,10 +1012,13 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-roam
   :after org
-  :hook (org-mode . org-roam-mode)
+  :hook
+  ((org-mode . org-roam-mode)
+   (after-init . org-roam--build-cache-async))
   :straight (:host github :repo "jethrokuan/org-roam")
   :init
   (setq org-roam-directory brain-dir
+        org-roam-link-title-format "§%s"
         org-roam-link-representation 'title)
   :general (tyrant-def
              "or" 'org-roam
