@@ -262,58 +262,68 @@ Unbind return from evil, so that org-return-follows-link works.
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; load general
 (use-package general
-:after which-key
-:config
-(general-override-mode 1)
-(general-auto-unbind-keys)
+  :after which-key
+  :config
+  (general-override-mode 1)
+  (general-auto-unbind-keys)
 
-(general-create-definer tyrant-def
-    :keymaps '(normal visual insert emacs motion)
-    :prefix "SPC"
-    :non-normal-prefix "C-SPC")
+  (general-define-key
+   :keymaps '(normal visual insert emacs motion)
+   :prefix "SPC"
+   :non-normal-prefix "M-SPC"
+ 
+   ;; Misc
+   "u" 'universal-argument
 
-(tyrant-def
-  ;; Misc
-  "u" 'universal-argument
+   ;; Buffer
+   "bb" 'switch-to-buffer
+   "`" 'evil-switch-to-windows-last-buffer
 
-  ;; Buffer
-  "bb" 'switch-to-buffer
-  "`" 'evil-switch-to-windows-last-buffer
+   ;; Files
+   "." 'find-file
+   "fl" 'load-file
+   "ff" 'dired-jump
+   "fr" 'counsel-recentf
+   "fs" 'save-buffer
 
-  ;; Files
-  "." 'find-file
-  "fl" 'load-file
-  "ff" 'dired-jump
-  "fr" 'counsel-recentf
-  "fs" 'save-buffer
+   ;; Language
+   "le" 'english-mode
+   "lg" 'writing-mode
+   "lb" 'ispell-buffer
 
-  ;; Language
-  "le" 'english-mode
-  "lg" 'writing-mode
-  "lb" 'ispell-buffer
+   ;; Magit
+   "gg" 'magit-status
 
-  ;; Org mode
-  "oa" 'org-agenda
-  "oc" 'org-capture
+   ;; Org mode
+   "oa" 'org-agenda
+   "oc" 'org-capture
+   "or" 'org-roam
+   "oi" 'org-roam-insert
+   "of" 'org-roam-find-file
+   "op" 'org-pomodoro
 
-  ;; Search
-  "sb" 'swiper
-  "sp" 'counsel-projectile-rg
+   ;; Search
+   "sb" 'swiper
+   "sp" 'counsel-projectile-rg
 
-  ;; Projects
-  "SPC" 'projectile-find-file
-  "pb" 'projectile-switch-to-buffer
-  "pp" 'counsel-projectile-switch-project
-  "pd" 'my/projectile-find-file-in-project-dotfiles
-  "pt" 'my/projectile-find-file-in-project-tasks
-  "pc" 'my/projectile-find-file-in-project-config
+   ;; Projects
+   "SPC" 'projectile-find-file
+   "pb" 'projectile-switch-to-buffer
+   "pp" 'counsel-projectile-switch-project
+   "pd" 'my/projectile-find-file-in-project-dotfiles
+   "pt" 'my/projectile-find-file-in-project-tasks
+   "pc" 'my/projectile-find-file-in-project-config
 
-  ;; Code
-  "cc" 'compile
-  "cr" 'lsp-rename
-  "cl" 'lsp-find-definition
+   ;; Code
+   "cc" 'compile
+   "cr" 'lsp-rename
+   "cl" 'lsp-find-definition
 
-  )) 
+   ;; Terminal
+   "tn" 'vterm
+
+
+   ))
 #+END_SRC
 
 ** Hydra
@@ -681,8 +691,7 @@ Adds additional functionalit on top of dired
 An Emacs module which implements a bridge to [[https://github.com/neovim/libvterm][libvterm]] to display a terminal within a buffer.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package vterm
-:general (tyrant-def "tn" 'vterm))
+(use-package vterm)
 #+END_SRC
 *** evil-snipe
 
@@ -751,7 +760,6 @@ An inteface to version control system Git
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package magit
 :defer t
-:general (tyrant-def "gg" 'magit-status)
 :init
 (setq transient-history-file (concat emacs-etc-dir "transient/history")))
 #+END_SRC
@@ -1019,11 +1027,7 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
   :init
   (setq org-roam-directory brain-dir
         org-roam-link-title-format "§%s"
-        org-roam-link-representation 'title)
-  :general (tyrant-def
-             "or" 'org-roam
-             "oi" 'org-roam-insert
-             "of" 'org-roam-find-file))
+        org-roam-link-representation 'title))
 #+END_SRC
 *** org-modules
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1109,9 +1113,7 @@ A package which allows for much greater customization of the org agenda.
 Support for the Pomodoro technique in org-mode
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package org-pomodoro
-:defer t
-:general (tyrant-def "op" 'org-pomodoro))
+(use-package org-pomodoro)
 #+END_SRC
 
 *** ox-Pandoc
