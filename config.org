@@ -3,8 +3,11 @@
 I've now been using Emacs as my primary editor for over a year. It's phenomenal—if somewhat cubersome at times—and I have learned a great deal about myself throughout this journey. I have made every possible effort to write this code as properly as possible and with the appropriate documentation. However, there are bound to be errors and inconsistencies. If you are looking for inspiration, here are my favourite sources:
 
 [[https://github.com/hlissner/doom-emacs]]
+[[https://github.com/jethrokuan/.emacs.d/]]
+[[https://github.com/mwfogleman/.emacs.d/]]
+[[https://github.com/rememberYou/.emacs.d]]
 
-Alright, here we go:
+Alright, let's do this:
 * Initialization
 ** Lexical binding
 
@@ -68,7 +71,7 @@ Non emacs-specific directories:
 #+END_SRC
 
 ** Package Management
-*** straight.el
+The straight.el package manager allows for greater flexibility of sources e.g. installing directly from a git repository.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defvar bootstrap-version)
@@ -87,7 +90,6 @@ Non emacs-specific directories:
 (straight-use-package 'use-package)
 #+END_SRC
 ** Detection
-
 *** Detect Operating System
 
 Detection for the host operating system. Currently, I only use Emacs on Linux, so this is more for future consideration.
@@ -124,14 +126,6 @@ Doom one is beautiful
 (doom-themes-org-config))
 #+END_SRC
 
-**** Github Modern theme
-
-Colours inspired by the new GitHub theme colours.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package github-modern-theme
-:defer t)
-#+END_SRC
 *** Text
 **** Font
 
@@ -242,23 +236,28 @@ By default, Emacs saves backups relative to the current directory. This is abhor
 ** Better Defaults
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq-default vc-follow-symlinks t	        ; don't ask for confirmation when opening symlinked file
-	      indent-tabs-mode nil		; prefer spaces
-	      tab-width	4			; set width for tabs
-	      ring-bell-function 'ignore	; silent bell when you make a mistake
-	      x-select-enable-clipboard t	; allow pasting selection outside of emacs
-	      delete-by-moving-to-trash t	; move files to trash when deleting
-	      sentence-end-double-space nil)	; end sentences with a single space
+              indent-tabs-mode nil		; prefer spaces
+              tab-width	4			; set width for tabs
+              ring-bell-function 'ignore	; silent bell when you make a mistake
+              x-select-enable-clipboard t	; allow pasting selection outside of emacs
+              delete-by-moving-to-trash t	; move files to trash when deleting
+              sentence-end-double-space nil)	; end sentences with a single space
 #+END_SRC
 
 * Keybindings
 ** Unbind RET
 
 Unbind return from evil, so that org-return-follows-link works.
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load 'evil-maps
   (define-key evil-motion-state-map (kbd "RET") nil))
 #+END_SRC
+
 ** General
+
+Space is the best leader key.
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; load general
 (use-package general
@@ -356,7 +355,7 @@ The Hydra is vanquished once Hercules, any binding that isn't the Hydra's head, 
 
 * Core Utilities
 
-Utilities which are essential for rational operation of emacs
+Utilities which are essential for rational operation of Emacs
 
 ** Exec Path From Shell
 
@@ -368,7 +367,9 @@ This sets the variable exec-path to the normal shell's PATH variable. This doesn
 (exec-path-from-shell-initialize))
 #+END_SRC
 ** Which Key
-A small buffer which shows the list of features you can do next
+
+A small buffer which shows the list of commands you can execute next.
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package which-key
   :init
@@ -428,7 +429,7 @@ This code allows us to quit basically everything using ESC.
 
 *** evil-surround
 
-This package emulates surround.vim by Tim Pope
+This package emulates surround.vim by Tim Pope.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package evil-surround
@@ -632,6 +633,8 @@ Allows for further integration between ivy and projectile.
 #+END_SRC
 ** Projectile
 
+Project management.
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package projectile
   :init
@@ -668,7 +671,7 @@ Allows for further integration between ivy and projectile.
 #+END_SRC
 ** Dired-x
 
-Adds additional functionalit on top of dired
+Adds additional functionality on top of dired.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (add-hook 'dired-load-hook
