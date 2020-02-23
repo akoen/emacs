@@ -1032,6 +1032,30 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
         org-roam-link-title-format "§%s"
         org-roam-link-representation 'title))
 #+END_SRC
+*** org-ref
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-ref
+  :after org
+  :init
+  (setq org-ref-completion-library 'org-ref-ivy-bibtex)
+
+(use-package org-ref-ox-hugo
+  :straight (:host github :repo "jethrokuan/org-ref-ox-hugo")
+  :after org org-ref ox-hugo
+  :config
+  (add-to-list 'org-ref-formatted-citation-formats
+               '("md"
+                 ("article" . "${author}, *${title}*, ${journal}, *${volume}(${number})*, ${pages} (${year}). ${doi}")
+                 ("inproceedings" . "${author}, *${title}*, In ${editor}, ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
+                 ("book" . "${author}, *${title}* (${year}), ${address}: ${publisher}.")
+                 ("phdthesis" . "${author}, *${title}* (Doctoral dissertation) (${year}). ${school}, ${address}.")
+                 ("inbook" . "${author}, *${title}*, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
+                 ("incollection" . "${author}, *${title}*, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
+                 ("proceedings" . "${editor} (Eds.), _${booktitle}_ (${year}). ${address}: ${publisher}.")
+                 ("unpublished" . "${author}, *${title}* (${year}). Unpublished manuscript.")
+                 ("misc" . "${author} (${year}). *${title}*. Retrieved from [${howpublished}](${howpublished}). ${note}.")
+                 (nil . "${author}, *${title}* (${year})."))))
+#+END_SRC
 *** org-modules
 #+BEGIN_SRC emacs-lisp :tangle yes
 (require 'org-install)
