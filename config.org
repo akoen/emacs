@@ -300,6 +300,7 @@ Space is the best leader key.
    "oi" 'org-roam-insert
    "of" 'org-roam-find-file
    "op" 'org-pomodoro
+   "ob" 'my/org-visit-bibliography
 
    ;; Search
    "sb" 'swiper
@@ -1030,14 +1031,18 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
   :init
   (setq org-roam-directory brain-dir
         org-roam-link-title-format "§%s"
-        org-roam-link-representation 'title))
+        org-roam-link-representation 'title)
+
+  (defun my/org-visit-bibliography ()
+    (interactive)
+    (find-file (expand-file-name (concat "./bib/" (file-name-base buffer-file-name) ".bib")))))
 #+END_SRC
 *** org-ref
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-ref
   :after org
-  :init
-  (setq org-ref-completion-library 'org-ref-ivy-bibtex)
+  :config
+  (setq org-ref-completion-library 'org-ref-ivy-bibtex))
 
 (use-package org-ref-ox-hugo
   :straight (:host github :repo "jethrokuan/org-ref-ox-hugo")
