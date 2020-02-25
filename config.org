@@ -1413,7 +1413,7 @@ Writing environment
 ;; find aspell and hunspell automatically
 (use-package flyspell
 :config
-  (setq ispell-program-name "hunspell")
+  (setq ispell-program-name "aspell")
 )
 #+END_SRC
 * Organization
