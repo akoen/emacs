@@ -1035,9 +1035,7 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
 *** org-ref
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-ref
-  :after org
-  :init
-  (setq org-ref-completion-library 'org-ref-ivy-bibtex)
+  :after org)
 
 (use-package org-ref-ox-hugo
   :straight (:host github :repo "jethrokuan/org-ref-ox-hugo")
