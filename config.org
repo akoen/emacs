@@ -134,14 +134,6 @@ Doom one is beautiful
 (set-face-attribute 'default nil :height 100)
 #+END_SRC
 
-**** Text wrapping
-
-Soft wrapping instead of hard wrapping.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(global-visual-line-mode 1)
-#+END_SRC
-
 *** Disable unecessary UI elements
 **** Tool Bar
 
@@ -786,6 +778,8 @@ Forces proper indenting after every change.
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org
   :straight org-plus-contrib
+  :hook
+  (org-mode . visual-line-mode)
   :init
   (setq org-directory tasks-dir
         org-archive-location (concat archive-dir "Tasks/archive_" (format-time-string "%Y") ".org::datetree/")
