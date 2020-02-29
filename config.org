@@ -1214,6 +1214,12 @@ Allow RefTeX to plug into AUCTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package flycheck)
 #+END_SRC
+** EditorConfig
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package editorconfig
+  :config
+  (editorconfig-mode 1))
+#+END_SRC
 ** Web
 *** Web Mode
 #+BEGIN_SRC emacs-lisp :tangle yes
