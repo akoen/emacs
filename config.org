@@ -1024,8 +1024,7 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
 (use-package org-roam
   :after org
   :hook
-  ((org-mode . org-roam-mode)
-   (after-init . org-roam--build-cache-async))
+  (after-init . org-roam-mode)
   :straight (:host github :repo "jethrokuan/org-roam")
   :init
   (setq org-roam-directory brain-dir
@@ -1038,7 +1037,7 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
   :after org)
 
 (use-package org-ref-ox-hugo
-  :straight (:host github :repo "jethrokuan/org-ref-ox-hugo")
+  :straight (:host github :repo "jethrokuan/org-ref-ox-hugo" :branch "develop")
   :after org org-ref ox-hugo
   :config
   (add-to-list 'org-ref-formatted-citation-formats
