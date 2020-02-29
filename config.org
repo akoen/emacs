@@ -1026,9 +1026,15 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
         org-roam-link-title-format "§%s"
         org-roam-link-representation 'title)
 
-  (defun my/org-visit-bibliography ()
-    (interactive)
-    (find-file (expand-file-name (concat "./bib/" (file-name-base buffer-file-name) ".bib")))))
+  (setq org-roam-templates
+        (list (list "default" (list :file #'org-roam--file-name-timestamp-title
+                                    :content "#+SETUPFILE:./hugo_setup.org
+,#+HUGO_SLUG: ${slug}
+,#+TITLE: ${title}"))))
+
+              (defun my/org-visit-bibliography ()
+                (interactive)
+                (find-file (expand-file-name (concat "./bib/" (file-name-base buffer-file-name) ".bib")))))
 #+END_SRC
 *** org-ref
 #+BEGIN_SRC emacs-lisp :tangle yes
