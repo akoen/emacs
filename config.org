@@ -432,7 +432,9 @@ This package emulates surround.vim by Tim Pope.
 
 *** evil-nerd-commenter
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package evil-nerd-commenter)
+(use-package evil-nerd-commenter
+  :init
+  (evilnc-default-hotkeys))
 #+END_SRC
 
 ** Completion
