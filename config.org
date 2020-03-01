@@ -262,7 +262,7 @@ Space is the best leader key.
    :keymaps '(normal visual insert emacs motion)
    :prefix "SPC"
    :non-normal-prefix "M-SPC"
- 
+   
    ;; Misc
    "u" 'universal-argument
 
@@ -280,6 +280,7 @@ Space is the best leader key.
    ;; Language
    "le" 'english-mode
    "lg" 'writing-mode
+   "ls" 'english-mode
    "lb" 'ispell-buffer
 
    ;; Magit
@@ -1385,7 +1386,6 @@ Writing environment
     (text-scale-increase 0.5)
     (display-line-numbers-mode -1)
     (setq english-mode 1)
-    (call-interactively #'english-mode)
     (set-input-method 'TeX)
     (setq-local writemode 2))
    ((= writemode 2)
@@ -1395,7 +1395,6 @@ Writing environment
     (text-scale-decrease 0)
     (display-line-numbers-mode t)
     (setq english-mode 2)
-    (call-interactively #'english-mode)
     (setq-local display-line-numbers 'relative)
     (setq-local writemode 1))))
 #+END_SRC
