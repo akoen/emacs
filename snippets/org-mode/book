@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: book
+# key: book
+# --
+#+TITLE: $1
+#+Author: $2
