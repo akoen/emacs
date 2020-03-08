@@ -797,7 +797,9 @@ Forces proper indenting after every change.
         org-startup-indented t                                            ; indent each level of heading
         org-hide-emphasis-markers t                                       ; hide the markers for italics and bold
         org-pretty-entities t                                             ; show entities as UTF8 characters
+        org-image-actual-width (/ (display-pixel-width) 3)
         org-log-repeat nil)                                               ; do not record a closing timestamp
+
   :custom-face 
   (variable-pitch ((t (:family "Whitney" :height 1.0)))) ; Alternatively, Office Code Pro is second best
   (org-document-title ((t (:weight bold :height 1.5))))
@@ -806,9 +808,8 @@ Forces proper indenting after every change.
   (org-level-1 ((t (:height 1.1))))
   (org-level-2 ((t (:height 1.1))))
   (org-level-3 ((t (:height 1.1))))
-  (org-link ((t (:underline t))))
+  (org-link ((t (:underline t)))))
 
-  (org-image-actual-width (/ (display-pixel-width) 2)))
 #+END_SRC
 
 ** Configuration
@@ -1024,7 +1025,9 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
   :after org
   :hook
   (after-init . org-roam-mode)
-  :straight (:host github :repo "jethrokuan/org-roam")
+  :straight (:host github :repo "jethrokuan/org-roam" :branch "develop")
+  :config
+  (require 'org-roam-protocol)
   :init
   (setq org-roam-directory brain-dir
         org-roam-link-title-format "§%s"
@@ -1036,9 +1039,9 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
 ,#+HUGO_SLUG: ${slug}
 ,#+TITLE: ${title}"))))
 
-              (defun my/org-visit-bibliography ()
-                (interactive)
-                (find-file (expand-file-name (concat "./bib/" (file-name-base buffer-file-name) ".bib")))))
+  (defun my/org-visit-bibliography ()
+    (interactive)
+    (find-file (expand-file-name (concat "./bib/" (file-name-base buffer-file-name) ".bib")))))
 #+END_SRC
 *** org-ref
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1440,7 +1443,7 @@ Writing environment
 
 (defun my/weekly-review ()
   (interactive)
-  (let ((org-capture-templates '(("w" "Weekly Review" entry (file+datetree (lambda () (concat tasks-dir "reviews_" (format-time-string "%Y") ".org")))
+  (let ((org-capture-templates '(("w" "Weekly Review" entry (file+olp+datetree (lambda () (concat tasks-dir "reviews_" (format-time-string "%Y") ".org")))
                                   (file "~/Drive/Tasks/Templates/weekly-review.org")))))
     (progn
       (org-capture nil "w")
@@ -1450,7 +1453,7 @@ Writing environment
 
 (defun my/monthly-review ()
   (interactive)
-  (let ((org-capture-templates '(("m" "Monthly Review" entry (file+datetree (lambda () (concat tasks-dir "reviews_" (format-time-string "%Y") ".org")))
+  (let ((org-capture-templates '(("m" "Monthly Review" entry (file+olp+datetree (lambda () (concat tasks-dir "reviews_" (format-time-string "%Y") ".org")))
                                   (file "~/Drive/Tasks/Templates/monthly-review.org")))))
     (progn
       (org-capture nil "m")
