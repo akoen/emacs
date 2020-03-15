@@ -1025,7 +1025,7 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
   :after org
   :hook
   (after-init . org-roam-mode)
-  :straight (:host github :repo "jethrokuan/org-roam" :branch "develop")
+  :straight (:host github :repo "jethrokuan/org-roam")
   :config
   (require 'org-roam-protocol)
   :init
@@ -1033,11 +1033,34 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
         org-roam-link-title-format "§%s"
         org-roam-link-representation 'title)
 
-  (setq org-roam-templates
-        (list (list "default" (list :file #'org-roam--file-name-timestamp-title
-                                    :content "#+SETUPFILE:./hugo_setup.org
+  (setq org-roam-capture-templates
+        '(("d" "default" plain (function org-roam--capture-get-point)
+           "%?"
+           :file-name "${slug}"
+           :head "#+SETUPFILE:./hugo_setup.org
+,#+HUGO_SECTION: Notes
 ,#+HUGO_SLUG: ${slug}
-,#+TITLE: ${title}"))))
+,#+TITLE: ${title}\n"
+           :unnarowed t)))
+
+  :config
+  (defun my/org-roam--backlinks-list (file)
+    (if (org-roam--org-roam-file-p file)
+        (--reduce-from
+         (concat acc (format "- [[file:%s][%s]]\n"
+                             (file-relative-name (car it) org-roam-directory)
+                             (org-roam--get-title-or-slug (car it))))
+         "" (org-roam-sql [:select [file-from] :from file-links :where (= file-to $s1)] file))
+      ""))
+
+  (defun my/org-export-preprocessor (backend)
+    (let ((links (my/org-roam--backlinks-list (buffer-file-name))))
+      (unless (string= links "")
+        (save-excursion
+          (goto-char (point-max))
+          (insert (concat "\n* Backlinks\n") links)))))
+
+  (add-hook 'org-export-before-processing-hook 'my/org-export-preprocessor)
 
   (defun my/org-visit-bibliography ()
     (interactive)
