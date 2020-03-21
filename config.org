@@ -670,6 +670,7 @@ Project management.
 Adds additional functionality on top of dired.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+(setq dired-listing-switches "-aBhl  --group-directories-first")
 (add-hook 'dired-load-hook
           (lambda ()
             (load "dired-x")
