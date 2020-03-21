@@ -294,6 +294,7 @@ Space is the best leader key.
    "of" 'org-roam-find-file
    "op" 'org-pomodoro
    "ob" 'my/org-visit-bibliography
+   "ojj" 'org-journal-new-entry
 
    ;; Search
    "sb" 'swiper
@@ -868,9 +869,6 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 (setq org-capture-templates
       `(("t" "Todo" entry (file "~/Drive/Tasks/refile.org")
          "* TODO %?")
-        ("j" "Journal" entry
-         (file+datetree+prompt ,(concat "~/Drive/Areas/Journaling/" (format-time-string "%Y") "/" (format-time-string "%Y") ".org"))
-         "* %?")
         ("p" "Protocol" entry (file "~/Drive/Tasks/refile.org")
          "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
         ("L" "Protocol Link" entry (file "~/Drive/Tasks/refile.org")
@@ -987,6 +985,36 @@ Make bullets circular
 ;(add-hook 'org-mode-hook #'my/org-buffer-sort-by-property)
 #+END_SRC
 ** Packages
+*** EVIL-Org
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package evil-org
+:after org
+:config
+(add-hook 'org-mode-hook 'evil-org-mode)
+  (add-hook 'evil-org-mode-hook
+            (lambda ()
+              (evil-org-set-key-theme)))
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
+#+END_SRC
+
+*** org-Bullets
+Make the header bullets look prettier
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-bullets
+:init
+(setq org-bullets-face-name "Inconsolata-12")
+(setq org-bullets-bullet-list
+    '("◉" "◎" "⚫" "○" "►" "◇"))
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+#+END_SRC
+*** org-checklist
+
+Provides additional options for org checklists such as resetting when parent is marked DONE.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(require 'org-checklist)
+#+END_SRC
 *** org-download
 Automatically insert images via drag-and-drop
 
@@ -1019,6 +1047,79 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
       (expand-file-name filename-with-timestamp dirname)))
   (setq org-download-method 'my-org-download-method))
 #+END_SRC
+*** org-journal
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-journal
+  :custom
+  (org-journal-date-prefix "#+TITLE: ")
+  (org-journal-dir (concat drive-dir "Areas/Journaling/" (format-time-string "%Y") "/"))
+  (org-journal-file-format "%Y-%m-%d.org")
+  (org-journal-date-format "%Y-%m-%d")
+  (org-journal-time-format "" )
+  )
+
+#+END_SRC
+*** org-modules
+#+BEGIN_SRC emacs-lisp :tangle yes
+(require 'org-install)
+(setq org-modules '(org-habit))
+(org-load-modules-maybe t)
+#+END_SRC
+
+*** org-oxclip
+Let you copy formatted org-mode content to the clipboard. Requires the package =xclip= to run.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package htmlize
+  :after org)
+(use-package ox-clip
+  :after org)
+#+END_SRC
+*** org-pomodoro
+
+Support for the Pomodoro technique in org-mode
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-pomodoro)
+#+END_SRC
+
+*** org-Protocol
+
+Allows for external applications to trigger custom actions without external dependencies
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(require 'org-protocol)
+
+(defun transform-square-brackets-to-round-ones(string-to-transform)
+  "Transforms [ into ( and ] into ), other chars left unchanged."
+  (concat 
+   (mapcar #'(lambda (c) (if (equal c ?[) ?\( (if (equal c ?]) ?\) c))) string-to-transform))
+  )
+
+#+END_SRC
+
+*** org-ref
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-ref
+  :after org)
+
+(use-package org-ref-ox-hugo
+  :straight (:host github :repo "jethrokuan/org-ref-ox-hugo" :branch "develop")
+  :after org org-ref ox-hugo
+  :config
+  (add-to-list 'org-ref-formatted-citation-formats
+               '("md"
+                 ("article" . "${author}, *${title}*, ${journal}, *${volume}(${number})*, ${pages} (${year}). ${doi}")
+                 ("inproceedings" . "${author}, *${title}*, In ${editor}, ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
+                 ("book" . "${author}, *${title}* (${year}), ${address}: ${publisher}.")
+                 ("phdthesis" . "${author}, *${title}* (Doctoral dissertation) (${year}). ${school}, ${address}.")
+                 ("inbook" . "${author}, *${title}*, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
+                 ("incollection" . "${author}, *${title}*, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
+                 ("proceedings" . "${editor} (Eds.), _${booktitle}_ (${year}). ${address}: ${publisher}.")
+                 ("unpublished" . "${author}, *${title}* (${year}). Unpublished manuscript.")
+                 ("misc" . "${author} (${year}). *${title}*. Retrieved from [${howpublished}](${howpublished}). ${note}.")
+                 (nil . "${author}, *${title}* (${year})."))))
+#+END_SRC
 *** org-roam
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1029,6 +1130,23 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
   :straight (:host github :repo "jethrokuan/org-roam")
   :config
   (require 'org-roam-protocol)
+
+  (defun my/org-roam--backlinks-list (file)
+    (if (org-roam--org-roam-file-p file)
+        (--reduce-from
+         (concat acc (format "- [[file:%s][%s]]\n"
+                             (file-relative-name (car it) org-roam-directory)
+                             (org-roam--get-title-or-slug (car it))))
+         "" (org-roam-sql [:select [file-from] :from file-links :where (= file-to $s1)] file))
+      ""))
+
+  (defun my/org-export-preprocessor (_backend)
+    (let ((links (my/org-roam--backlinks-list (buffer-file-name))))
+      (unless (string= links "")
+        (save-excursion
+          (goto-char (point-max))
+          (insert (concat "\n* Backlinks\n" links))))))
+  (add-hook 'org-export-before-processing-hook 'my/org-export-preprocessor)
   :init
   (setq org-roam-directory brain-dir
         org-roam-link-title-format "§%s"
@@ -1076,80 +1194,6 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
   (interactive)
   (find-file (expand-file-name (concat "./bib/" (file-name-base buffer-file-name) ".bib")))))
 #+END_SRC
-*** org-ref
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package org-ref
-  :after org)
-
-(use-package org-ref-ox-hugo
-  :straight (:host github :repo "jethrokuan/org-ref-ox-hugo" :branch "develop")
-  :after org org-ref ox-hugo
-  :config
-  (add-to-list 'org-ref-formatted-citation-formats
-               '("md"
-                 ("article" . "${author}, *${title}*, ${journal}, *${volume}(${number})*, ${pages} (${year}). ${doi}")
-                 ("inproceedings" . "${author}, *${title}*, In ${editor}, ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
-                 ("book" . "${author}, *${title}* (${year}), ${address}: ${publisher}.")
-                 ("phdthesis" . "${author}, *${title}* (Doctoral dissertation) (${year}). ${school}, ${address}.")
-                 ("inbook" . "${author}, *${title}*, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
-                 ("incollection" . "${author}, *${title}*, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
-                 ("proceedings" . "${editor} (Eds.), _${booktitle}_ (${year}). ${address}: ${publisher}.")
-                 ("unpublished" . "${author}, *${title}* (${year}). Unpublished manuscript.")
-                 ("misc" . "${author} (${year}). *${title}*. Retrieved from [${howpublished}](${howpublished}). ${note}.")
-                 (nil . "${author}, *${title}* (${year})."))))
-#+END_SRC
-*** org-modules
-#+BEGIN_SRC emacs-lisp :tangle yes
-(require 'org-install)
-(setq org-modules '(org-habit))
-(org-load-modules-maybe t)
-#+END_SRC
-
-*** org-checklist
-
-Provides additional options for org checklists such as resetting when parent is marked DONE.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(require 'org-checklist)
-#+END_SRC
-*** EVIL-Org
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package evil-org
-:after org
-:config
-(add-hook 'org-mode-hook 'evil-org-mode)
-  (add-hook 'evil-org-mode-hook
-            (lambda ()
-              (evil-org-set-key-theme)))
-  (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys))
-#+END_SRC
-
-*** org-Protocol
-
-Allows for external applications to trigger custom actions without external dependencies
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(require 'org-protocol)
-
-(defun transform-square-brackets-to-round-ones(string-to-transform)
-  "Transforms [ into ( and ] into ), other chars left unchanged."
-  (concat 
-   (mapcar #'(lambda (c) (if (equal c ?[) ?\( (if (equal c ?]) ?\) c))) string-to-transform))
-  )
-
-#+END_SRC
-
-*** org-Bullets
-Make the header bullets look prettier
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package org-bullets
-:init
-(setq org-bullets-face-name "Inconsolata-12")
-(setq org-bullets-bullet-list
-    '("◉" "◎" "⚫" "○" "►" "◇"))
-(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
-#+END_SRC
 *** org-super-agenda
 
 A package which allows for much greater customization of the org agenda.
@@ -1177,14 +1221,14 @@ A package which allows for much greater customization of the org agenda.
   (org-super-agenda-mode))
 #+END_SRC
 
-*** org-pomodoro
-
-Support for the Pomodoro technique in org-mode
-
+*** ox-hugo
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package org-pomodoro)
+(use-package ox-hugo
+  :after ox
+  :init
+  (setq org-hugo-set-lastmod t
+        org-hugo-default-section-directory "notes"))
 #+END_SRC
-
 *** ox-Pandoc
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ox-pandoc
@@ -1195,23 +1239,6 @@ Support for the Pomodoro technique in org-mode
     (?L "to latex-pdf." org-pandoc-export-to-latex-pdf)
     (?4 "to html5 and open." org-pandoc-export-to-html5-and-open)
     (?$ "as html5." org-pandoc-export-as-html5))))
-#+END_SRC
-*** ox-hugo
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package ox-hugo
-  :after ox
-  :init
-  (setq org-hugo-set-lastmod t
-        org-hugo-default-section-directory "notes"))
-#+END_SRC
-*** org-oxclip
-Let you copy formatted org-mode content to the clipboard. Requires the package =xclip= to run.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package htmlize
-  :after org)
-(use-package ox-clip
-  :after org)
 #+END_SRC
 * LaTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
