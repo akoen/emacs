@@ -1267,7 +1267,6 @@ Allow RefTeX to plug into AUCTeX
   (editorconfig-mode 1))
 #+END_SRC
 ** Web
-*** Web Mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package web-mode
 :defer t
@@ -1276,6 +1275,45 @@ Allow RefTeX to plug into AUCTeX
 
 (use-package gulp-task-runner
 :defer t)
+#+END_SRC
+** Javascript
+
+*** prettier-js
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package prettier-js
+  :custom (prettier-js-args '("--print-width" "100"
+                              "--single-quote" "true"
+                              "--trailing-comma" "all")))
+#+END_SRC
+*** js2-mode
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package js2-mode
+  :mode "\\.m?js\\'"
+  :custom
+  (js-indent-level 2))
+#+END_SRC
+
+*** js2-refactor
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package js2-refactor
+  :hook (((js2-mode rjsx-mode) . js2-refactor-mode)))
+#+END_SRC
+
+*** xref-js2
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package xref-js2
+  :after (:or js2-mode rjsx-mode))
+#+END_SRC
+
+*** rjsx-mode
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package rjsx-mode
+  :mode "components/.+\\.js$")
 #+END_SRC
 ** LSP-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
