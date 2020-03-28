@@ -293,7 +293,6 @@ Space is the best leader key.
    "or" 'org-roam
    "oi" 'org-roam-insert
    "of" 'org-roam-find-file
-   "op" 'org-pomodoro
    "ob" 'my/org-visit-bibliography
    "ojj" 'org-journal-new-entry
 
@@ -986,6 +985,16 @@ Make bullets circular
 ;(add-hook 'org-mode-hook #'my/org-buffer-sort-by-property)
 #+END_SRC
 ** Packages
+*** Babel
+**** ob-mermaid
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package mermaid-mode
+  :custom
+  (mermaid-mmdc-location  "~/node_modules/.bin/mmdc"))
+(use-package ob-mermaid
+  :custom
+  (ob-mermaid-cli-path "~/node_modules/.bin/mmdc"))
+#+END_SRC
 *** EVIL-Org
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package evil-org
@@ -1076,14 +1085,6 @@ Let you copy formatted org-mode content to the clipboard. Requires the package =
 (use-package ox-clip
   :after org)
 #+END_SRC
-*** org-pomodoro
-
-Support for the Pomodoro technique in org-mode
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package org-pomodoro)
-#+END_SRC
-
 *** org-Protocol
 
 Allows for external applications to trigger custom actions without external dependencies
