@@ -1552,9 +1552,7 @@ Reset garbage collector to a reasonable default. If freezing or stuttering occur
 (setq gc-cons-threshold 16777216
       gc-cons-percentage 0.1)
 #+END_SRC
-** Reload org
-
-For some reason, an error occurs if org is not reloaded. I'm trying to fix this.
+** Org-reload
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (org-reload)
