@@ -285,6 +285,7 @@ Space is the best leader key.
 
    ;; Magit
    "gg" 'magit-status
+   "gfh" 'magit-log-buffer-file
 
    ;; Org mode
    "oa" 'org-agenda
