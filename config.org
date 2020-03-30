@@ -1480,7 +1480,6 @@ Writing environment
     (text-scale-increase 0.5)
     (display-line-numbers-mode -1)
     (setq english-mode 1)
-    (set-input-method 'TeX)
     (setq-local writemode 2))
    ((= writemode 2)
     ;;(focus-mode -1)
