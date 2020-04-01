@@ -766,6 +766,15 @@ Forces proper indenting after every change.
 (use-package org
   :hook
   (org-mode . visual-line-mode)
+  :custom
+  
+  ;; calendar ical export
+  (org-icalendar-include-todo nil)
+  (org-icalendar-store-UID nil)
+  (org-icalendar-timezone nil)
+  (org-icalendar-use-deadline '(event-if-todo-not-done))
+  (org-icalendar-use-scheduled '(event-if-todo-not-done))
+  (org-icalendar-combined-agenda-file (concat tasks-dir "calendar.ics"))
   :init
   (setq org-directory tasks-dir
         org-archive-location (concat archive-dir "Tasks/archive_" (format-time-string "%Y") ".org::datetree/")
@@ -1452,7 +1461,6 @@ Writing environment
     (text-scale-increase 0.5)
     (display-line-numbers-mode -1)
     (setq english-mode 1)
-    (set-input-method 'TeX)
     (setq-local writemode 2))
    ((= writemode 2)
     ;;(focus-mode -1)
