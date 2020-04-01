@@ -274,6 +274,7 @@ Space is the best leader key.
    "or" 'org-roam
    "oi" 'org-roam-insert
    "of" 'org-roam-find-file
+   "og" 'org-roam-show-graph
    "ob" 'my/org-visit-bibliography
    "ojj" 'org-journal-new-entry
 
