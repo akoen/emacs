@@ -70,25 +70,6 @@ Non emacs-specific directories:
   "Dotfiles directory")
 #+END_SRC
 
-** Package Management
-The straight.el package manager allows for greater flexibility of sources e.g. installing directly from a git repository.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-(setq straight-use-package-by-default t)
-(straight-use-package 'use-package)
-#+END_SRC
 ** Detection
 *** Detect Operating System
 
@@ -782,7 +763,6 @@ Forces proper indenting after every change.
 * Org-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org
-  :straight org-plus-contrib
   :hook
   (org-mode . visual-line-mode)
   :init
@@ -1551,9 +1531,4 @@ Reset garbage collector to a reasonable default. If freezing or stuttering occur
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq gc-cons-threshold 16777216
       gc-cons-percentage 0.1)
-#+END_SRC
-** Org-reload
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(org-reload)
 #+END_SRC
