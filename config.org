@@ -32,7 +32,10 @@ The garbage collector eats up a lot of time during startup, so turn up its memor
       gc-cons-percentage 0.6)
 #+END_SRC
 
-** Set Personal Directories
+** Set Directories
+
+Note that system directories are set in init.el
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defconst drive-dir "~/Drive/"
   "The root Drive directory, where all documents are stored.")
@@ -49,6 +52,15 @@ The garbage collector eats up a lot of time during startup, so turn up its memor
 (defconst dotfiles-dir "~/.dotfiles"
   "Dotfiles directory")
 #+END_SRC
+
+Move files are folders to appropriate locations:
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq bookmarks-default-file (concat emacs-etc-dir "bookmarks")
+      tramp-auto-save-directory (concat emacs-cache-dir "tramp-auto-save/")
+      tramp-backup-directory-alist backup-directory-alist
+      tramp-persistency-file-name (concat emacs-cache-dir "tramp-persistency.el"))
+#+END_SRC
+
 
 ** Detection
 *** Detect Operating System
@@ -188,13 +200,13 @@ By default, Emacs saves backups relative to the current directory. This is abhor
 
 ** Better Defaults
 #+BEGIN_SRC emacs-lisp :tangle yes
-(setq-default vc-follow-symlinks t	        ; don't ask for confirmation when opening symlinked file
-              indent-tabs-mode nil		; prefer spaces
-              tab-width	4			; set width for tabs
-              ring-bell-function 'ignore	; silent bell when you make a mistake
-              x-select-enable-clipboard t	; allow pasting selection outside of emacs
-              delete-by-moving-to-trash t	; move files to trash when deleting
-              sentence-end-double-space nil)	; end sentences with a single space
+(setq-default vc-follow-symlinks t           ; don't ask for confirmation when opening symlinked file
+              indent-tabs-mode nil           ; prefer spaces
+              tab-width	4                    ; set width for tabs
+              ring-bell-function 'ignore     ; silent bell when you make a mistake
+              x-select-enable-clipboard t    ; allow pasting selection outside of emacs
+              delete-by-moving-to-trash t    ; move files to trash when deleting
+              sentence-end-double-space nil) ; end sentences with a single space
 #+END_SRC
 
 * Keybindings
@@ -1028,6 +1040,7 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-journal
   :custom
+  (org-journal-cache-dir emacs-cache-dir)
   (org-journal-date-prefix "#+TITLE: ")
   (org-journal-dir (concat drive-dir "Areas/Journaling/" (format-time-string "%Y") "/"))
   (org-journal-file-format "%Y-%m-%d.org")
@@ -1302,7 +1315,7 @@ Allow RefTeX to plug into AUCTeX
 (use-package dap-mode
   :after lsp-mode
   :init
-  (setq dap--breakpoints-file (concat emacs-etc-dir "dap-breakpoints"))
+  (setq dap-breakpoints-file (concat emacs-etc-dir "dap-breakpoints"))
   :config
   (dap-mode t)
   (dap-ui-mode t))
