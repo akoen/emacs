@@ -958,9 +958,6 @@ Make bullets circular
 *** Babel
 **** ob-mermaid
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package mermaid-mode
-  :custom
-  (mermaid-mmdc-location  "~/node_modules/.bin/mmdc"))
 (use-package ob-mermaid
   :custom
   (ob-mermaid-cli-path "~/node_modules/.bin/mmdc"))
@@ -1326,10 +1323,6 @@ Allow RefTeX to plug into AUCTeX
                 projectile-project-root-files-top-down-recurring))
   :hook ((c-mode c++-mode objc-mode) .
          (lambda () (require 'ccls) (lsp))))
-
-(use-package google-c-style
-  :hook ((c-mode c++-mode) . google-set-c-style)
-  (c-mode-common . google-make-newline-indent))
 #+END_SRC
 
 To configure a new C program:
