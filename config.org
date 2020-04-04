@@ -32,27 +32,7 @@ The garbage collector eats up a lot of time during startup, so turn up its memor
       gc-cons-percentage 0.6)
 #+END_SRC
 
-** Set Directories
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(defconst emacs-dir (file-truename user-emacs-directory)
-  "The currently loaded .emacs.d directory.")
-
-(defconst emacs-local-dir (concat emacs-dir ".local/")
-  "Root directory for local storage. Do not share across systems.")
-
-(defconst emacs-cache-dir (concat emacs-local-dir "cache/")
-  "Directory for volatile local storage.")
-
-(defconst emacs-etc-dir (concat emacs-local-dir "etc/")
-  "Directory for non-volatile local storage")
-
-(defconst emacs-packages-dir (concat emacs-local-dir "packages/")
-  "Where pacakges are stored.")
-#+END_SRC
-
-Non emacs-specific directories:
-
+** Set Personal Directories
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defconst drive-dir "~/Drive/"
   "The root Drive directory, where all documents are stored.")
