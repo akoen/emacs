@@ -1301,14 +1301,6 @@ Allow RefTeX to plug into AUCTeX
   (setq lsp-ui-doc-enable nil
         lsp-ui-sideline-show-hover nil))
 (use-package company-lsp)
-
-(use-package dap-mode
-  :after lsp-mode
-  :init
-  (setq dap-breakpoints-file (concat emacs-etc-dir "dap-breakpoints"))
-  :config
-  (dap-mode t)
-  (dap-ui-mode t))
 #+END_SRC
 
 ** C/C++
