@@ -61,7 +61,6 @@ Move files are folders to appropriate locations:
       tramp-persistency-file-name (concat emacs-cache-dir "tramp-persistency.el"))
 #+END_SRC
 
-
 ** Detection
 *** Detect Operating System
 
@@ -1042,11 +1041,10 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
   :custom
   (org-journal-cache-dir emacs-cache-dir)
   (org-journal-date-prefix "#+TITLE: ")
-  (org-journal-dir (concat drive-dir "Areas/Journaling/" (format-time-string "%Y") "/"))
+  (org-journal-dir (concat brain-dir "journal/"))
   (org-journal-file-format "%Y-%m-%d.org")
   (org-journal-date-format "%Y-%m-%d")
-  (org-journal-time-format "" )
-  )
+  (org-journal-time-format "" ))
 
 #+END_SRC
 *** org-modules
