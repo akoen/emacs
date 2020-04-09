@@ -204,6 +204,7 @@ By default, Emacs saves backups relative to the current directory. This is abhor
               tab-width	4                    ; set width for tabs
               ring-bell-function 'ignore     ; silent bell when you make a mistake
               x-select-enable-clipboard t    ; allow pasting selection outside of emacs
+              initial-major-mode 'org-mode
               delete-by-moving-to-trash t    ; move files to trash when deleting
               sentence-end-double-space nil) ; end sentences with a single space
 #+END_SRC
@@ -1043,7 +1044,7 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
   (org-journal-date-prefix "#+TITLE: ")
   (org-journal-dir (concat brain-dir "journal/"))
   (org-journal-file-format "%Y-%m-%d.org")
-  (org-journal-date-format "%Y-%m-%d")
+  (org-journal-date-format "%A %Y-%m-%d")
   (org-journal-time-format "" ))
 
 #+END_SRC
@@ -1120,6 +1121,31 @@ Allows for external applications to trigger custom actions without external depe
            :head "#+SETUPFILE:./hugo_setup.org
 ,#+HUGO_SLUG: ${slug}
 ,#+TITLE: ${title}\n"
+           :unnarowed t)
+          ("b" "book" plain (function org-roam--capture-get-point)
+           "%?"
+           :file-name "books/${slug}"
+           :head "#+SETUPFILE:./hugo_setup.org
+,#+HUGO_SECTION: books
+,#+HUGO_SLUG: ${slug}
+,#+TITLE: ${title}\n
+
+- author ::
+- tags :: "
+           :unnarowed t)
+          ("d" "default" plain (function org-roam--capture-get-point)
+           "%?"
+           :file-name "${slug}"
+           :head "#+SETUPFILE:./hugo_setup.org
+,#+HUGO_SLUG: ${slug}
+,#+TITLE: ${title}\n"
+           :unnarowed t)
+          ("d" "default" plain (function org-roam--capture-get-point)
+           "%?"
+           :file-name "${slug}"
+           :head "#+SETUPFILE:./hugo_setup.org
+,#+HUGO_SLUG: ${slug}
+,#+TITLE: ${title}\n"
            :unnarowed t)))
   (setq org-roam-ref-capture-templates
         '(("r" "ref" plain (function org-roam--capture-get-point)
@@ -1132,29 +1158,29 @@ Allows for external applications to trigger custom actions without external depe
 - source :: ${ref}"
            :unnarrowed t)))
 
-:config
-(require 'org-roam-protocol)
-(defun my/org-roam--backlinks-list (file)
-  (if (org-roam--org-roam-file-p file)
-      (--reduce-from
-       (concat acc (format "- [[file:%s][%s]]\n"
-                           (file-relative-name (car it) org-roam-directory)
-                           (org-roam--get-title-or-slug (car it))))
-       "" (org-roam-sql [:select [file-from] :from file-links :where (= file-to $s1)] file))
-    ""))
+  :config
+  (require 'org-roam-protocol)
+  (defun my/org-roam--backlinks-list (file)
+    (if (org-roam--org-roam-file-p file)
+        (--reduce-from
+         (concat acc (format "- [[file:%s][%s]]\n"
+                             (file-relative-name (car it) org-roam-directory)
+                             (org-roam--get-title-or-slug (car it))))
+         "" (org-roam-sql [:select [file-from] :from file-links :where (= file-to $s1)] file))
+      ""))
 
-(defun my/org-export-preprocessor (backend)
-  (let ((links (my/org-roam--backlinks-list (buffer-file-name))))
-    (unless (string= links "")
-      (save-excursion
-        (goto-char (point-max))
-        (insert (concat "\n* Backlinks\n") links)))))
+  (defun my/org-export-preprocessor (backend)
+    (let ((links (my/org-roam--backlinks-list (buffer-file-name))))
+      (unless (string= links "")
+        (save-excursion
+          (goto-char (point-max))
+          (insert (concat "\n* Backlinks\n") links)))))
 
-(add-hook 'org-export-before-processing-hook 'my/org-export-preprocessor)
+  (add-hook 'org-export-before-processing-hook 'my/org-export-preprocessor)
 
-(defun my/org-visit-bibliography ()
-  (interactive)
-  (find-file (expand-file-name (concat "./bib/" (file-name-base buffer-file-name) ".bib")))))
+  (defun my/org-visit-bibliography ()
+    (interactive)
+    (find-file (expand-file-name (concat "./bib/" (file-name-base buffer-file-name) ".bib")))))
 #+END_SRC
 *** org-super-agenda
 
