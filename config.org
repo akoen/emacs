@@ -693,8 +693,11 @@ An Emacs module which implements a bridge to [[https://github.com/neovim/libvter
   ;; Don't highlight - overly distracting
   (setq sp-highlight-pair-overlay nil
         sp-highlight-wrap-overlay nil
-	sp-highlight-wrap-tag-overlay nil)
+	    sp-highlight-wrap-tag-overlay nil)
   :config
+  ;; automatically add newline between braces
+  (dolist (brace '("(" "{" "["))
+    (sp-pair brace nil :post-handlers '(:add ("||\n[i]" "RET"))))
   (smartparens-global-mode 1))
 #+END_SRC
 
