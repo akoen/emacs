@@ -169,7 +169,7 @@ A fancy and fast mode-line inspired by minimalistic design
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package doom-modeline
-:hook (after-init . doom-modeline-mode))
+:init (doom-modeline-mode 1))
 #+END_SRC
 
 ** Revert
@@ -1108,7 +1108,7 @@ Allows for external applications to trigger custom actions without external depe
   :after org
   :hook
   (after-init . org-roam-mode)
-  :straight (:host github :repo "jethrokuan/org-roam")
+  :straight (:host github :repo "jethrokuan/org-roam") ;; removing this causes mad errors.
   :init
   (setq org-roam-directory brain-dir
         org-roam-link-title-format "§%s"
