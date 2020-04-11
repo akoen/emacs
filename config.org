@@ -420,83 +420,83 @@ This package emulates surround.vim by Tim Pope.
     "Displays the branch candidate of the candidate for ivy-rich."
     (let ((candidate (expand-file-name candidate ivy--directory)))
       (if (or (not (file-exists-p candidate)) (file-remote-p candidate))
-	      ""
-	    (format "%s%s"
-		        (propertize
-		         (replace-regexp-in-string abbreviated-home-dir "~/"
-					                       (file-name-directory
-					                        (directory-file-name candidate)))
-		         'face 'font-lock-doc-face)
-		        (propertize
-		         (file-name-nondirectory
-		          (directory-file-name candidate))
-		         'face 'success)))))
+          ""
+        (format "%s%s"
+                (propertize
+                 (replace-regexp-in-string abbreviated-home-dir "~/"
+                                           (file-name-directory
+                                            (directory-file-name candidate)))
+                 'face 'font-lock-doc-face)
+                (propertize
+                 (file-name-nondirectory
+                  (directory-file-name candidate))
+                 'face 'success)))))
 
   (defun ivy-rich-compiling (candidate)
     "Displays compiling buffers of the candidate for ivy-rich."
     (let* ((candidate (expand-file-name candidate ivy--directory)))
       (if (or (not (file-exists-p candidate)) (file-remote-p candidate)
-	          (not (magit-git-repo-p candidate)))
-	      ""
-	    (if (my/projectile-compilation-buffers candidate)
-	        "compiling"
-	      ""))))
+              (not (magit-git-repo-p candidate)))
+          ""
+        (if (my/projectile-compilation-buffers candidate)
+            "compiling"
+          ""))))
 
   (defun ivy-rich-file-group (candidate)
     "Displays the file group of the candidate for ivy-rich"
     (let ((candidate (expand-file-name candidate ivy--directory)))
       (if (or (not (file-exists-p candidate)) (file-remote-p candidate))
-	      ""
-	    (let* ((group-id (file-attribute-group-id (file-attributes candidate)))
-	           (group-function (if (fboundp #'group-name) #'group-name #'identity))
-	           (group-name (funcall group-function group-id)))
-	      (format "%s" group-name)))))
+          ""
+        (let* ((group-id (file-attribute-group-id (file-attributes candidate)))
+               (group-function (if (fboundp #'group-name) #'group-name #'identity))
+               (group-name (funcall group-function group-id)))
+          (format "%s" group-name)))))
 
   (defun ivy-rich-file-modes (candidate)
     "Displays the file mode of the candidate for ivy-rich."
     (let ((candidate (expand-file-name candidate ivy--directory)))
       (if (or (not (file-exists-p candidate)) (file-remote-p candidate))
-	      ""
-	    (format "%s" (file-attribute-modes (file-attributes candidate))))))
+          ""
+        (format "%s" (file-attribute-modes (file-attributes candidate))))))
 
   (defun ivy-rich-file-size (candidate)
     "Displays the file size of the candidate for ivy-rich."
     (let ((candidate (expand-file-name candidate ivy--directory)))
       (if (or (not (file-exists-p candidate)) (file-remote-p candidate))
-	      ""
-	    (let ((size (file-attribute-size (file-attributes candidate))))
-	      (cond
-	       ((> size 1000000) (format "%.1fM " (/ size 1000000.0)))
-	       ((> size 1000) (format "%.1fk " (/ size 1000.0)))
-	       (t (format "%d " size)))))))
+          ""
+        (let ((size (file-attribute-size (file-attributes candidate))))
+          (cond
+           ((> size 1000000) (format "%.1fM " (/ size 1000000.0)))
+           ((> size 1000) (format "%.1fk " (/ size 1000.0)))
+           (t (format "%d " size)))))))
 
   (defun ivy-rich-file-user (candidate)
     "Displays the file user of the candidate for ivy-rich."
     (let ((candidate (expand-file-name candidate ivy--directory)))
       (if (or (not (file-exists-p candidate)) (file-remote-p candidate))
-	      ""
-	    (let* ((user-id (file-attribute-user-id (file-attributes candidate)))
-	           (user-name (user-login-name user-id)))
-	      (format "%s" user-name)))))
+          ""
+        (let* ((user-id (file-attribute-user-id (file-attributes candidate)))
+               (user-name (user-login-name user-id)))
+          (format "%s" user-name)))))
 
   (defun ivy-rich-switch-buffer-icon (candidate)
     "Returns an icon for the candidate out of `all-the-icons'."
     (with-current-buffer
-	    (get-buffer candidate)
+        (get-buffer candidate)
       (let ((icon (all-the-icons-icon-for-mode major-mode :height 0.9)))
-	    (if (symbolp icon)
-	        (all-the-icons-icon-for-mode 'fundamental-mode :height 0.9)
-	      icon))))
+        (if (symbolp icon)
+            (all-the-icons-icon-for-mode 'fundamental-mode :height 0.9)
+          icon))))
   :config
   (plist-put ivy-rich-display-transformers-list
-	         'counsel-find-file
-	         '(:columns
-	           ((ivy-rich-candidate               (:width 73))
-		        (ivy-rich-file-user               (:width 8 :face font-lock-doc-face))
-		        (ivy-rich-file-group              (:width 4 :face font-lock-doc-face))
-		        (ivy-rich-file-modes              (:width 11 :face font-lock-doc-face))
-		        (ivy-rich-file-size               (:width 7 :face font-lock-doc-face))
-		        (ivy-rich-file-last-modified-time (:width 30 :face font-lock-doc-face)))))
+             'counsel-find-file
+             '(:columns
+               ((ivy-rich-candidate               (:width 73))
+                (ivy-rich-file-user               (:width 8 :face font-lock-doc-face))
+                (ivy-rich-file-group              (:width 4 :face font-lock-doc-face))
+                (ivy-rich-file-modes              (:width 11 :face font-lock-doc-face))
+                (ivy-rich-file-size               (:width 7 :face font-lock-doc-face))
+                (ivy-rich-file-last-modified-time (:width 30 :face font-lock-doc-face)))))
   (plist-put ivy-rich-display-transformers-list
              'ivy-switch-buffer
              '(:columns
@@ -554,9 +554,9 @@ Counsel contains ivy enhancements for commonly-used functions.
      ("p" (lambda (path) (with-ivy-window (insert (file-relative-name path default-directory)))) "insert relative path")
      ("P" (lambda (path) (with-ivy-window (insert path))) "insert absolute path")
      ("l" (lambda (path) "Insert org-link with relative path"
-	        (with-ivy-window (insert (format "[[./%s]]" (file-relative-name path default-directory))))) "insert org-link (rel. path)")
+            (with-ivy-window (insert (format "[[./%s]]" (file-relative-name path default-directory))))) "insert org-link (rel. path)")
      ("L" (lambda (path) "Insert org-link with absolute path"
-	        (with-ivy-window (insert (format "[[%s]]" path)))) "insert org-link (abs. path)")))
+            (with-ivy-window (insert (format "[[%s]]" path)))) "insert org-link (abs. path)")))
   (counsel-mode 1))
 
 #+END_SRC
@@ -649,9 +649,9 @@ An Emacs module which implements a bridge to [[https://github.com/neovim/libvter
 (use-package evil-snipe
   :init
   (setq evil-snipe-smart-case t
-	    evil-snipe-scope 'line
-	    evil-snipe-repeat-scope 'visible
-	    evil-snipe-char-fold t)
+        evil-snipe-scope 'line
+        evil-snipe-repeat-scope 'visible
+        evil-snipe-char-fold t)
   :config 
   (evil-snipe-mode +1)
   (evil-snipe-override-mode +1))
@@ -668,7 +668,7 @@ An Emacs module which implements a bridge to [[https://github.com/neovim/libvter
   ;; Don't highlight - overly distracting
   (setq sp-highlight-pair-overlay nil
         sp-highlight-wrap-overlay nil
-	    sp-highlight-wrap-tag-overlay nil)
+        sp-highlight-wrap-tag-overlay nil)
   :config
   ;; automatically add newline between braces
   (dolist (brace '("(" "{" "["))
@@ -841,7 +841,7 @@ Refile configuration
 #+BEGIN_SRC emacs-lisp :tangle yes
                                         ; Targets include this file and any file contributing to the agenda - up to 9 levels deep
 (setq org-refile-targets (quote ((nil :maxlevel . 1)
-				                 (org-agenda-files :maxlevel . 1))))
+                                 (org-agenda-files :maxlevel . 1))))
 
                                         ; Use full outline paths for refile targets - we file directly with IDO
 (setq org-refile-use-outline-path t)
@@ -910,10 +910,10 @@ We use a font that's easier on the eyes for long blocks of text
 Make bullets circular
 #+BEGIN_SRC emacs-lisp :tangle yes
 (font-lock-add-keywords 'org-mode
-			            '(("^ *\\([-]\\) "
-			               0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•")))
-			              ("\\(->\\)"
-			               0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "→")))))
+                        '(("^ *\\([-]\\) "
+                           0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•")))
+                          ("\\(->\\)"
+                           0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "→")))))
 #+END_SRC
 
 *** Autosort
@@ -925,16 +925,16 @@ Make bullets circular
       (org-back-to-heading)
       (forward-line 1)
       (when (< (point) subtree-end)
-	    (re-search-forward "^\*+ " subtree-end t)))))
+        (re-search-forward "^\*+ " subtree-end t)))))
 
 (defun my/org-entry-sort-by-property nil
   (let ((property (org-entry-get (point) "SORT" 'INHERIT)))
     (when (and (not (seq-empty-p property))
-	           (my/org-entry-has-subentries))
+               (my/org-entry-has-subentries))
       (funcall #'org-sort-entries nil (string-to-char property) nil nil nil)))
   (let ((property_second (org-entry-get (point) "SORT_AFTER" 'INHERIT)))
     (when (and (not (seq-empty-p property_second))
-	           (my/org-entry-has-subentries))
+               (my/org-entry-has-subentries))
       (funcall #'org-sort-entries nil (string-to-char property_second) nil nil nil))))
 
 (defun my/org-buffer-sort-by-property (&optional MATCH)
@@ -1169,19 +1169,19 @@ A package which allows for much greater customization of the org agenda.
   :after org-agenda
   :init
   (setq org-super-agenda-groups '((:name "High Priority"
-					                     :time-grid t
-					                     :priority "A")
-				                  (:name "Habits"
-					                     :time-grid t
-					                     :tag "habit")
-				                  (:name "Personal"
-					                     :time-grid t
-					                     :and (:tag "personal"
-						                            :not (:tag "habit")))
-				                  (:name "School"
-					                     :time-grid t
-					                     :file-path "school"))
-	    org-super-agenda-header-map (make-sparse-keymap)) ;; removes custom keybindings which are in opposition to evil-org
+                                         :time-grid t
+                                         :priority "A")
+                                  (:name "Habits"
+                                         :time-grid t
+                                         :tag "habit")
+                                  (:name "Personal"
+                                         :time-grid t
+                                         :and (:tag "personal"
+                                                    :not (:tag "habit")))
+                                  (:name "School"
+                                         :time-grid t
+                                         :file-path "school"))
+        org-super-agenda-header-map (make-sparse-keymap)) ;; removes custom keybindings which are in opposition to evil-org
 
   :config
   (org-super-agenda-mode))
@@ -1437,7 +1437,7 @@ Writing environment
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; find aspell and hunspell automatically
 (use-package flyspell
-:config
+  :config
   (setq ispell-program-name "aspell"))
 #+END_SRC
 * Organization
