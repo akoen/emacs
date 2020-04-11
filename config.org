@@ -749,13 +749,13 @@ An inteface to version control system Git
 
 ** Aggressive-indent
 
-Forces proper indenting after every change.
+# Forces proper indenting after every change.
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package aggressive-indent
-:init
-(global-aggressive-indent-mode 1))
-#+END_SRC
+# #+BEGIN_SRC emacs-lisp :tangle yes
+# (use-package aggressive-indent
+# :init
+# (global-aggressive-indent-mode 1))
+# #+END_SRC
 * Org-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org
@@ -1279,8 +1279,7 @@ Allow RefTeX to plug into AUCTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package web-mode
 :defer t
-:mode "\\.p?html?$"
-)
+:mode "\\.p?html?$")
 
 (use-package gulp-task-runner
 :defer t)
