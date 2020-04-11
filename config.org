@@ -243,6 +243,11 @@ Space is the best leader key.
    "bb" 'switch-to-buffer
    "`" 'evil-switch-to-windows-last-buffer
 
+   ;; Code
+   "cc" 'counsel-compile
+   "cr" 'lsp-rename
+   "cl" 'lsp-find-definition
+
    ;; Files
    "." 'find-file
    "fl" 'load-file
@@ -250,15 +255,15 @@ Space is the best leader key.
    "fr" 'counsel-recentf
    "fs" 'save-buffer
 
+   ;; Magit
+   "gg" 'magit-status
+   "gfh" 'magit-log-buffer-file
+
    ;; Language
    "le" 'english-mode
    "lg" 'writing-mode
    "ls" 'english-mode
    "lb" 'ispell-buffer
-
-   ;; Magit
-   "gg" 'magit-status
-   "gfh" 'magit-log-buffer-file
 
    ;; Org mode
    "na" 'org-agenda
@@ -281,11 +286,6 @@ Space is the best leader key.
    "pd" 'my/projectile-find-file-in-project-dotfiles
    "pt" 'my/projectile-find-file-in-project-tasks
    "pc" 'my/projectile-find-file-in-project-config
-
-   ;; Code
-   "cc" 'compile
-   "cr" 'lsp-rename
-   "cl" 'lsp-find-definition
 
    ;; Terminal
    "tn" 'vterm
