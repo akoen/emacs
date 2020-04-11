@@ -261,14 +261,14 @@ Space is the best leader key.
    "gfh" 'magit-log-buffer-file
 
    ;; Org mode
-   "oa" 'org-agenda
-   "oc" 'org-capture
-   "or" 'org-roam
-   "oi" 'org-roam-insert
-   "of" 'org-roam-find-file
-   "og" 'org-roam-show-graph
-   "ob" 'my/org-visit-bibliography
-   "ojj" 'org-journal-new-entry
+   "na" 'org-agenda
+   "nc" 'org-capture
+   "nr" 'org-roam
+   "ni" 'org-roam-insert
+   "nf" 'org-roam-find-file
+   "ng" 'org-roam-graph-show
+   "nb" 'my/org-visit-bibliography
+   "njj" 'org-journal-new-entry
 
    ;; Search
    "sb" 'swiper
