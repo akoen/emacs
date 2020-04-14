@@ -1269,11 +1269,12 @@ Allow RefTeX to plug into AUCTeX
   :defer t)
 #+END_SRC
 ** Javascript
-
 *** prettier-js
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package prettier-js
+  :mode "\\.m?js\\'"
+  :hook (js-mode . prettier-js-mode)
   :custom (prettier-js-args '("--print-width" "100"
                               "--single-quote" "true"
                               "--trailing-comma" "all")))
@@ -1307,6 +1308,17 @@ Allow RefTeX to plug into AUCTeX
 (use-package rjsx-mode
   :mode "components/.+\\.js$")
 #+END_SRC
+
+*** tide
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package tide
+  :defer t
+  :config
+  (setq tide-completion-detailed t
+        tide-always-show-documentation t)
+  (tide-setup))
+#+END_SRC
 ** LSP-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package lsp-mode
@@ -1320,6 +1332,7 @@ Allow RefTeX to plug into AUCTeX
   :config
   (setq lsp-ui-doc-enable nil
         lsp-ui-sideline-show-hover nil))
+
 (use-package company-lsp)
 #+END_SRC
 
