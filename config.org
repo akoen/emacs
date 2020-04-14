@@ -724,13 +724,23 @@ An inteface to version control system Git
 
 ** Aggressive-indent
 
-# Forces proper indenting after every change.
+Forces proper indenting after every change.
 
-# #+BEGIN_SRC emacs-lisp :tangle yes
-# (use-package aggressive-indent
-# :init
-# (global-aggressive-indent-mode 1))
-# #+END_SRC
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package aggressive-indent
+:init
+(global-aggressive-indent-mode +1))
+#+END_SRC
+** Company
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package company
+  :commands company-complete-common company-manual-begin company-grab-line
+  :bind (:map company-active-map
+     ("C-n" . company-select-next-or-abort)
+     ("C-p" . company-select-previous-or-abort)))
+#+END_SRC
+
 * Org-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org
