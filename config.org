@@ -28,7 +28,7 @@ Alright, let's do this:
 The garbage collector eats up a lot of time during startup, so turn up its memory threshold to prevent it from getting triggered.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(setq gc-cons-threshold 402653184
+(setq gc-cons-threshold (* 100 1024 1024)
       gc-cons-percentage 0.6)
 #+END_SRC
 
@@ -1502,13 +1502,4 @@ Writing environment
       (org-capture-finalize t)
       (org-speed-move-safe 'outline-up-heading)
       (org-narrow-to-subtree))))
-#+END_SRC
-* Post Initialization
-** Restore garbage collector
-
-Reset garbage collector to a reasonable default. If freezing or stuttering occurs, reduce gc-cons-threshold.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(setq gc-cons-threshold 16777216
-      gc-cons-percentage 0.1)
 #+END_SRC
