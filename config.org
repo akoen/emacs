@@ -1025,6 +1025,15 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
       (expand-file-name filename-with-timestamp dirname)))
   (setq org-download-method 'my-org-download-method))
 #+END_SRC
+*** org-edna
+Advanced dependency management
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-edna
+:after org
+:config
+(org-edna-mode))
+#+END_SRC
 *** org-journal
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-journal
