@@ -1271,9 +1271,41 @@ Allow RefTeX to plug into AUCTeX
 #+END_SRC
 ** Web
 #+BEGIN_SRC emacs-lisp :tangle yes
+;; Config mostly stolen from https://github.com/raxod502/radian/blob/develop/emacs/radian.el
 (use-package web-mode
-  :defer t
-  :mode "\\.p?html?$")
+  :mode (("\\.phtml\\'" . web-mode)
+         ("\\.tpl\\.php\\'" . web-mode)
+         ("\\.[agj]sp\\'" . web-mode)
+         ("\\.as[cp]x\\'" . web-mode)
+         ("\\.erb\\'" . web-mode)
+         ("\\.mustache\\'" . web-mode)
+         ("\\.djhtml\\'" . web-mode)
+         ("\\.html?\\'" . web-mode)
+         ;; My additions.
+         ("\\.ejs\\'" . web-mode)
+         ("\\.jsx?\\'" . web-mode)
+         ("\\.tsx?\\'" . web-mode)
+         ("\\.css\\'" . web-mode))
+  ;; use web-mode rather than js-mode for scripts
+  :interpreter (("js" . web-mode)
+                ("node" . web-mode))
+  :config
+  (setq web-mode-enable-auto-closing t
+        web-mode-auto-close-style 2 ;; 2 is a nice number I suppose
+        web-mode-enable-auto-quoting nil ;; messes with jsx
+        web-mode-markup-indent-offset 2
+        web-mode-code-indent-offset 2
+        web-mode-css-indent-offset 2)
+  (add-to-list 'web-mode-content-types-alist
+               '("jsx" . "\\.js[x]?\\'"))
+
+  (let ((types '("javascript" "jsx")))
+    (setq web-mode-comment-formats
+          (cl-remove-if (lambda (item)
+                          (member (car item) types))
+                        web-mode-comment-formats))
+    (dolist (type types)
+      (push (cons type "//") web-mode-comment-formats))))
 
 (use-package gulp-task-runner
   :defer t)
