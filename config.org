@@ -728,8 +728,9 @@ Forces proper indenting after every change.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package aggressive-indent
-:init
-(global-aggressive-indent-mode +1))
+  :config
+  (add-to-list 'aggressive-indent-excluded-modes 'c-mode)
+  (global-aggressive-indent-mode +1))
 #+END_SRC
 ** Company
 
