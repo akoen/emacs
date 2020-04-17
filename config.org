@@ -256,8 +256,8 @@ Space is the best leader key.
 
    ;; Projects
    "SPC" 'projectile-find-file
-   "pb" 'projectile-switch-to-buffer
    "pp" 'counsel-projectile-switch-project
+   "pi" 'projectile-invalidate-cache
    "pd" 'my/projectile-find-file-in-project-dotfiles
    "pt" 'my/projectile-find-file-in-project-tasks
    "pc" 'my/projectile-find-file-in-project-config
