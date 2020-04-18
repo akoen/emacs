@@ -203,70 +203,71 @@ Space is the best leader key.
 (use-package general
   :after which-key
   :config
-  (general-override-mode 1)
-  (general-auto-unbind-keys)
+  (general-override-mode)
 
-  (general-define-key
-   :keymaps '(normal visual insert emacs motion)
-   :prefix "SPC"
-   :non-normal-prefix "M-SPC"
-   
-   ;; Misc
-   "u" 'universal-argument
+  (general-create-definer leader-key
+    :states 'normal
+    :keymaps 'override
+    :prefix "SPC"
+    :non-normal-prefix "M-SPC")
 
-   ;; Buffer
-   "bb" 'switch-to-buffer
-   "`" 'evil-switch-to-windows-last-buffer
+  (leader-key
+    ;; Misc
+    "u" 'universal-argument
 
-   ;; Code
-   "cc" 'counsel-compile
-   "cr" 'lsp-rename
-   "cl" 'lsp-find-definition
+    ;; Buffer
+    "bb" 'switch-to-buffer
+    "`" 'evil-switch-to-windows-last-buffer
 
-   ;; Files
-   "." 'find-file
-   "fl" 'load-file
-   "ff" 'dired-jump
-   "fr" 'counsel-recentf
-   "fs" 'save-buffer
+    ;; Code
+    "cc" 'counsel-compile
+    "cr" 'lsp-rename
+    "cl" 'lsp-find-definition
 
-   ;; Magit
-   "gg" 'magit-status
-   "gfh" 'magit-log-buffer-file
+    ;; Files
+    "." 'find-file
+    "fl" 'load-file
+    "ff" 'dired-jump
+    "fr" 'counsel-recentf
+    "fs" 'save-buffer
 
-   ;; Language
-   "le" 'english-mode
-   "lg" 'writing-mode
-   "ls" 'english-mode
-   "lb" 'ispell-buffer
+    ;; Magit
+    "gg" 'magit-status
+    "gfh" 'magit-log-buffer-file
 
-   ;; Org mode
-   "na" 'org-agenda
-   "nc" 'org-capture
-   "nr" 'org-roam
-   "ni" 'org-roam-insert
-   "nf" 'org-roam-find-file
-   "ng" 'org-roam-graph-show
-   "nb" 'my/org-visit-bibliography
-   "njj" 'org-journal-new-entry
+    ;; Language
+    "le" 'english-mode
+    "lg" 'writing-mode
+    "ls" 'english-mode
+    "lb" 'ispell-buffer
 
-   ;; Search
-   "sb" 'swiper
-   "sp" 'counsel-projectile-rg
+    ;; Org mode
+    "na" 'org-agenda
+    "nc" 'org-capture
+    "nr" 'org-roam
+    "ni" 'org-roam-insert
+    "nf" 'org-roam-find-file
+    "ng" 'org-roam-graph-show
+    "nb" 'my/org-visit-bibliography
+    "njj" 'org-journal-new-entry
 
-   ;; Projects
-   "SPC" 'projectile-find-file
-   "pp" 'counsel-projectile-switch-project
-   "pi" 'projectile-invalidate-cache
-   "pd" 'my/projectile-find-file-in-project-dotfiles
-   "pt" 'my/projectile-find-file-in-project-tasks
-   "pc" 'my/projectile-find-file-in-project-config
+    ;; Search
+    "sb" 'swiper
+    "sp" 'counsel-projectile-rg
 
-   ;; Terminal
-   "tn" 'vterm
+    ;; Projects
+    "SPC" 'projectile-find-file
+    "pp" 'counsel-projectile-switch-project
+    "pi" 'projectile-invalidate-cache
+    "pd" 'my/projectile-find-file-in-project-dotfiles
+    "pt" 'my/projectile-find-file-in-project-tasks
+    "pc" 'my/projectile-find-file-in-project-config
+
+    ;; Terminal
+    "tn" 'vterm
 
 
-   ))
+    ))
 #+END_SRC
 
 ** Hydra
@@ -1317,7 +1318,6 @@ Allow RefTeX to plug into AUCTeX
                        (my/tide-setup-hook)
                        (company-mode))))
   :config
-
   ;; have 2 space indentation by default
   (setq js-indent-level 2
         js2-basic-offset 2
