@@ -854,8 +854,8 @@ Refile configuration
 
 #+BEGIN_SRC emacs-lisp :tangle yes
                                         ; Targets include this file and any file contributing to the agenda - up to 9 levels deep
-(setq org-refile-targets (quote ((nil :maxlevel . 1)
-                                 (org-agenda-files :maxlevel . 1))))
+(setq org-refile-targets (quote ((nil :maxlevel . 3)
+                                 (org-agenda-files :maxlevel . 3))))
 
                                         ; Use full outline paths for refile targets - we file directly with IDO
 (setq org-refile-use-outline-path t)
