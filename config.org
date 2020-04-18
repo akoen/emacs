@@ -206,7 +206,7 @@ Space is the best leader key.
   (general-override-mode)
 
   (general-create-definer leader-key
-    :states '(normal insert motion emacs)
+    :states '(normal insert visual motion emacs)
     :keymaps 'override
     :prefix "SPC"
     :non-normal-prefix "M-SPC")
@@ -331,9 +331,10 @@ Allows for traditional vim bindings inside of emacs
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; load evil
 (use-package evil
-  :init ;; tweak evil's configuration before loading it
-  (setq evil-search-module 'evil-search)
-  (setq evil-want-C-u-scroll t)
+  :init
+  (setq evil-search-module 'evil-search
+        evil-ex-substitute-global t
+        evil-want-C-u-scroll t)
   :bind
   ;; (("C-f" . forward-word)
   ;; ("C-b" . backward-word))
