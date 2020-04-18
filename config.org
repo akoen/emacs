@@ -1382,6 +1382,10 @@ Allow RefTeX to plug into AUCTeX
 *** tide
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package tide
+  :general
+  (leader-key
+    :keymaps 'tide-mode-map
+    "cr" 'tide-rename-symbol)
   :config
   (setq tide-completion-detailed t
         tide-always-show-documentation t)
@@ -1392,9 +1396,16 @@ Allow RefTeX to plug into AUCTeX
 (use-package lsp-mode
   :hook ((c-mode c++-mode dart-mode java-mode python-mode xml-mode) . lsp)
   :commands lsp
-  :init
+  :general
+  (leader-key
+    :keymaps 'lsp-mode-map
+    "cr" 'lsp-rename
+    "cl" 'lsp-find-definition)
+
+  :config
   (setq lsp-prefer-flymake nil
-        lsp-session-file (concat emacs-etc-dir "lsp-session")))
+        lsp-session-file (concat emacs-etc-dir "lsp-session")
+        read-process-ouput-max (* 1024 1024)))  ;; As per <https://github.com/emacs-lsp/lsp-mode#performance>.
 
 (use-package lsp-ui
   :config
