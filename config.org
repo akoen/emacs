@@ -206,7 +206,7 @@ Space is the best leader key.
   (general-override-mode)
 
   (general-create-definer leader-key
-    :states 'normal
+    :states '(normal insert motion emacs)
     :keymaps 'override
     :prefix "SPC"
     :non-normal-prefix "M-SPC")
