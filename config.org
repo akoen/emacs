@@ -1283,15 +1283,7 @@ Allow RefTeX to plug into AUCTeX
          ("\\.erb\\'" . web-mode)
          ("\\.mustache\\'" . web-mode)
          ("\\.djhtml\\'" . web-mode)
-         ("\\.html?\\'" . web-mode)
-         ;; My additions.
-         ("\\.ejs\\'" . web-mode)
-         ("\\.jsx?\\'" . web-mode)
-         ("\\.tsx?\\'" . web-mode)
-         ("\\.css\\'" . web-mode))
-  ;; use web-mode rather than js-mode for scripts
-  :interpreter (("js" . web-mode)
-                ("node" . web-mode))
+         ("\\.html?\\'" . web-mode))
   :config
   (setq web-mode-enable-auto-closing t
         web-mode-auto-close-style 2 ;; 2 is a nice number I suppose
@@ -1302,6 +1294,7 @@ Allow RefTeX to plug into AUCTeX
   (add-to-list 'web-mode-content-types-alist
                '("jsx" . "\\.js[x]?\\'"))
 
+;; Fix comments in javascript mode
   (let ((types '("javascript" "jsx")))
     (setq web-mode-comment-formats
           (cl-remove-if (lambda (item)
@@ -1314,51 +1307,78 @@ Allow RefTeX to plug into AUCTeX
   :defer t)
 #+END_SRC
 ** Javascript
+*** js2-mode
+#+BEGIN_SRC emacs-lisp :tangle yes
+;; Mostly borrowed from https://github.com/CSRaghunandan/.emacs.d/blob/master/setup-files/setup-js.el
+(use-package js2-mode
+  :mode (("\\.js$" . js2-mode))
+  :hook ((js2-mode . (lambda ()
+                       (flycheck-mode)
+                       (my/tide-setup-hook)
+                       (company-mode))))
+  :config
+
+  ;; have 2 space indentation by default
+  (setq js-indent-level 2
+        js2-basic-offset 2
+        js-chain-indent t)
+
+  ;; use eslint_d insetad of eslint for faster linting
+  (setq flycheck-javascript-eslint-executable "eslint_d")
+
+  ;; Try to highlight most ECMA built-ins
+  (setq js2-highlight-level 3)
+  ;; have a shorter idle time delay
+  (setq js2-idle-timer-delay 0.1)
+
+  ;; turn off all warnings in js2-mode
+  (setq js2-mode-show-parse-errors t
+        js2-mode-show-strict-warnings nil
+        js2-strict-missing-semi-warning nil
+        js2-strict-trailing-comma-warning nil)
+
+  (defun my/tide-setup-hook ()
+    ;; configure tide
+    (tide-setup)
+    ;; highlight identifiers
+    (tide-hl-identifier-mode +1)
+    ;;enable eldoc-mode
+    (eldoc-mode)
+    ;; enable flycheck
+    (flycheck-mode)
+
+    ;; format typescript files using prettier
+    (prettier-js-mode)
+
+    ;; company-backends setup
+    (set (make-local-variable 'company-backends)
+         '((company-tide company-files :with company-yasnippet)
+           (company-dabbrev-code company-dabbrev)))
+
+    ;; configure javascript-tide checker to run after your default javascript checker
+    (flycheck-add-next-checker 'javascript-eslint 'javascript-tide 'append)))
+#+END_SRC
 *** prettier-js
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package prettier-js
-  :mode "\\.m?js\\'"
-  :hook (js-mode . prettier-js-mode)
+  :hook ((js2-mode . prettier-js-mode)
+         (rjsx-mode . prettier-js-mode))
+
   :custom (prettier-js-args '("--print-width" "100"
                               "--single-quote" "true"
                               "--trailing-comma" "all")))
 #+END_SRC
-*** js2-mode
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package js2-mode
-  :mode "\\.m?js\\'"
-  :custom
-  (js-indent-level 2))
-#+END_SRC
-
-*** js2-refactor
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package js2-refactor
-  :hook (((js2-mode rjsx-mode) . js2-refactor-mode)))
-#+END_SRC
-
-*** xref-js2
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package xref-js2
-  :after (:or js2-mode rjsx-mode))
-#+END_SRC
-
 *** rjsx-mode
-
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package rjsx-mode
-  :mode "components/.+\\.js$")
+  :after js2-mode
+  :mode (("\\.jsx$" . rjsx-mode)
+         ("components/.+\\.js$" . rjsx-mode)))
 #+END_SRC
-
 *** tide
-
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package tide
-  :defer t
   :config
   (setq tide-completion-detailed t
         tide-always-show-documentation t)
