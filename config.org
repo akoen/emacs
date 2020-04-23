@@ -1403,7 +1403,8 @@ Allow RefTeX to plug into AUCTeX
     "cl" 'lsp-find-definition)
 
   :config
-  (setq lsp-prefer-flymake nil
+  (setq lsp-enable-indentation nil
+        lsp-enable-on-type-formatting nil
         lsp-session-file (concat emacs-etc-dir "lsp-session")
         read-process-ouput-max (* 1024 1024)))  ;; As per <https://github.com/emacs-lsp/lsp-mode#performance>.
 
