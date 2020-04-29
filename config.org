@@ -995,10 +995,12 @@ Make the header bullets look prettier
 #+END_SRC
 *** org-checklist
 
-Provides additional options for org checklists such as resetting when parent is marked DONE.
+Allows for resetting of checkboxes when item is marked DONE
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(require 'org-checklist)
+(use-package org-checklist
+  :after org
+  :straight nil)
 #+END_SRC
 *** org-download
 Automatically insert images via drag-and-drop
