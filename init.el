@@ -34,8 +34,6 @@
 (straight-use-package 'use-package)
 (straight-use-package 'org-plus-contrib)
 
-(require 'org)
-
 (org-babel-load-file (expand-file-name "~/.emacs.d/config.org"))
 
 (setq custom-file "~/.emacs.d/custom.el")

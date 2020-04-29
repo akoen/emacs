@@ -747,10 +747,10 @@ Forces proper indenting after every change.
 * Org-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org
+  :straight nil
   :hook
   (org-mode . visual-line-mode)
   :custom
-  
   ;; calendar ical export
   (org-icalendar-include-todo nil)
   (org-icalendar-store-UID nil)
