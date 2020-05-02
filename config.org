@@ -1349,8 +1349,7 @@ Allow RefTeX to plug into AUCTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package rjsx-mode
   :after js2-mode
-  :mode (("\\.jsx$" . rjsx-mode)
-         ("components/.+\\.js$" . rjsx-mode)))
+  :mode "components/.+\\.js$")
 #+END_SRC
 *** tide
 #+BEGIN_SRC emacs-lisp :tangle yes
