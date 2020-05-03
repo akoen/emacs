@@ -995,7 +995,7 @@ Make the header bullets look prettier
 #+END_SRC
 *** org-checklist
 
-Allows for resetting of checkboxes when item is marked DONE
+Allows for resetting of checkboxes when item is marked DONE.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-checklist
@@ -1388,11 +1388,19 @@ Allow RefTeX to plug into AUCTeX
 (use-package company-lsp)
 #+END_SRC
 
+** DAP
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package dap-mode
+  :config
+  (dap-mode 1)
+  (dap-ui-mode 1)
+  (require 'dap-gdb-lldb)
+  (require 'dap-python))
+#+END_SRC
 ** C/C++
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ccls
-  :defer t
   :after projectile
   :init
   (setq ccls-executable (executable-find "ccls"))
