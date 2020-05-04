@@ -249,7 +249,10 @@ Space is the best leader key.
     "of" 'org-roam-find-file
     "og" 'org-roam-graph
     "ob" 'my/org-visit-bibliography
+
     "ojj" 'org-journal-new-entry
+    "oje" 'org-journal-new-scheduled-entry
+    "ojs" 'org-journal-search-forever
 
     ;; Search
     "sb" 'swiper
