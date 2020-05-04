@@ -37,16 +37,16 @@ The garbage collector eats up a lot of time during startup, so turn up its memor
 Note that system directories are set in init.el
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(defconst drive-dir "~/Drive/"
+(defconst docs-dir "~/Documents/"
   "The root Drive directory, where all documents are stored.")
 
-(defconst archive-dir (concat drive-dir "Archive/")
+(defconst archive-dir (concat docs-dir "Archive/")
   "Archive directory")
 
-(defconst tasks-dir (concat drive-dir "Tasks/")
+(defconst org-dir "~/Org"
   "Tasks directory")
 
-(defconst brain-dir (concat drive-dir "Brain/org/")
+(defconst brain-dir (concat docs-dir "Brain/org/")
   "Braindump directory")
 
 (defconst dotfiles-dir "~/.dotfiles"
@@ -609,7 +609,7 @@ Project management.
 
 (defun my/projectile-find-file-in-project-tasks ()
   (interactive)
-  (let ((default-directory tasks-dir))
+  (let ((default-directory org-dir))
     (counsel-projectile-find-file)))
 
 (defun my/projectile-find-file-in-project-dotfiles ()
@@ -757,14 +757,14 @@ Forces proper indenting after every change.
   (org-icalendar-timezone nil)
   (org-icalendar-use-deadline '(event-if-todo-not-done))
   (org-icalendar-use-scheduled '(event-if-todo-not-done))
-  (org-icalendar-combined-agenda-file (concat tasks-dir "calendar.ics"))
+  (org-icalendar-combined-agenda-file (concat org-dir "calendar.ics"))
   :init
-  (setq org-directory tasks-dir
+  (setq org-directory org-dir
         org-archive-location (concat archive-dir "Tasks/archive_" (format-time-string "%Y") ".org::datetree/")
         org-use-fast-todo-selection t                                     ; allow changing to any todo state from a menu
         org-enforce-todo-dependencies t                                   ; block setting task to DONE if there are incomplete subtasks
         org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id ; use unique ID's for links
-        org-id-locations-file (concat tasks-dir ".orgids")
+        org-id-locations-file (concat org-dir ".orgids")
         org-clone-delete-id t
         org-catch-invisible-edits 'show
         org-confirm-babel-evaluate nil                                    ; do not ask for confirmation
@@ -1558,14 +1558,14 @@ Writing environment
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defun my/daily-review ()
   (interactive)
-  (let ((org-capture-templates '(("d" "Daily Review" entry (file+datetree (lambda () (concat tasks-dir "reviews_" (format-time-string "%Y") ".org")))
+  (let ((org-capture-templates '(("d" "Daily Review" entry (file+datetree (lambda () (concat org-dir "reviews_" (format-time-string "%Y") ".org")))
                                   (file "~/Drive/Tasks/Templates/daily-review.org")))))
     (progn
       (org-capture nil "d"))))
 
 (defun my/weekly-review ()
   (interactive)
-  (let ((org-capture-templates '(("w" "Weekly Review" entry (file+olp+datetree (lambda () (concat tasks-dir "reviews_" (format-time-string "%Y") ".org")))
+  (let ((org-capture-templates '(("w" "Weekly Review" entry (file+olp+datetree (lambda () (concat org-dir "reviews_" (format-time-string "%Y") ".org")))
                                   (file "~/Drive/Tasks/Templates/weekly-review.org")))))
     (progn
       (org-capture nil "w")
@@ -1575,7 +1575,7 @@ Writing environment
 
 (defun my/monthly-review ()
   (interactive)
-  (let ((org-capture-templates '(("m" "Monthly Review" entry (file+olp+datetree (lambda () (concat tasks-dir "reviews_" (format-time-string "%Y") ".org")))
+  (let ((org-capture-templates '(("m" "Monthly Review" entry (file+olp+datetree (lambda () (concat org-dir "reviews_" (format-time-string "%Y") ".org")))
                                   (file "~/Drive/Tasks/Templates/monthly-review.org")))))
     (progn
       (org-capture nil "m")
