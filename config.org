@@ -242,14 +242,14 @@ Space is the best leader key.
     "lb" 'ispell-buffer
 
     ;; Org mode
-    "na" 'org-agenda
-    "nc" 'org-capture
-    "nr" 'org-roam
-    "ni" 'org-roam-insert
-    "nf" 'org-roam-find-file
-    "ng" 'org-roam-graph-show
-    "nb" 'my/org-visit-bibliography
-    "njj" 'org-journal-new-entry
+    "oa" 'org-agenda
+    "oc" 'org-capture
+    "or" 'org-roam
+    "oi" 'org-roam-insert
+    "of" 'org-roam-find-file
+    "og" 'org-roam-graph
+    "ob" 'my/org-visit-bibliography
+    "ojj" 'org-journal-new-entry
 
     ;; Search
     "sb" 'swiper
@@ -760,10 +760,10 @@ Forces proper indenting after every change.
 * Org-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org
+  :straight nil
   :hook
   (org-mode . visual-line-mode)
   :custom
-  
   ;; calendar ical export
   (org-icalendar-include-todo nil)
   (org-icalendar-store-UID nil)
@@ -1008,10 +1008,12 @@ Make the header bullets look prettier
 #+END_SRC
 *** org-checklist
 
-Provides additional options for org checklists such as resetting when parent is marked DONE.
+Allows for resetting of checkboxes when item is marked DONE.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(require 'org-checklist)
+(use-package org-checklist
+  :after org
+  :straight nil)
 #+END_SRC
 *** org-download
 Automatically insert images via drag-and-drop
@@ -1107,7 +1109,7 @@ Allows for external applications to trigger custom actions without external depe
   :after org)
 
 (use-package org-ref-ox-hugo
-  :straight (:host github :repo "jethrokuan/org-ref-ox-hugo" :branch "develop")
+  :straight (:host github :repo "jethrokuan/org-ref-ox-hugo")
   :after org org-ref ox-hugo
   :config
   (add-to-list 'org-ref-formatted-citation-formats
@@ -1127,15 +1129,14 @@ Allows for external applications to trigger custom actions without external depe
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-roam
-  :after org
   :hook
   (after-init . org-roam-mode)
-  :straight (:host github :repo "jethrokuan/org-roam") ;; removing this causes mad errors.
   :init
   (setq org-roam-directory brain-dir
-        org-roam-link-title-format "§%s"
-        org-roam-link-representation 'title)
+        org-roam-link-title-format "§%s")
 
+  :config
+  (require 'org-roam-protocol)
   (setq org-roam-capture-templates
         '(("d" "default" plain (function org-roam--capture-get-point)
            "%?"
@@ -1161,13 +1162,6 @@ Allows for external applications to trigger custom actions without external depe
            :head "#+SETUPFILE:./hugo_setup.org
 ,#+HUGO_SLUG: ${slug}
 ,#+TITLE: ${title}\n"
-           :unnarowed t)
-          ("d" "default" plain (function org-roam--capture-get-point)
-           "%?"
-           :file-name "${slug}"
-           :head "#+SETUPFILE:./hugo_setup.org
-,#+HUGO_SLUG: ${slug}
-,#+TITLE: ${title}\n"
            :unnarowed t)))
   (setq org-roam-ref-capture-templates
         '(("r" "ref" plain (function org-roam--capture-get-point)
@@ -1179,27 +1173,6 @@ Allows for external applications to trigger custom actions without external depe
 ,#+TITLE: ${title}
 - source :: ${ref}"
            :unnarrowed t)))
-
-  :config
-  (require 'org-roam-protocol)
-  (defun my/org-roam--backlinks-list (file)
-    (if (org-roam--org-roam-file-p file)
-        (--reduce-from
-         (concat acc (format "- [[file:%s][%s]]\n"
-                             (file-relative-name (car it) org-roam-directory)
-                             (org-roam--get-title-or-slug (car it))))
-         "" (org-roam-sql [:select [file-from] :from file-links :where (= file-to $s1)] file))
-      ""))
-
-  (defun my/org-export-preprocessor (backend)
-    (let ((links (my/org-roam--backlinks-list (buffer-file-name))))
-      (unless (string= links "")
-        (save-excursion
-          (goto-char (point-max))
-          (insert (concat "\n* Backlinks\n") links)))))
-
-  (add-hook 'org-export-before-processing-hook 'my/org-export-preprocessor)
-
   (defun my/org-visit-bibliography ()
     (interactive)
     (find-file (expand-file-name (concat "./bib/" (file-name-base buffer-file-name) ".bib")))))
@@ -1393,8 +1366,7 @@ Allow RefTeX to plug into AUCTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package rjsx-mode
   :after js2-mode
-  :mode (("\\.jsx$" . rjsx-mode)
-         ("components/.+\\.js$" . rjsx-mode)))
+  :mode "components/.+\\.js$")
 #+END_SRC
 *** tide
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1420,7 +1392,8 @@ Allow RefTeX to plug into AUCTeX
     "cl" 'lsp-find-definition)
 
   :config
-  (setq lsp-prefer-flymake nil
+  (setq lsp-enable-indentation nil
+        lsp-enable-on-type-formatting nil
         lsp-session-file (concat emacs-etc-dir "lsp-session")
         read-process-ouput-max (* 1024 1024)))  ;; As per <https://github.com/emacs-lsp/lsp-mode#performance>.
 
@@ -1432,11 +1405,19 @@ Allow RefTeX to plug into AUCTeX
 (use-package company-lsp)
 #+END_SRC
 
+** DAP
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package dap-mode
+  :config
+  (dap-mode 1)
+  (dap-ui-mode 1)
+  (require 'dap-gdb-lldb)
+  (require 'dap-python))
+#+END_SRC
 ** C/C++
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ccls
-  :defer t
   :after projectile
   :init
   (setq ccls-executable (executable-find "ccls"))
