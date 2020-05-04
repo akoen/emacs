@@ -1019,6 +1019,10 @@ Automatically insert images via drag-and-drop
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-download
   :after org
+  :general
+  (leader-key
+    :keymaps 'org-mode-map
+    "ods" 'org-download-screenshot)
   :config
   (setq org-download-screenshot-method "maim -s %s")
   (defun my-org-download-method (link)
