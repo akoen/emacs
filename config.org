@@ -841,15 +841,15 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; TODO use directory variables
 (setq org-capture-templates
-      `(("t" "Todo" entry (file+headline "~/Drive/Tasks/refile.org" "Refile")
+      `(("t" "Todo" entry (file+headline "~/Org/refile.org" "Refile")
          "* TODO %?")
-        ("p" "Project" entry (file+headline "~/Drive/Tasks/inbox.org" "Projects") 
+        ("p" "Project" entry (file+headline "~/Org/inbox.org" "Projects") 
          "* %?")
-        ("n" "Next" entry (file+headline "~/Drive/Tasks/refile.org" "Refile") 
+        ("n" "Next" entry (file+headline "~/Org/refile.org" "Refile") 
          "* NEXT %? \n:PROPERTIES:\n:TRIGGER: next-sibling todo!(\"NEXT\") chain!(\"TRIGGER\") deadline!(cp)\n:END:\n")
-        ("l" "Protocol" entry (file "~/Drive/Tasks/refile.org")
+        ("l" "Protocol" entry (file "~/Org/refile.org")
          "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
-        ("L" "Protocol Link" entry (file "~/Drive/Tasks/refile.org")
+        ("L" "Protocol Link" entry (file "~/Org/refile.org")
          "%(org-web-tools--url-as-readable-org \"%:link\")" :immediate-finish t)))
 
 #+END_SRC
@@ -1559,14 +1559,14 @@ Writing environment
 (defun my/daily-review ()
   (interactive)
   (let ((org-capture-templates '(("d" "Daily Review" entry (file+datetree (lambda () (concat org-dir "reviews_" (format-time-string "%Y") ".org")))
-                                  (file "~/Drive/Tasks/Templates/daily-review.org")))))
+                                  (file "~/Org/Templates/daily-review.org")))))
     (progn
       (org-capture nil "d"))))
 
 (defun my/weekly-review ()
   (interactive)
   (let ((org-capture-templates '(("w" "Weekly Review" entry (file+olp+datetree (lambda () (concat org-dir "reviews_" (format-time-string "%Y") ".org")))
-                                  (file "~/Drive/Tasks/Templates/weekly-review.org")))))
+                                  (file "~/Org/Templates/weekly-review.org")))))
     (progn
       (org-capture nil "w")
       (org-capture-finalize t)
@@ -1576,7 +1576,7 @@ Writing environment
 (defun my/monthly-review ()
   (interactive)
   (let ((org-capture-templates '(("m" "Monthly Review" entry (file+olp+datetree (lambda () (concat org-dir "reviews_" (format-time-string "%Y") ".org")))
-                                  (file "~/Drive/Tasks/Templates/monthly-review.org")))))
+                                  (file "~/Org/Templates/monthly-review.org")))))
     (progn
       (org-capture nil "m")
       (org-capture-finalize t)
