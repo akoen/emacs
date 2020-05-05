@@ -46,7 +46,7 @@ Note that system directories are set in init.el
 (defconst org-dir "~/Org"
   "Tasks directory")
 
-(defconst brain-dir (concat docs-dir "Brain/org/")
+(defconst brain-dir "~/Brain"
   "Braindump directory")
 
 (defconst dotfiles-dir "~/.dotfiles"
@@ -1048,7 +1048,7 @@ Advanced dependency management
   :custom
   (org-journal-cache-dir emacs-cache-dir)
   (org-journal-date-prefix "#+TITLE: ")
-  (org-journal-dir (concat brain-dir "journal/"))
+  (org-journal-dir (concat brain-dir "/journal/"))
   (org-journal-file-format "%Y-%m-%d.org")
   (org-journal-date-format "%A %Y-%m-%d")
   (org-journal-time-format "" ))
