@@ -654,27 +654,6 @@ Adds additional functionality on top of dired.
             ))
 #+END_SRC
 
-** libvterm
-
-An Emacs module which implements a bridge to [[https://github.com/neovim/libvterm][libvterm]] to display a terminal within a buffer.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package vterm)
-#+END_SRC
-*** evil-snipe
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package evil-snipe
-  :init
-  (setq evil-snipe-smart-case t
-        evil-snipe-scope 'line
-        evil-snipe-repeat-scope 'visible
-        evil-snipe-char-fold t)
-  :config 
-  (evil-snipe-mode +1)
-  (evil-snipe-override-mode +1))
-#+END_SRC
-
 ** Smartparens
 
 [[https://github.com/Fuco1/smartparens][Utility]] for managing parenthesis in Emacs
