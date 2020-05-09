@@ -46,7 +46,7 @@ Note that system directories are set in init.el
 (defconst org-dir "~/Org"
   "Tasks directory")
 
-(defconst brain-dir "~/Brain"
+(defconst brain-dir "~/Brain/org/"
   "Braindump directory")
 
 (defconst dotfiles-dir "~/.dotfiles"
@@ -187,6 +187,7 @@ By default, Emacs saves backups relative to the current directory. This is abhor
 * Keybindings
 ** Unbind RET
 
+
 Unbind return from evil, so that org-return-follows-link works.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -217,12 +218,11 @@ Space is the best leader key.
 
     ;; Buffer
     "bb" 'switch-to-buffer
+    "br" 'revert-buffer
     "`" 'evil-switch-to-windows-last-buffer
 
     ;; Code
     "cc" 'counsel-compile
-    "cr" 'lsp-rename
-    "cl" 'lsp-find-definition
 
     ;; Files
     "." 'find-file
@@ -788,7 +788,7 @@ Forces proper indenting after every change.
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq org-todo-keywords
       (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
-              (sequence "SOMEDAY(s@)" "WAITING(w@)" "HOLD(h@)" "|" "CANCELLED(c@)")))
+              (sequence "SOMEDAY(s)" "WAITING(w)" "HOLD(h)" "|" "CANCELLED(c)")))
       org-todo-state-tags-triggers
       (quote (("CANCELLED" ("CANCELLED" . t))
               ("WAITING" ("WAITING" . t))
@@ -1348,7 +1348,7 @@ Allow RefTeX to plug into AUCTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package rjsx-mode
   :after js2-mode
-  :mode "components/.+\\.js$")
+  :mode "\\.js\\'")
 #+END_SRC
 *** tide
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1371,7 +1371,9 @@ Allow RefTeX to plug into AUCTeX
   (leader-key
     :keymaps 'lsp-mode-map
     "cr" 'lsp-rename
-    "cl" 'lsp-find-definition)
+    "cl" 'lsp-find-definition
+    "cpd" 'lsp-ui-peek-find-definitions
+    "cpl" 'lsp-ui-peek-find-references)
 
   :config
   (setq lsp-enable-indentation nil
@@ -1382,7 +1384,8 @@ Allow RefTeX to plug into AUCTeX
 (use-package lsp-ui
   :config
   (setq lsp-ui-doc-enable nil
-        lsp-ui-sideline-show-hover nil))
+        lsp-ui-sideline-show-hover nil
+        lsp-ui-doc-max-height 8))
 
 (use-package company-lsp)
 #+END_SRC
@@ -1390,6 +1393,19 @@ Allow RefTeX to plug into AUCTeX
 ** DAP
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package dap-mode
+  :ensure-system-package lldb
+  :general
+  (leader-key
+    :keymaps 'dap-mode-map
+    "dd" 'dap-debug
+    "dr" 'dap-debug-restart
+    "dc" 'dap-continue
+    "dsi" 'dap-step-in
+    "dso" 'dap-step-out
+    "dbt" 'dap-breakpoint-toggle
+
+    "dul" 'dap-ui-locals)
+
   :config
   (dap-mode 1)
   (dap-ui-mode 1)
@@ -1400,6 +1416,7 @@ Allow RefTeX to plug into AUCTeX
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ccls
+  :ensure-system-package ccls
   :after projectile
   :init
   (setq ccls-executable (executable-find "ccls"))

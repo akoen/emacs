@@ -32,6 +32,7 @@
   (load bootstrap-file nil 'nomessage))
 (setq straight-use-package-by-default t)
 (straight-use-package 'use-package)
+(use-package use-package-ensure-system-package)
 (straight-use-package 'org-plus-contrib)
 
 (org-babel-load-file (expand-file-name "~/.emacs.d/config.org"))
