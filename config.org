@@ -43,13 +43,13 @@ Note that system directories are set in init.el
 (defconst archive-dir (concat docs-dir "Archive/")
   "Archive directory")
 
-(defconst org-dir "~/Org"
+(defconst org-dir "~/Org/"
   "Tasks directory")
 
 (defconst brain-dir "~/Brain/org/"
   "Braindump directory")
 
-(defconst dotfiles-dir "~/.dotfiles"
+(defconst dotfiles-dir "~/.dotfiles/"
   "Dotfiles directory")
 #+END_SRC
 
