@@ -337,6 +337,7 @@ Allows for traditional vim bindings inside of emacs
   :init
   (setq evil-search-module 'evil-search
         evil-ex-substitute-global t
+        evil-esc-mode nil ;; performance. Only used for jj/jk type mappings
         evil-want-C-u-scroll t)
   :bind
   ;; (("C-f" . forward-word)
@@ -735,8 +736,11 @@ Forces proper indenting after every change.
 (use-package company
   :commands company-complete-common company-manual-begin company-grab-line
   :bind (:map company-active-map
-     ("C-n" . company-select-next-or-abort)
-     ("C-p" . company-select-previous-or-abort)))
+              ("C-n" . company-select-next-or-abort)
+              ("C-p" . company-select-previous-or-abort))
+  :config
+  (setq company-idle-delay 0.0
+        company-minimum-prefix-length 1)) ;; Length of input before completion is shown
 #+END_SRC
 
 * Org-mode
@@ -1364,6 +1368,7 @@ Allow RefTeX to plug into AUCTeX
 #+END_SRC
 ** LSP-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
+;; Make sure to install jansson
 (use-package lsp-mode
   :hook ((c-mode c++-mode dart-mode java-mode python-mode xml-mode) . lsp)
   :commands lsp
@@ -1382,6 +1387,7 @@ Allow RefTeX to plug into AUCTeX
         read-process-ouput-max (* 1024 1024)))  ;; As per <https://github.com/emacs-lsp/lsp-mode#performance>.
 
 (use-package lsp-ui
+  :commands lsp-ui-mode
   :config
   (setq lsp-ui-doc-enable nil
         lsp-ui-sideline-show-hover nil
