@@ -1413,22 +1413,6 @@ Allow RefTeX to plug into AUCTeX
   (require 'dap-python))
 #+END_SRC
 ** C/C++
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package ccls
-  :ensure-system-package ccls
-  :after projectile
-  :init
-  (setq ccls-executable (executable-find "ccls"))
-  :config
-  (add-to-list 'projectile-globally-ignored-directories ".ccls-cache")
-  (setq projectile-project-root-files-top-down-recurring
-        (append '("compile_commands.json" ".ccls")
-                projectile-project-root-files-top-down-recurring))
-  :hook ((c-mode c++-mode objc-mode) .
-         (lambda () (require 'ccls) (lsp))))
-#+END_SRC
-
 To configure a new C program:
 1. Create a =CMakeLists.txt= file. Eg:
 #+BEGIN_SRC cmake :tangle no
