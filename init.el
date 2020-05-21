@@ -35,7 +35,7 @@
 (use-package use-package-ensure-system-package)
 (straight-use-package 'org-plus-contrib)
 
-(org-babel-load-file (expand-file-name "~/.emacs.d/config.org"))
+(org-babel-load-file (expand-file-name (concat emacs-dir "config.org")))
 
-(setq custom-file "~/.emacs.d/custom.el")
+(setq custom-file (concat emacs-dir "custom.el"))
 (load custom-file)
