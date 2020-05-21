@@ -1129,17 +1129,12 @@ Allows for external applications to trigger custom actions without external depe
         '(("d" "default" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "${slug}"
-           :head "#+SETUPFILE:./hugo_setup.org
-,#+HUGO_SLUG: ${slug}
-,#+TITLE: ${title}\n"
+           :head "#+TITLE: ${title}\n"
            :unnarowed t)
           ("b" "book" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "books/${slug}"
-           :head "#+SETUPFILE:./hugo_setup.org
-,#+HUGO_SECTION: books
-,#+HUGO_SLUG: ${slug}
-,#+TITLE: ${title}\n
+           :head "#+TITLE: ${title}\n
 
 - author ::
 - tags :: "
@@ -1147,19 +1142,15 @@ Allows for external applications to trigger custom actions without external depe
           ("d" "default" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "${slug}"
-           :head "#+SETUPFILE:./hugo_setup.org
-,#+HUGO_SLUG: ${slug}
-,#+TITLE: ${title}\n"
+           :head "#+TITLE: ${title}\n"
            :unnarowed t)))
   (setq org-roam-ref-capture-templates
         '(("r" "ref" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "websites/${slug}"
-           :head "#+SETUPFILE:./hugo_setup.org
-,#+ROAM_KEY: ${ref}
-,#+HUGO_SLUG: ${slug}
-,#+TITLE: ${title}
-- source :: ${ref}"
+           :head "#+ROAM_KEY: ${ref}
+#+TITLE: ${title}
+ source :: ${ref}"
            :unnarrowed t)))
   (defun my/org-visit-bibliography ()
     (interactive)
