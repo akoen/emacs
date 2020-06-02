@@ -1248,6 +1248,7 @@ Allow RefTeX to plug into AUCTeX
   (editorconfig-mode 1))
 #+END_SRC
 ** Web
+*** web mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; Config mostly stolen from https://github.com/raxod502/radian/blob/develop/emacs/radian.el
 (use-package web-mode
@@ -1280,6 +1281,13 @@ Allow RefTeX to plug into AUCTeX
 
 (use-package gulp-task-runner
   :defer t)
+#+END_SRC
+*** restclient
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+;; Make sure to use comments (#) as separators
+(use-package restclient
+  :mode (("\\.rest" . restclient-mode)))
 #+END_SRC
 ** Javascript
 *** js2-mode
