@@ -1303,10 +1303,10 @@ Allow RefTeX to plug into AUCTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; Mostly borrowed from https://github.com/CSRaghunandan/.emacs.d/blob/master/setup-files/setup-js.el
 (use-package js2-mode
+  :ensure-system-package (tsserver . "sudo npm i -g typescript-language-server")
   :mode (("\\.js$" . js2-mode))
   :hook ((js2-mode . (lambda ()
                        (flycheck-mode)
-                       (my/tide-setup-hook)
                        (company-mode))))
   :config
   ;; have 2 space indentation by default
@@ -1326,28 +1326,7 @@ Allow RefTeX to plug into AUCTeX
   (setq js2-mode-show-parse-errors t
         js2-mode-show-strict-warnings nil
         js2-strict-missing-semi-warning nil
-        js2-strict-trailing-comma-warning nil)
-
-  (defun my/tide-setup-hook ()
-    ;; configure tide
-    (tide-setup)
-    ;; highlight identifiers
-    (tide-hl-identifier-mode +1)
-    ;;enable eldoc-mode
-    (eldoc-mode)
-    ;; enable flycheck
-    (flycheck-mode)
-
-    ;; format typescript files using prettier
-    (prettier-js-mode)
-
-    ;; company-backends setup
-    (set (make-local-variable 'company-backends)
-         '((company-tide company-files :with company-yasnippet)
-           (company-dabbrev-code company-dabbrev)))
-
-    ;; configure javascript-tide checker to run after your default javascript checker
-    (flycheck-add-next-checker 'javascript-eslint 'javascript-tide 'append)))
+        js2-strict-trailing-comma-warning nil))
 #+END_SRC
 *** prettier-js
 
@@ -1367,25 +1346,11 @@ Allow RefTeX to plug into AUCTeX
   :after js2-mode
   :mode "\\.js\\'")
 #+END_SRC
-*** tide
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package tide
-  :ensure-system-package
-  (tsserver . typescript)
-  :general
-  (leader-key
-    :keymaps 'tide-mode-map
-    "cr" 'tide-rename-symbol)
-  :config
-  (setq tide-completion-detailed t
-        tide-always-show-documentation t)
-  (tide-setup))
-#+END_SRC
 ** LSP-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; Make sure to install jansson
 (use-package lsp-mode
-  :hook ((c-mode c++-mode dart-mode java-mode python-mode xml-mode) . lsp)
+  :hook ((c-mode c++-mode dart-mode java-mode python-mode xml-mode js2-mode) . lsp)
   :commands lsp
   :general
   (leader-key
@@ -1396,10 +1361,11 @@ Allow RefTeX to plug into AUCTeX
     "cpl" 'lsp-ui-peek-find-references)
 
   :config
-  (setq lsp-enable-indentation nil
-        lsp-enable-on-type-formatting nil
-        lsp-session-file (concat emacs-etc-dir "lsp-session")
-        read-process-ouput-max (* 1024 1024)))  ;; As per <https://github.com/emacs-lsp/lsp-mode#performance>.
+  (setq 
+   lsp-enable-indentation nil
+   lsp-enable-on-type-formatting nil
+   lsp-session-file (concat emacs-etc-dir "lsp-session")
+   read-process-ouput-max (* 1024 1024)))  ;; As per <https://github.com/emacs-lsp/lsp-mode#performance>.
 
 (use-package lsp-ui
   :commands lsp-ui-mode
