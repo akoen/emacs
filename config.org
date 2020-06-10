@@ -394,6 +394,15 @@ This package emulates surround.vim by Tim Pope.
   (evilnc-default-hotkeys))
 #+END_SRC
 
+*** evil-snipe
+
+Allows for quick movement to 2-char sequences.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package evil-snipe
+  :config
+  (evil-snipe-mode +1))
+#+END_SRC
 ** Completion
 *** Ivy
 
