@@ -850,16 +850,16 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; TODO use directory variables
 (setq org-capture-templates
-      `(("t" "Todo" entry (file+headline "~/Org/refile.org" "Refile")
+      `(("t" "Todo" entry (file+headline ,(concat org-directory "refile.org") "Refile")
          "* TODO %?")
-        ("p" "Project" entry (file+headline "~/Org/inbox.org" "Projects") 
+        ("p" "Project" entry (file+headline ,(concat org-directory "inbox.org") "Projects") 
          "* %?")
-        ("n" "Next" entry (file+headline "~/Org/refile.org" "Refile") 
+        ("n" "Next" entry (file+headline ,(concat org-directory "refile.org") "Refile") 
          "* NEXT %? \n:PROPERTIES:\n:TRIGGER: next-sibling todo!(\"NEXT\") chain!(\"TRIGGER\") deadline!(cp)\n:END:\n")
-        ("l" "Protocol" entry (file "~/Org/refile.org")
-         "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
-        ("L" "Protocol Link" entry (file "~/Org/refile.org")
-         "%(org-web-tools--url-as-readable-org \"%:link\")" :immediate-finish t)))
+        ("l" "Protocol" entry (file+headline ,(concat org-directory "refile.org") "Inbox")
+         "* TODO %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE")	
+        ("L" "Protocol Link" entry (file+headline ,(concat org-directory "refile.org") "Inbox")
+         "* TODO %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n")))
 
 #+END_SRC
 
