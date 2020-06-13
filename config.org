@@ -593,6 +593,10 @@ Allows for further integration between ivy and projectile.
 (use-package swiper
   :bind (("M-s" . swiper)))
 #+END_SRC
+*** wgrep
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package wgrep)
+#+END_SRC
 ** Projectile
 
 Project management.
