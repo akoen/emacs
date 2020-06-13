@@ -755,6 +755,10 @@ Forces proper indenting after every change.
         company-minimum-prefix-length 1)) ;; Length of input before completion is shown
 #+END_SRC
 
+** Vterm
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package vterm)
+#+END_SRC
 * Org-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org
