@@ -269,8 +269,6 @@ Space is the best leader key.
 
     ;; Terminal
     "tn" 'vterm
-
-
     ))
 #+END_SRC
 
@@ -854,15 +852,15 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; TODO use directory variables
 (setq org-capture-templates
-      `(("t" "Todo" entry (file+headline ,(concat org-directory "refile.org") "Refile")
+      `(("t" "Todo" entry (file+headline ,(concat org-dir "refile.org") "Refile")
          "* TODO %?")
-        ("p" "Project" entry (file+headline ,(concat org-directory "inbox.org") "Projects") 
+        ("p" "Project" entry (file+headline ,(concat org-dir "inbox.org") "Projects") 
          "* %?")
-        ("n" "Next" entry (file+headline ,(concat org-directory "refile.org") "Refile") 
+        ("n" "Next" entry (file+headline ,(concat org-dir "refile.org") "Refile") 
          "* NEXT %? \n:PROPERTIES:\n:TRIGGER: next-sibling todo!(\"NEXT\") chain!(\"TRIGGER\") deadline!(cp)\n:END:\n")
-        ("l" "Protocol" entry (file+headline ,(concat org-directory "refile.org") "Inbox")
+        ("l" "Protocol" entry (file+headline ,(concat org-dir "refile.org") "Inbox")
          "* TODO %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE")	
-        ("L" "Protocol Link" entry (file+headline ,(concat org-directory "refile.org") "Inbox")
+        ("L" "Protocol Link" entry (file+headline ,(concat org-dir "refile.org") "Inbox")
          "* TODO %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n")))
 
 #+END_SRC
@@ -902,7 +900,7 @@ Set agenda settings
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq org-deadline-warning-days 7                                            ;;warn me of any deadlines in next 7 days
       org-agenda-skip-scheduled-if-deadline-is-shown t                       ;;don't show tasks as scheduled if they are already shown as a deadline
-      org-agenda-files '("~/Org")                                    ;; Set agenda files
+      org-agenda-files (list org-dir)                                    ;; Set agenda files
       org-agenda-skip-deadline-prewarning-if-scheduled (quote pre-scheduled) ;;don't give awarning colour to tasks with impending deadlines if they are scheduled to be done
       org-agenda-skip-scheduled-if-done t                                    ;; Skip done items in agenda
       org-agenda-skip-deadline-if-done t
@@ -1539,15 +1537,15 @@ Writing environment
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defun my/daily-review ()
   (interactive)
-  (let ((org-capture-templates '(("d" "Daily Review" entry (file+datetree (lambda () (concat org-dir "reviews_" (format-time-string "%Y") ".org")))
-                                  (file "~/Org/Templates/daily-review.org")))))
+  (let ((org-capture-templates `(("d" "Daily Review" entry (file+datetree (lambda () (concat org-dir "reviews_" (format-time-string "%Y") ".org")))
+                                  (file ,(concat org-dir "Templates/daily-review.org"))))))
     (progn
       (org-capture nil "d"))))
 
 (defun my/weekly-review ()
   (interactive)
-  (let ((org-capture-templates '(("w" "Weekly Review" entry (file+olp+datetree (lambda () (concat org-dir "reviews_" (format-time-string "%Y") ".org")))
-                                  (file "~/Org/Templates/weekly-review.org")))))
+  (let ((org-capture-templates `(("w" "Weekly Review" entry (file+olp+datetree (lambda () (concat org-dir "reviews_" (format-time-string "%Y") ".org")))
+                                  (file ,(concat org-dir "Templates/weekly-review.org"))))))
     (progn
       (org-capture nil "w")
       (org-capture-finalize t)
@@ -1556,8 +1554,8 @@ Writing environment
 
 (defun my/monthly-review ()
   (interactive)
-  (let ((org-capture-templates '(("m" "Monthly Review" entry (file+olp+datetree (lambda () (concat org-dir "reviews_" (format-time-string "%Y") ".org")))
-                                  (file "~/Org/Templates/monthly-review.org")))))
+  (let ((org-capture-templates `(("m" "Monthly Review" entry (file+olp+datetree (lambda () (concat org-dir "reviews_" (format-time-string "%Y") ".org")))
+                                  (file ,(concat org-dir "Templates/monthly-review.org"))))))
     (progn
       (org-capture nil "m")
       (org-capture-finalize t)
