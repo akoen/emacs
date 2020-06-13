@@ -179,6 +179,7 @@ By default, Emacs saves backups relative to the current directory. This is abhor
               tab-width	4                    ; set width for tabs
               ring-bell-function 'ignore     ; silent bell when you make a mistake
               x-select-enable-clipboard t    ; allow pasting selection outside of emacs
+              kill-buffer-query-functions nil
               initial-major-mode 'org-mode
               delete-by-moving-to-trash t    ; move files to trash when deleting
               sentence-end-double-space nil) ; end sentences with a single space
@@ -268,7 +269,7 @@ Space is the best leader key.
     "pc" 'my/projectile-find-file-in-project-config
 
     ;; Terminal
-    "tn" 'vterm
+    "tn" 'vterm-other-window
     ))
 #+END_SRC
 
@@ -757,7 +758,13 @@ Forces proper indenting after every change.
 
 ** Vterm
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package vterm)
+(use-package vterm
+  :ensure-system-package (vterm-ctrl . libvterm)
+  :commands vterm vterm-mode
+  :init
+  (setq vterm-kill-buffer-on-exit t)
+  :config
+  (add-hook 'vterm-mode-hook 'evil-emacs-state)) ;; Evil in terminal is simply wack
 #+END_SRC
 * Org-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
