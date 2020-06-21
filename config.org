@@ -309,10 +309,19 @@ Utilities which are essential for rational operation of Emacs
 
 This sets the variable exec-path to the normal shell's PATH variable. This doesn't normally get set in daemon mode.
 
+[[https://www.reddit.com/r/emacs/comments/f8xwau/hack_replace_execpathfromshell/fioa62n/]]
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package exec-path-from-shell
   :config
-  (exec-path-from-shell-initialize))
+  (cond ((display-graphic-p)
+         (setq exec-path
+               (or (eval-when-compile
+                     (when (require 'exec-path-from-shell nil t)
+                       (setq exec-path-from-shell-check-startup-files nil)
+                       (nconc exec-path-from-shell-variables '("SSH_AUTH_LOCK" "PATH" "NNN_PLUG"))
+                       (exec-path-from-shell-initialize)
+                       exec-path))
+                   exec-path)))))
 #+END_SRC
 ** Which Key
 
