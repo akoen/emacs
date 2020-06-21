@@ -1485,14 +1485,21 @@ As always, trying to make use of LSP.
 #+END_SRC
 
 * Writing
-** Olivetti
-
-Writing environment
-
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package olivetti
   :config
   (setq olivetti-body-width 80))
+
+(use-package langtool
+  :ensure-system-package languagetool
+  :commands (langtool-check
+             langtool-check-done
+             langtool-show-message-at-point
+             langtool-correct-buffer)
+  :init
+  (setq langtool-default-language "en-CA")
+  :config
+  (setq langtool-java-classpath "/usr/share/languagetool:/usr/share/java/languagetool/*"))
 #+END_SRC
 
 * Functions
