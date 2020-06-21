@@ -183,6 +183,8 @@ By default, Emacs saves backups relative to the current directory. This is abhor
               initial-major-mode 'org-mode
               delete-by-moving-to-trash t    ; move files to trash when deleting
               sentence-end-double-space nil) ; end sentences with a single space
+
+(winner-mode 1)
 #+END_SRC
 
 * Keybindings
