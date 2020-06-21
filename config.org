@@ -922,8 +922,7 @@ Set agenda settings
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq org-deadline-warning-days 7                                            ;;warn me of any deadlines in next 7 days
       org-agenda-skip-scheduled-if-deadline-is-shown t                       ;;don't show tasks as scheduled if they are already shown as a deadline
-      org-agenda-files (list org-dir)                                    ;; Set agenda files
-      org-agenda-skip-deadline-prewarning-if-scheduled (quote pre-scheduled) ;;don't give awarning colour to tasks with impending deadlines if they are scheduled to be done
+      org-agenda-files (list org-dir)                                        ;; Set agenda files
       org-agenda-skip-scheduled-if-done t                                    ;; Skip done items in agenda
       org-agenda-skip-deadline-if-done t
       org-agenda-tags-column -100                                            ;; align tags
@@ -1150,11 +1149,14 @@ Allows for external applications to trigger custom actions without external depe
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-roam
   :ensure-system-package
-  (dot . graphviz)
+  ((dot . graphviz)
+   (sqlite3))
   :hook
   (after-init . org-roam-mode)
   :init
   (setq org-roam-directory brain-dir
+        org-roam-tag-sources '(prop last-directory)
+        org-roam-graph-exclude-matcher '("journal")
         org-roam-link-title-format "§%s")
 
   :config
@@ -1163,12 +1165,12 @@ Allows for external applications to trigger custom actions without external depe
         '(("d" "default" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "${slug}"
-           :head "#+TITLE: ${title}\n"
+           :head "#+title: ${title}\n"
            :unnarowed t)
           ("b" "book" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "books/${slug}"
-           :head "#+TITLE: ${title}\n
+           :head "#+title: ${title}\n
 
 - author ::
 - tags :: "
@@ -1176,14 +1178,14 @@ Allows for external applications to trigger custom actions without external depe
           ("d" "default" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "${slug}"
-           :head "#+TITLE: ${title}\n"
+           :head "#+title: ${title}\n"
            :unnarowed t)))
   (setq org-roam-ref-capture-templates
         '(("r" "ref" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "websites/${slug}"
-           :head "#+ROAM_KEY: ${ref}
-#+TITLE: ${title}
+           :head "#+roam_key: ${ref}
+,#+title: ${title}
  source :: ${ref}"
            :unnarrowed t)))
   (defun my/org-visit-bibliography ()
@@ -1339,9 +1341,6 @@ Allow RefTeX to plug into AUCTeX
         js2-basic-offset 2
         js-chain-indent t)
 
-  ;; use eslint_d insetad of eslint for faster linting
-  (setq flycheck-javascript-eslint-executable "eslint_d")
-
   ;; Try to highlight most ECMA built-ins
   (setq js2-highlight-level 3)
   ;; have a shorter idle time delay
@@ -1382,15 +1381,16 @@ Allow RefTeX to plug into AUCTeX
     :keymaps 'lsp-mode-map
     "cr" 'lsp-rename
     "cl" 'lsp-find-definition
+    "cd" 'lsp-describe-thing-at-point
     "cpd" 'lsp-ui-peek-find-definitions
     "cpl" 'lsp-ui-peek-find-references)
 
   :config
-  (setq 
-   lsp-enable-indentation nil
-   lsp-enable-on-type-formatting nil
-   lsp-session-file (concat emacs-etc-dir "lsp-session")
-   read-process-ouput-max (* 1024 1024)))  ;; As per <https://github.com/emacs-lsp/lsp-mode#performance>.
+  (setq lsp-enable-indentation nil
+        lsp-enable-on-type-formatting nil
+        lsp-prefer-capf t
+        lsp-session-file (concat emacs-etc-dir "lsp-session")
+        read-process-ouput-max (* 1024 1024)))  ;; As per <https://github.com/emacs-lsp/lsp-mode#performance>.
 
 (use-package lsp-ui
   :commands lsp-ui-mode
@@ -1398,8 +1398,6 @@ Allow RefTeX to plug into AUCTeX
   (setq lsp-ui-doc-enable nil
         lsp-ui-sideline-show-hover nil
         lsp-ui-doc-max-height 8))
-
-(use-package company-lsp)
 #+END_SRC
 
 ** DAP
