@@ -184,7 +184,9 @@ By default, Emacs saves backups relative to the current directory. This is abhor
               delete-by-moving-to-trash t    ; move files to trash when deleting
               sentence-end-double-space nil) ; end sentences with a single space
 
+;; Pressing Q restores the window configuration to the last state. Useful for killing compilation buffers etc. Redo with C-c right
 (winner-mode 1)
+(define-key evil-normal-state-map (kbd "Q") 'winner-undo)
 #+END_SRC
 
 * Keybindings
