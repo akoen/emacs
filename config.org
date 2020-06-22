@@ -623,6 +623,10 @@ Project management.
         projectile-files-cache-expire 604800 ; expire after a week
         projectile-sort-order 'recentf
         projectile-use-git-grep t) ; use git-grep for text searches
+
+  ;; TODO - Temp fix for git repositories with submodules: see https://github.com/bbatsov/projectile/issues/1302#issuecomment-433894379
+  (setq projectile-git-submodule-command nil)
+
   :config
   (projectile-mode +1)
   (setq projectile-project-root-files-bottom-up
