@@ -844,7 +844,7 @@ An inteface to version control system Git
         org-log-repeat nil)                                               ; do not record a closing timestamp
 
   :custom-face 
-  (variable-pitch ((t (:family "Whitney" :height 1.0)))) ; Alternatively, Office Code Pro is second best
+  (variable-pitch ((t (:family "Roboto Mono Light" :height 1.0)))) ; Alternatively, Office Code Pro is second best
   (org-document-title ((t (:weight bold :height 1.5))))
   (org-done ((t (:strike-through t :weight bold))))
   (org-headline-done ((t (:strike-through t))))
