@@ -772,16 +772,6 @@ An inteface to version control system Git
   :after magit)
 #+END_SRC
 
-** Aggressive-indent
-
-Forces proper indenting after every change.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package aggressive-indent
-  :config
-  (add-to-list 'aggressive-indent-excluded-modes 'c-mode)
-  (global-aggressive-indent-mode +1))
-#+END_SRC
 ** Company
 
 #+BEGIN_SRC emacs-lisp :tangle yes
