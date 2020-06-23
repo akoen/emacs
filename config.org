@@ -1394,9 +1394,7 @@ Allow RefTeX to plug into AUCTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package prettier-js
   :ensure-system-package prettier
-  :hook ((js2-mode . prettier-js-mode)
-         (rjsx-mode . prettier-js-mode))
-
+  :hook ((js2-mode rjsx-mode json-mode) . prettier-js-mode)
   :custom (prettier-js-args '("--print-width" "100"
                               "--single-quote" "true"
                               "--trailing-comma" "all")))
