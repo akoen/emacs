@@ -1634,18 +1634,21 @@ As always, trying to make use of LSP.
 #+END_SRC
 * Organization
 ** Reviews
+
+Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defun my--daily-review ()
   (interactive)
-  (let ((org-capture-templates `(("d" "Daily Review" entry (file+datetree (lambda () (concat org-dir "reviews_" (format-time-string "%Y") ".org")))
+  (let ((org-capture-templates `(("d" "Daily Review" entry (file (lambda () (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org")))
                                   (file ,(concat org-dir "Templates/daily-review.org"))))))
     (progn
       (org-capture nil "d"))))
 
 (defun my--weekly-review ()
   (interactive)
-  (let ((org-capture-templates `(("w" "Weekly Review" entry (file+olp+datetree (lambda () (concat org-dir "reviews_" (format-time-string "%Y") ".org")))
-                                  (file ,(concat org-dir "Templates/weekly-review.org"))))))
+  (let ((org-capture-templates `(("w" "weekly review" entry (file+olp+datetree (lambda () (concat org-dir "Reviews/reviews_" (format-time-string "%y") ".org")))
+                                  (file ,(concat org-dir "templates/weekly-review.org"))))))
     (progn
       (org-capture nil "w")
       (org-capture-finalize t)
@@ -1654,7 +1657,7 @@ As always, trying to make use of LSP.
 
 (defun my--monthly-review ()
   (interactive)
-  (let ((org-capture-templates `(("m" "Monthly Review" entry (file+olp+datetree (lambda () (concat org-dir "reviews_" (format-time-string "%Y") ".org")))
+  (let ((org-capture-templates `(("m" "Monthly Review" entry (file+olp+datetree (lambda () (concat org-dir "Reviews/reviews_" (format-time-string "%Y") ".org")))
                                   (file ,(concat org-dir "Templates/monthly-review.org"))))))
     (progn
       (org-capture nil "m")
