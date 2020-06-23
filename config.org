@@ -1557,6 +1557,12 @@ As always, trying to make use of LSP.
   :interpreter ("lua" . lua-mode))
 #+END_SRC
 
+** Json
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package json-mode
+  :mode "\\.js\\(?:on\\|[hl]int\\(rc\\)?\\)\\'")
+#+END_SRC
 * Writing
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package olivetti
