@@ -795,8 +795,13 @@ Forces proper indenting after every change.
               ("RET" . #'company-complete-selection))
 
   :config
-  (setq company-idle-delay 0.0
-        company-minimum-prefix-length 1)) ;; Length of input before completion is shown
+
+  ;; Make completions display twice as soon.
+  (setq company-idle-delay 0.15)
+
+  ;; Make completions display when you have only typed one character,
+  ;; instead of three.
+  (setq company-minimum-prefix-length 1))
 #+END_SRC
 
 ** Vterm
