@@ -1383,7 +1383,6 @@ Allow RefTeX to plug into AUCTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; Make sure to install jansson
 (use-package lsp-mode
-  :hook ((c-mode c++-mode dart-mode java-mode python-mode xml-mode js2-mode) . lsp)
   :commands lsp
   :general
   (leader-key
@@ -1395,11 +1394,33 @@ Allow RefTeX to plug into AUCTeX
     "cpl" 'lsp-ui-peek-find-references)
 
   :init
+  (defun my--lsp-enable ()
+    "Enable lsp-mode in all programming modes except those specified below. Taken from https://github.com/raxod502/radian/blob/develop/emacs/radian.el"
+     (when (derived-mode-p #'prog-mode #'text-mode)
+      (unless (or (null buffer-file-name)
+                  (derived-mode-p
+                   ;; `lsp-mode' doesn't support Elisp, so let's avoid
+                   ;; triggering the autoload just for checking that, yes,
+                   ;; there's nothing to do for the *scratch* buffer.
+                   #'emacs-lisp-mode
+                   ;; Disable for modes that we currently use a specialized
+                   ;; framework for, until they are phased out in favor of
+                   ;; LSP.
+
+                   ;; other modes go HERE
+                   ))
+        (lsp))))
+
+  (add-hook 'after-change-major-mode-hook 'my--lsp-enable)
+
   ;; Ignore specific directories in projectile
   (with-eval-after-load 'projectile
     (add-to-list 'projectile-globally-ignored-directories ".clangd"))
 
   :config
+  ;; TODO - The following line is a fix. See https://github.com/emacs-lsp/lsp-mode/issues/1736
+  (add-hook 'lsp-managed-mode-hook (lambda () (setq-local company-backends '(company-capf))))
+
   (setq lsp-enable-indentation nil
         lsp-enable-on-type-formatting nil
         lsp-prefer-capf t
