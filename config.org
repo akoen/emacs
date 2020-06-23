@@ -196,10 +196,6 @@ By default, Emacs saves backups relative to the current directory. This is abhor
               initial-major-mode 'org-mode
               delete-by-moving-to-trash t    ; move files to trash when deleting
               sentence-end-double-space nil) ; end sentences with a single space
-
-;; Pressing Q restores the window configuration to the last state. Useful for killing compilation buffers etc. Redo with C-c right
-(winner-mode 1)
-(define-key evil-normal-state-map (kbd "Q") 'winner-undo)
 #+END_SRC
 
 * Keybindings
@@ -318,41 +314,6 @@ The Hydra is vanquished once Hercules, any binding that isn't the Hydra's head, 
   ("q" nil "quit" :color blue))
 #+END_SRC
 
-* Core Utilities
-
-Utilities which are essential for rational operation of Emacs
-
-** Exec Path From Shell
-
-This sets the variable exec-path to the normal shell's PATH variable. This doesn't normally get set in daemon mode.
-
-[[https://www.reddit.com/r/emacs/comments/f8xwau/hack_replace_execpathfromshell/fioa62n/]]
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package exec-path-from-shell
-  :config
-  (cond ((display-graphic-p)
-         (setq exec-path
-               (or (eval-when-compile
-                     (when (require 'exec-path-from-shell nil t)
-                       (setq exec-path-from-shell-check-startup-files nil)
-                       (nconc exec-path-from-shell-variables '("SSH_AUTH_LOCK" "PATH" "NNN_PLUG"))
-                       (exec-path-from-shell-initialize)
-                       exec-path))
-                   exec-path)))))
-#+END_SRC
-** Which Key
-
-A small buffer which shows the list of commands you can execute next.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package which-key
-  :init
-  (setq which-key-separator " ")
-  (setq which-key-prefix-prefix "+")
-  :config
-  (which-key-mode 1))
-#+END_SRC
-
 ** EVIL
 
 Allows for traditional vim bindings inside of emacs
@@ -429,6 +390,54 @@ Allows for quick movement to 2-char sequences.
   :config
   (evil-snipe-mode +1))
 #+END_SRC
+*** winner-mode
+
+Pressing Q restores the window configuration to the last state. Useful for killing compilation buffers etc. Redo with C-c right
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-feature winner-mode
+  :commands (winner-undo winner-redo)
+  :after evil
+  :init
+  (define-key evil-normal-state-map (kbd "Q") 'winner-undo)
+  :config
+  (winner-mode 1))
+#+END_SRC
+* Core Utilities
+
+Utilities which are essential for rational operation of Emacs
+
+** Exec Path From Shell
+
+This sets the variable exec-path to the normal shell's PATH variable. This doesn't normally get set in daemon mode.
+
+[[https://www.reddit.com/r/emacs/comments/f8xwau/hack_replace_execpathfromshell/fioa62n/]]
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package exec-path-from-shell
+  :config
+  (cond ((display-graphic-p)
+         (setq exec-path
+               (or (eval-when-compile
+                     (when (require 'exec-path-from-shell nil t)
+                       (setq exec-path-from-shell-check-startup-files nil)
+                       (nconc exec-path-from-shell-variables '("SSH_AUTH_LOCK" "PATH" "NNN_PLUG"))
+                       (exec-path-from-shell-initialize)
+                       exec-path))
+                   exec-path)))))
+#+END_SRC
+** Which Key
+
+A small buffer which shows the list of commands you can execute next.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package which-key
+  :init
+  (setq which-key-separator " ")
+  (setq which-key-prefix-prefix "+")
+  :config
+  (which-key-mode 1))
+#+END_SRC
+
 ** Completion
 *** Ivy
 
