@@ -15,11 +15,24 @@ Alright, let's do this:
 ;;; init.el --- The personal Emacs configuration of Alex Koen -*- lexical-binding: t; -*-
 #+END_SRC
 
-** Personal Information
+** Personal information
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq user-full-name "Alex Koen"
-      user-mail-address "arw.koen@gmail.com")
+      user-mail-address "alex@koen.ca")
+#+END_SRC
+
+** Macros and functions
+
+use-feature from [[https://github.com/raxod502/radian/blob/develop/emacs/radian.el]]. Tells straight not to look for a package.
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defmacro use-feature (name &rest args)
+  "Like `use-package', but with `straight-use-package-by-default' disabled.
+NAME and ARGS are as in `use-package'."
+  (declare (indent defun))
+  `(use-package ,name
+     :straight nil
+     ,@args))
 #+END_SRC
 
 ** Optimizations
@@ -785,8 +798,7 @@ Forces proper indenting after every change.
 #+END_SRC
 * Org-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package org
-  :straight nil
+(use-feature org
   :hook
   (org-mode . visual-line-mode)
   :custom
@@ -1036,9 +1048,8 @@ Make the header bullets look prettier
 Allows for resetting of checkboxes when item is marked DONE.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package org-checklist
-  :after org
-  :straight nil)
+(use-feature org-checklist
+  :after org)
 #+END_SRC
 *** org-download
 Automatically insert images via drag-and-drop
