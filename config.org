@@ -1447,8 +1447,11 @@ Allow RefTeX to plug into AUCTeX
     (add-to-list 'projectile-globally-ignored-directories ".clangd"))
 
   :config
-  ;; TODO - The following line is a fix. See https://github.com/emacs-lsp/lsp-mode/issues/1736
-  (add-hook 'lsp-managed-mode-hook (lambda () (setq-local company-backends '(company-capf))))
+  ;; TODO - Add company-capf to front of backends. The following line is a fix. See https://github.com/emacs-lsp/lsp-mode/issues/1736
+  (add-hook 'lsp-managed-mode-hook (lambda ()
+        (setq-local company-backends
+                    (cons 'company-capf
+                          (remq 'company-capf company-backends)))))
 
   (setq lsp-enable-indentation nil
         lsp-enable-on-type-formatting nil
