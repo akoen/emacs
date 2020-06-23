@@ -262,7 +262,7 @@ Space is the best leader key.
     "oi" 'org-roam-insert
     "of" 'org-roam-find-file
     "og" 'org-roam-graph
-    "ob" 'my/org-visit-bibliography
+    "ob" 'my--org-visit-bibliography
 
     "ojj" 'org-journal-new-entry
     "oje" 'org-journal-new-scheduled-entry
@@ -277,9 +277,9 @@ Space is the best leader key.
     "pp" 'counsel-projectile-switch-project
     "pi" 'projectile-invalidate-cache
     "pk" 'projectile-kill-buffers
-    "pd" 'my/projectile-find-file-in-project-dotfiles
-    "pt" 'my/projectile-find-file-in-project-tasks
-    "pc" 'my/projectile-find-file-in-project-config
+    "pd" 'my--projectile-find-file-in-project-dotfiles
+    "pt" 'my--projectile-find-file-in-project-tasks
+    "pc" 'my--projectile-find-file-in-project-config
 
     ;; Terminal
     "tn" 'vterm-other-window
@@ -345,17 +345,17 @@ Allows for traditional vim bindings inside of emacs
 This code allows us to quit basically everything using ESC.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(defvar my/escape-hook nil
+(defvar my--escape-hook nil
   "A hook run when esc is pressed")
 
 (defun escape-quit ()
-  "Run `my/escape-hook'."
+  "Run `my--escape-hook'."
   (interactive)
   (cond ((minibuffer-window-active-p (minibuffer-window))
          ;; quit the minibuffer if open.
          (abort-recursive-edit))
         ;; Run all escape hooks. If any returns non-nil, then stop there.
-        ((run-hook-with-args-until-success 'my/escape-hook))
+        ((run-hook-with-args-until-success 'my--escape-hook))
         ;; don't abort macros
         ((or defining-kbd-macro executing-kbd-macro) nil)
         ;; Back to the default
@@ -488,7 +488,7 @@ A small buffer which shows the list of commands you can execute next.
       (if (or (not (file-exists-p candidate)) (file-remote-p candidate)
               (not (magit-git-repo-p candidate)))
           ""
-        (if (my/projectile-compilation-buffers candidate)
+        (if (my--projectile-compilation-buffers candidate)
             "compiling"
           ""))))
 
@@ -658,24 +658,24 @@ Project management.
 *** Projectile for specific projects
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(defun my/projectile-find-file-in-project-config ()
+(defun my--projectile-find-file-in-project-config ()
   (interactive)
   (let ((default-directory emacs-dir))
     (counsel-projectile-find-file)))
 
-(defun my/projectile-find-file-in-project-tasks ()
+(defun my--projectile-find-file-in-project-tasks ()
   (interactive)
   (let ((default-directory org-dir))
     (counsel-projectile-find-file)))
 
-(defun my/projectile-find-file-in-project-dotfiles ()
+(defun my--projectile-find-file-in-project-dotfiles ()
   (interactive)
   (let ((default-directory dotfiles-dir))
     (counsel-projectile-find-file)))
 #+END_SRC
 ** Dired
 #+BEGIN_SRC emacs-lisp :tangle yes
-(defun my/dired-do-command (command)
+(defun my--dired-do-command (command)
   "Run COMMAND on marked files. Any files not already open will be opened.
 After this command has been run, any buffers it's modified will remain
 open and unsaved."
@@ -736,11 +736,11 @@ We define a function to autocomplete snippets. See [[https://github.com/joaotavo
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package yasnippet
   :init
-  (defun my/yas-try-expanding-auto-snippets ()
+  (defun my--yas-try-expanding-auto-snippets ()
     (when (and (boundp 'yas-minor-mode) yas-minor-mode)
       (let ((yas-buffer-local-condition ''(require-snippet-condition . auto)))
         (yas-expand))))
-  (add-hook 'post-command-hook #'my/yas-try-expanding-auto-snippets)
+  (add-hook 'post-command-hook #'my--yas-try-expanding-auto-snippets)
   :config
   (yas-global-mode 1)
   (setq yas-triggers-in-field t))
@@ -1003,7 +1003,7 @@ Make bullets circular
 
 *** Autosort
 #+BEGIN_SRC emacs-lisp :tangle yes
-(defun my/org-entry-has-subentries ()
+(defun my--org-entry-has-subentries ()
   "Any entry with subheadings"
   (let ((subtree-end (save-excursion (org-end-of-subtree t))))
     (save-excursion
@@ -1012,22 +1012,22 @@ Make bullets circular
       (when (< (point) subtree-end)
         (re-search-forward "^\*+ " subtree-end t)))))
 
-(defun my/org-entry-sort-by-property nil
+(defun my--org-entry-sort-by-property nil
   (let ((property (org-entry-get (point) "SORT" 'INHERIT)))
     (when (and (not (seq-empty-p property))
-               (my/org-entry-has-subentries))
+               (my--org-entry-has-subentries))
       (funcall #'org-sort-entries nil (string-to-char property) nil nil nil)))
   (let ((property_second (org-entry-get (point) "SORT_AFTER" 'INHERIT)))
     (when (and (not (seq-empty-p property_second))
-               (my/org-entry-has-subentries))
+               (my--org-entry-has-subentries))
       (funcall #'org-sort-entries nil (string-to-char property_second) nil nil nil))))
 
-(defun my/org-buffer-sort-by-property (&optional MATCH)
+(defun my--org-buffer-sort-by-property (&optional MATCH)
   (interactive)
-  (org-map-entries #'my/org-entry-sort-by-property MATCH 'file)
+  (org-map-entries #'my--org-entry-sort-by-property MATCH 'file)
   (org-set-startup-visibility))
 
-                                        ;(add-hook 'org-mode-hook #'my/org-buffer-sort-by-property)
+                                        ;(add-hook 'org-mode-hook #'my--org-buffer-sort-by-property)
 #+END_SRC
 ** Packages
 *** Babel
@@ -1222,7 +1222,7 @@ Allows for external applications to trigger custom actions without external depe
 ,#+title: ${title}
  source :: ${ref}"
            :unnarrowed t)))
-  (defun my/org-visit-bibliography ()
+  (defun my--org-visit-bibliography ()
     (interactive)
     (find-file (expand-file-name (concat "./bib/" (file-name-base buffer-file-name) ".bib")))))
 #+END_SRC
@@ -1635,14 +1635,14 @@ As always, trying to make use of LSP.
 * Organization
 ** Reviews
 #+BEGIN_SRC emacs-lisp :tangle yes
-(defun my/daily-review ()
+(defun my--daily-review ()
   (interactive)
   (let ((org-capture-templates `(("d" "Daily Review" entry (file+datetree (lambda () (concat org-dir "reviews_" (format-time-string "%Y") ".org")))
                                   (file ,(concat org-dir "Templates/daily-review.org"))))))
     (progn
       (org-capture nil "d"))))
 
-(defun my/weekly-review ()
+(defun my--weekly-review ()
   (interactive)
   (let ((org-capture-templates `(("w" "Weekly Review" entry (file+olp+datetree (lambda () (concat org-dir "reviews_" (format-time-string "%Y") ".org")))
                                   (file ,(concat org-dir "Templates/weekly-review.org"))))))
@@ -1652,7 +1652,7 @@ As always, trying to make use of LSP.
       (org-speed-move-safe 'outline-up-heading)
       (org-narrow-to-subtree))))
 
-(defun my/monthly-review ()
+(defun my--monthly-review ()
   (interactive)
   (let ((org-capture-templates `(("m" "Monthly Review" entry (file+olp+datetree (lambda () (concat org-dir "reviews_" (format-time-string "%Y") ".org")))
                                   (file ,(concat org-dir "Templates/monthly-review.org"))))))
