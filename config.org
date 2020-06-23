@@ -1479,7 +1479,6 @@ Allow RefTeX to plug into AUCTeX
     "dsi" 'dap-step-in
     "dso" 'dap-step-out
     "dbt" 'dap-breakpoint-toggle
-
     "dul" 'dap-ui-locals)
 
   :config
@@ -1508,11 +1507,14 @@ ln -s Debug/compile_commands.json
 #+END_SRC
 
 *** ccls
+
+While ccls in nice in theory, it has given me nothing but trouble. We will use clangd instead.
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ccls
+  :disabled t
   :ensure-system-package ccls
-  :config
-  (add-to-list 'projectile-globally-ignored-directories ".ccls-cache"))
+  :after lsp
   :init
   (with-eval-after-load 'projectile
     (add-to-list 'projectile-globally-ignored-directories ".ccls-cache")
