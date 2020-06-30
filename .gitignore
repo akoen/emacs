@@ -1,0 +1,9 @@
+*
+*/
+!.local/straight/versions/
+!snippets/
+!config.org
+!config.el
+!init.el
+!custom.el
+!.gitignore
