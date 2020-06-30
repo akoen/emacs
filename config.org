@@ -1317,6 +1317,7 @@ Allow RefTeX to plug into AUCTeX
   :config
   (editorconfig-mode 1))
 #+END_SRC
+* Lang
 ** Web
 *** web mode
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1434,7 +1435,7 @@ Allow RefTeX to plug into AUCTeX
                    ;; LSP.
 
                    ;; other modes go HERE
-                   ))
+                   #'org-mode))
         (lsp))))
 
   (add-hook 'after-change-major-mode-hook 'my--lsp-enable)
@@ -1520,7 +1521,7 @@ While ccls in nice in theory, it has given me nothing but trouble. We will use c
     (add-to-list 'projectile-project-root-files-top-down-recurring "compile_commands.json")))
 #+END_SRC
 
-** CMake
+*** CMake
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package cmake-mode
@@ -1537,17 +1538,13 @@ As always, trying to make use of LSP.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package lsp-python-ms
-  :defer 0.3
+  :after lsp-clients
   :init
   (setq lsp-python-ms-dir (concat emacs-etc-dir "mspyls/")))
 
-(use-package python
-  :delight "π "
-  :bind (("M-[" . python-nav-backward-block)
-         ("M-]" . python-nav-forward-block)))
+(use-feature python)
 #+END_SRC
 ** Lua
-
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package lua-mode
   :delight "Λ "
