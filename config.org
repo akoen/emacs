@@ -262,6 +262,7 @@ Space is the best leader key.
     "oi" 'org-roam-insert
     "of" 'org-roam-find-file
     "og" 'org-roam-graph
+    "oS" 'my--ivy-org-jump-to-agenda-heading
     "ob" 'my--org-visit-bibliography
 
     "ojj" 'org-journal-new-entry
@@ -1028,6 +1029,35 @@ Make bullets circular
   (org-set-startup-visibility))
 
                                         ;(add-hook 'org-mode-hook #'my--org-buffer-sort-by-property)
+#+END_SRC
+*** Search headlines in agenda files
+
+Taken from https://github.com/jkitchin/scimax/blob/131f7f6f537c56f1d30396e79634a8b6cd6c887b/scimax-org.el#L693
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defun my--ivy-org-jump-to-agenda-heading ()
+  "Jump to a heading in an agenda file."
+  (interactive)
+  (let ((headlines '()))
+    (loop for file in (org-agenda-files) do
+	  (with-current-buffer (find-file-noselect file)
+	    (save-excursion
+	      (goto-char (point-min))
+	      (while (re-search-forward org-heading-regexp nil t)
+		(cl-pushnew (list
+			     (format "%-80s (%s)"
+				     (match-string 0)
+				     (file-name-nondirectory file))
+			     :file file
+			     :position (match-beginning 0))
+			    headlines)))))
+    (ivy-read "Headline: "
+	      (reverse headlines)
+	      :action (lambda (candidate)
+			(org-mark-ring-push)
+			(find-file (plist-get (cdr candidate) :file))
+			(goto-char (plist-get (cdr candidate) :position))
+			(outline-show-entry)))))
 #+END_SRC
 ** Packages
 *** Babel
