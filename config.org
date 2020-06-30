@@ -1676,6 +1676,11 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
     (progn
       (org-capture nil "d"))))
 
+(defun my--visit-daily-review ()
+"Visit the file corresponding to today's daily revie"
+(interactive)
+(find-file (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org")))
+
 (defun my--weekly-review ()
   (interactive)
   (let ((org-capture-templates `(("w" "weekly review" entry (file+olp+datetree (lambda () (concat org-dir "Reviews/reviews_" (format-time-string "%Y") ".org")))
