@@ -1648,7 +1648,7 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
 
 (defun my--weekly-review ()
   (interactive)
-  (let ((org-capture-templates `(("w" "weekly review" entry (file+olp+datetree (lambda () (concat org-dir "Reviews/reviews_" (format-time-string "%y") ".org")))
+  (let ((org-capture-templates `(("w" "weekly review" entry (file+olp+datetree (lambda () (concat org-dir "Reviews/reviews_" (format-time-string "%Y") ".org")))
                                   (file ,(concat org-dir "Templates/weekly-review.org"))))))
     (progn
       (org-capture nil "w")
