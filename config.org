@@ -1187,9 +1187,25 @@ Allows for external applications to trigger custom actions without external depe
 #+END_SRC
 
 *** org-ref
+*** org-super-agenda
+
+A package which allows for much greater customization of the org agenda.
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-ref
   :after org)
+(use-package org-super-agenda
+  :after org-agenda
+  :init
+  (setq org-super-agenda-group-property-name "AGENDA_SECTION"
+        org-super-agenda-groups '((:name "Personal"
+                                         :time-grid t
+                                         :tag "personal")
+                                  (:auto-property "Class")
+                                  (:name "School Other"
+                                         :time-grid t
+                                         :file-path "school"))
+        org-super-agenda-header-map (make-sparse-keymap)) ;; removes custom keybindings which are in opposition to evil-org
 
 (use-package org-ref-ox-hugo
   :straight (:host github :repo "jethrokuan/org-ref-ox-hugo")
@@ -1207,6 +1223,7 @@ Allows for external applications to trigger custom actions without external depe
                  ("unpublished" . "${author}, *${title}* (${year}). Unpublished manuscript.")
                  ("misc" . "${author} (${year}). *${title}*. Retrieved from [${howpublished}](${howpublished}). ${note}.")
                  (nil . "${author}, *${title}* (${year})."))))
+  (org-super-agenda-mode))
 #+END_SRC
 *** org-roam
 
@@ -1256,31 +1273,12 @@ Allows for external applications to trigger custom actions without external depe
     (interactive)
     (find-file (expand-file-name (concat "./bib/" (file-name-base buffer-file-name) ".bib")))))
 #+END_SRC
-*** org-super-agenda
 
 A package which allows for much greater customization of the org agenda.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package org-super-agenda
-  :after org-agenda
-  :init
-  (setq org-super-agenda-groups '((:name "High Priority"
-                                         :time-grid t
-                                         :priority "A")
-                                  (:name "Habits"
-                                         :time-grid t
-                                         :tag "habit")
-                                  (:name "Personal"
-                                         :time-grid t
-                                         :and (:tag "personal"
-                                                    :not (:tag "habit")))
-                                  (:name "School"
-                                         :time-grid t
-                                         :file-path "school"))
-        org-super-agenda-header-map (make-sparse-keymap)) ;; removes custom keybindings which are in opposition to evil-org
 
   :config
-  (org-super-agenda-mode))
 #+END_SRC
 
 *** ox-hugo
