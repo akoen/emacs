@@ -843,7 +843,7 @@ An inteface to version control system Git
         org-pretty-entities t                                             ; show entities as UTF8 characters
         org-image-actual-width (/ (display-pixel-width) 3)
         org-log-repeat nil                                               ; do not record a closing timestamp
-        org-export-smart-quotes t)
+        org-export-with-smart-quotes t)
 
   :custom-face 
   (variable-pitch ((t (:family "Roboto Mono Light" :height 1.0)))) ; Alternatively, Office Code Pro is second best
