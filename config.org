@@ -1591,6 +1591,11 @@ As always, trying to make use of LSP.
              langtool-check-done
              langtool-show-message-at-point
              langtool-correct-buffer)
+  :general
+  (leader-key
+    :keymaps 'org-mode-map
+    "llb" 'langtool-check-buffer
+    "llc" 'langtool-check-done)
   :init
   (setq langtool-default-language "en-CA")
   :config
