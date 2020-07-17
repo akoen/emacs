@@ -674,7 +674,19 @@ Project management.
     (counsel-projectile-find-file)))
 #+END_SRC
 ** Dired
+
 #+BEGIN_SRC emacs-lisp :tangle yes
+(use-feature dired
+  :commands dired-jump
+  :config
+  (setq dired-auto-revert-buffer t  ; don't prompt to revert; just do it
+        dired-dwim-target t  ; suggest a target for moving/copying intelligently
+        dired-hide-details-hide-symlink-targets nil
+        ;; Always copy/delete recursively
+        dired-recursive-copies  'always
+        dired-recursive-deletes 'top
+        dired-clean-confirm-killing-deleted-buffers nil) ;; don't ask just do
+
 (defun my--dired-do-command (command)
   "Run COMMAND on marked files. Any files not already open will be opened.
 After this command has been run, any buffers it's modified will remain
@@ -684,27 +696,16 @@ open and unsaved."
     (mapc (lambda (filename)
             (find-file filename)
             (call-interactively command))
-          (dired-get-marked-files))))
+          (dired-get-marked-files)))))
 #+END_SRC
 *** Dired-x
 
 Adds additional functionality on top of dired.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(setq dired-listing-switches "-aBhl  --group-directories-first")
-(add-hook 'dired-load-hook
-          (lambda ()
-            (load "dired-x")
-            ;; Set dired-x global variables here.  For example:
-            ;; (setq dired-guess-shell-gnutar "gtar")
-            ;; (setq dired-x-hands-off-my-keys nil)
-            (setq dired-auto-revert-buffer t)
-            ))
-(add-hook 'dired-mode-hook
-          (lambda ()
-            ;; Set dired-x buffer-local variables here.  For example:
-            ;; (dired-omit-mode 1)
-            ))
+(use-feature dired-x
+  :config
+  (setq dired-omit-verbose nil))
 #+END_SRC
 
 ** Smartparens
