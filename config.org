@@ -954,6 +954,8 @@ Set agenda settings
       org-agenda-skip-deadline-if-done t
       org-agenda-tags-column -100                                            ;; align tags
       org-agenda-skip-unavailable-files t)
+
+(advice-add 'org-agenda-quit :before 'org-save-all-org-buffers)
 #+END_SRC
 
 *** Variable Pitch Mode
