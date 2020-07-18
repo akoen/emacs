@@ -264,7 +264,6 @@ Space is the best leader key.
     "of" 'org-roam-find-file
     "og" 'org-roam-graph
     "oS" 'my--ivy-org-jump-to-agenda-heading
-    "ob" 'my--org-visit-bibliography
 
     "ojj" 'org-journal-new-entry
     "oje" 'org-journal-new-scheduled-entry
@@ -715,7 +714,6 @@ Adds additional functionality on top of dired.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package smartparens
-  :defer 1
   :init
   ;; Don't highlight - overly distracting
   (setq sp-highlight-pair-overlay nil
@@ -812,8 +810,7 @@ An inteface to version control system Git
   :commands vterm vterm-mode
   :init
   (setq vterm-kill-buffer-on-exit t)
-  :config
-  (add-hook 'vterm-mode-hook 'evil-emacs-state)) ;; Evil in terminal is simply wack
+  (with-eval-after-load 'evil (evil-set-initial-state 'vterm-mode 'emacs)))
 #+END_SRC
 * Org-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1491,6 +1488,7 @@ Allow RefTeX to plug into AUCTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package dap-mode
   :ensure-system-package lldb
+  :after lsp-mode
   :general
   (leader-key
     :keymaps 'dap-mode-map
@@ -1506,6 +1504,7 @@ Allow RefTeX to plug into AUCTeX
   (dap-mode 1)
   (dap-ui-mode 1)
   (require 'dap-gdb-lldb)
+  (require 'dap-node)
   (require 'dap-python))
 #+END_SRC
 ** C/C++
@@ -1674,7 +1673,7 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
       (org-capture nil "d"))))
 
 (defun my--visit-daily-review ()
-"Visit the file corresponding to today's daily revie"
+"Visit the file corresponding to today's daily review"
 (interactive)
 (find-file (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org")))
 
