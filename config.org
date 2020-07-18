@@ -176,6 +176,7 @@ By default, Emacs saves backups relative to the current directory. This is abhor
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq make-backup-files t ; make backups file even when in version controlled dir
+      create-lockfiles nil ; they cause problems
       backup-directory-alist (list (cons "." (concat emacs-cache-dir "backups/")))
       backup-by-copying t  ; Don't delink hardlinks
       version-control t  ; Use version numbers on backups
