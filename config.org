@@ -1695,27 +1695,6 @@ As always, trying to make use of LSP.
     (setq-local display-line-numbers 'relative)
     (setq-local writemode 1))))
 #+END_SRC
-** English Mode
-#+BEGIN_SRC emacs-lisp :tangle yes
-(defvar englishmode 1 "Set default English mode state.")
-(defun english-mode ()
-  "Toggle English spellchecking"
-  (interactive)
-  (cond
-   ((= englishmode 1)
-    (message "Enabled English Mode")
-    (flycheck-mode 1)
-    (setq flycheck-checker 'proselint)
-    (flyspell-mode 1)
-                                        ;(setq ispell-current-dictionary "en_CA")
-    (ispell-change-dictionary "english")
-    (setq englishmode 2))
-   ((= englishmode 2)
-    (message "Disabled English mode")
-    (flycheck-mode -1)
-    (flyspell-mode -1)
-    (setq englishmode 1))))
-#+END_SRC
 ** Ispell
 
 #+BEGIN_SRC emacs-lisp :tangle yes
