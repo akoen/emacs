@@ -1723,6 +1723,7 @@ As always, trying to make use of LSP.
 (use-package flyspell
   :config
   (setq ispell-program-name "aspell"
+        ispell-dictionary "canadian"
         ispell-silently-savep t))
 #+END_SRC
 * Organization
