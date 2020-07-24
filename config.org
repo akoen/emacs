@@ -841,6 +841,8 @@ An inteface to version control system Git
   (with-eval-after-load 'evil (evil-set-initial-state 'vterm-mode 'emacs)))
 #+END_SRC
 * Org-mode
+** Configuration
+*** Base
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-feature org
   :hook
@@ -883,7 +885,6 @@ An inteface to version control system Git
 
 #+END_SRC
 
-** Configuration
 *** Todo keywords
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1024,7 +1025,7 @@ Set agenda settings
   ;; align tags to right side
   (setq org-agenda-tags-column -100)
 
-  (setq org-agenda-skip-unavailable-files t))
+  (setq org-agenda-skip-unavailable-files t)
 
   (advice-add 'org-agenda-quit :before 'org-save-all-org-buffers))
 #+END_SRC
