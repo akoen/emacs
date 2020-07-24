@@ -739,8 +739,8 @@ We define a function to autocomplete snippets. See [[https://github.com/joaotavo
   (leader-key "cy" (defhydra hydra-yas (:color blue
                                         :hint nil)
               "
-_i_nsert    _n_ew       _v_isit     aya _c_reate
-_r_eload    e_x_pand    _?_ list    aya _e_xpand
+_i_nsert    _n_ew       _v_isit
+_r_eload    e_x_pand    _?_ list
 "
               ("i" yas-insert-snippet)
               ("n" yas-new-snippet)
@@ -999,15 +999,34 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 Set agenda settings
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(setq org-deadline-warning-days 7                                            ;;warn me of any deadlines in next 7 days
-      org-agenda-skip-scheduled-if-deadline-is-shown t                       ;;don't show tasks as scheduled if they are already shown as a deadline
-      org-agenda-files (list org-dir)                                        ;; Set agenda files
-      org-agenda-skip-scheduled-if-done t                                    ;; Skip done items in agenda
-      org-agenda-skip-deadline-if-done t
-      org-agenda-tags-column -100                                            ;; align tags
-      org-agenda-skip-unavailable-files t)
+(use-feature org-agenda
+  :config
+  ;; warn me of any deadlines in next 7 days
+  (setq org-deadline-warning-days 7)
 
-(advice-add 'org-agenda-quit :before 'org-save-all-org-buffers)
+  ;;don't show tasks as scheduled if they are already shown as a deadline
+  (setq org-agenda-skip-scheduled-if-deadline-is-shown t)
+
+  ;; Remove uneccesary whitespace
+  (setq org-agenda-compact-blocks t)
+
+  ;; Use entire window
+  (setq org-agenda-window-setup 'only-window)
+
+  ;; Set agenda files
+  (setq org-agenda-files (list org-dir))
+
+  ;; Skip done items in agenda
+  (setq org-agenda-skip-scheduled-if-done t)
+
+  (setq org-agenda-skip-deadline-if-done t)
+
+  ;; align tags to right side
+  (setq org-agenda-tags-column -100)
+
+  (setq org-agenda-skip-unavailable-files t))
+
+  (advice-add 'org-agenda-quit :before 'org-save-all-org-buffers))
 #+END_SRC
 
 *** Variable Pitch Mode
@@ -1238,16 +1257,25 @@ A package which allows for much greater customization of the org agenda.
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-super-agenda
   :after org-agenda
-  :init
-  (setq org-super-agenda-group-property-name "AGENDA_SECTION"
-        org-super-agenda-groups '((:name "Personal"
-                                         :time-grid t
-                                         :tag "personal")
-                                  (:auto-property "Class")
-                                  (:name "School Other"
-                                         :time-grid t
-                                         :file-path "school"))
-        org-super-agenda-header-map (make-sparse-keymap)) ;; removes custom keybindings which are in opposition to evil-org
+  :config
+  (setq org-agenda-custom-commands
+        '(("v" "Agenda"
+           ((agenda "" ((org-agenda-span 'day)
+                        (org-super-agenda-groups
+                        '((:name "Personal"
+                                 :time-grid t
+                                 :tag "personal")
+                          (:auto-property "Class")
+                          (:name "School Other"
+                                 :file-path "school")))))
+            (alltodo "" ((org-agenda-overriding-header "")
+                         (org-agenda-block-separator "")
+                         (org-super-agenda-groups
+                          '((:name "This week"
+                                   :tag "this_week")
+                            (:name "All Todos")))))))))
+
+  (setq org-super-agenda-header-map (make-sparse-keymap)) ;; removes custom keybindings which are in opposition to evil-org
 
   :config
   (org-super-agenda-mode))
