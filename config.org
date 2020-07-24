@@ -747,8 +747,6 @@ _r_eload    e_x_pand    _?_ list    aya _e_xpand
               ("v" yas-visit-snippet-file)
               ("r" yas-reload-all)
               ("x" yas-expand)
-              ("c" aya-create)
-              ("e" aya-expand)
               ("?" yas-describe-tables)
               ("q" nil "cancel" :color blue)))
   :init
@@ -1374,8 +1372,7 @@ A package which allows for much greater customization of the org agenda.
   (setq org-ref-completion-library 'org-ref-ivy-cite
         org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex
         org-ref-default-bibliography (list (concat docs-dir "zotero-bib.bib"))
-        org-ref-notes-directory brain-dir
-        org-ref-notes-function 'org-edit-notes))
+        org-ref-notes-directory brain-dir))
 #+END_SRC
 
 *** (disabled) org-ref-ox-hugo
