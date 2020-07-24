@@ -750,16 +750,28 @@ _r_eload    e_x_pand    _?_ list    aya _e_xpand
               ("c" aya-create)
               ("e" aya-expand)
               ("?" yas-describe-tables)
-              ("q" nil "cancel" :color blue))))
+              ("q" nil "cancel" :color blue)))
   :init
   (defun my--yas-try-expanding-auto-snippets ()
     (when (and (boundp 'yas-minor-mode) yas-minor-mode)
       (let ((yas-buffer-local-condition ''(require-snippet-condition . auto)))
         (yas-expand))))
+
+  (defun company-mode/backend-with-yas (backend)
+    "Add :with company-yasnippet to company BACKENDS.
+Taken from https://github.com/syl20bnr/spacemacs/pull/179."
+    (if (and (listp backend) (member 'company-yasnippet backend))
+        backend
+      (append (if (consp backend) backend (list backend))
+              '(:with company-yasnippet))))
   (add-hook 'post-command-hook #'my--yas-try-expanding-auto-snippets)
   :config
-  (yas-global-mode 1)
-  (setq yas-triggers-in-field t))
+  (with-eval-after-load 'company
+    (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends)))
+
+  ;; Disable successful loading messages
+  (setq yas-verbosity 2)
+  (yas-global-mode 1))
 #+END_SRC
 
 ** NeoTree and Icons
