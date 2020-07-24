@@ -1155,6 +1155,31 @@ Make the header bullets look prettier
         '("◉" "◎" "⚫" "○" "►" "◇"))
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 #+END_SRC
+*** org-calfw
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package calfw
+  :commands cfw:open-calendar-buffer
+  :config
+  ;; better frame. Taken from doom-emacs
+  (setq cfw:face-item-separator-color nil
+        cfw:render-line-breaker 'cfw:render-line-breaker-none
+        cfw:fchar-junction ?╋
+        cfw:fchar-vertical-line ?┃
+        cfw:fchar-horizontal-line ?━
+        cfw:fchar-left-junction ?┣
+        cfw:fchar-right-junction ?┫
+        cfw:fchar-top-junction ?┯
+        cfw:fchar-top-left-corner ?┏
+        cfw:fchar-top-right-corner ?┓))
+
+(use-package calfw-org
+  :general (leader-key "os" 'cfw:open-org-calendar)
+  :commands (cfw:open-org-calendar
+             cfw:org-create-source
+             cfw:open-org-calendar-withkevin
+             my-open-calendar))
+#+END_SRC
+
 *** org-checklist
 
 Allows for resetting of checkboxes when item is marked DONE.
