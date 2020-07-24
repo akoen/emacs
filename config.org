@@ -792,7 +792,7 @@ An inteface to version control system Git
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package company
-  :commands company-complete-common company-manual-begin company-grab-line
+  :defer 0.5
   :bind (:map company-active-map
               ("C-n" . company-select-next-or-abort)
               ("C-p" . company-select-previous-or-abort)
@@ -810,10 +810,12 @@ An inteface to version control system Git
               ("RET" . #'company-complete-selection))
 
   :config
-
-  ;; Make completions display twice as soon.
+  ;; Make completions display faster
   (setq company-idle-delay 0.15)
-
+  ;; don't downcase results from company-dabbrev
+  (setq company-dabbrev-downcase nil)
+  ;; use only buffers with same major-mode for company-dabbrev
+  (setq company-dabbrev-other-buffers t)
   ;; Make completions display when you have only typed one character,
   ;; instead of three.
   (setq company-minimum-prefix-length 1))
