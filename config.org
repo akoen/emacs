@@ -620,10 +620,14 @@ Counsel contains ivy enhancements for commonly-used functions.
   :bind
   (("C-x b" . ivy-switch-buffer)
    ("C-x C-f" . counsel-find-file))
-  :init
-  (setq recentf-save-file (concat emacs-cache-dir "recentf"))
   :config
   (define-key ivy-minibuffer-map [escape] 'minibuffer-keyboard-quit)
+
+  ;; cleanup
+  (setq recentf-save-file (concat emacs-cache-dir "recentf"))
+
+  ;; Search Debug folders for makefiles
+  (add-to-list 'counsel-compile-build-directories "Debug")
 
   (ivy-add-actions
    'counsel-find-file
