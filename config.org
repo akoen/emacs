@@ -992,13 +992,14 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
     (after delete-capture-frame activate)
   "Advise capture-finalize to close the frame"
   (when (and (equal "capture" (frame-parameter nil 'name))
-             (not (eq this-command 'my--org-capture-refile)))
+             (not (eq this-command 'org-capture-refile)))
     (delete-frame)))
 
 (defadvice org-capture-refile
     (after delete-capture-frame activate)
   "Advise org-refile to close the frame"
-  (delete-frame))
+  (when (equal "capture" (frame-parameter nil 'name))
+    (delete-frame)))
 
 (defun my--activate-capture-frame ()
   "run org-capture in capture frame"
