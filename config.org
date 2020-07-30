@@ -285,7 +285,7 @@ Space is the best leader key.
     ;; Language
     "le" 'english-mode
     "lg" 'writing-mode
-    "ls" 'english-mode
+    "ls" 'flyspell-mode
     "lb" 'ispell-buffer
 
     ;; Org mode
