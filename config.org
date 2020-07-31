@@ -1761,6 +1761,19 @@ While ccls in nice in theory, it has given me nothing but trouble. We will use c
   :hook (cmake-mode . cmake-font-lock-activate))
 #+END_SRC
 
+** GLSL
+For OpenGl shader programming.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package glsl-mode
+  :mode ("\\.vs\\'"
+         "\\.fs\\'"
+         "\\.fs\\"
+         "\\.glsl\\'"
+         "\\.geom\\'"
+         "\\.frag\\'"
+         "\\.vert\\'"))
+#+END_SRC
 ** Python
 
 As always, trying to make use of LSP.
