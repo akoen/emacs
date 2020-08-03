@@ -780,6 +780,26 @@ Adds additional functionality on top of dired.
   (smartparens-global-mode 1))
 #+END_SRC
 
+** Helpful
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package helpful
+  :commands helpful--read-symbol
+  :init
+  (global-set-key [remap describe-function] #'helpful-callable)
+  (global-set-key [remap describe-command]  #'helpful-command)
+  (global-set-key [remap describe-variable] #'helpful-variable)
+  (global-set-key [remap describe-key]      #'helpful-key)
+  (global-set-key [remap describe-symbol]   #'helpful-symbol)
+
+  :config
+  ;; Always select help window when opened
+  (setq help-window-select t)
+  ;; Remap counsel keybinds to helpful commands
+  (with-eval-after-load 'counsel
+    (setq counsel-describe-function-function #'helpful-callable
+          counsel-describe-variable-function #'helpful-variable)))
+#+END_SRC
 * Utilities
 Utilities which add functionality to emacs
 ** Yasnippet
