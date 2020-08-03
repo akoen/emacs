@@ -271,9 +271,16 @@ Space is the best leader key.
     ;; Code
     "cc" 'counsel-compile
 
+    ;; Eval
+    "eb" 'eval-buffer
+    "ed" 'eval-defun
+    "ee" 'eval-last-sexp
+    "ef" 'load-file
+    "er" 'eval-region
+    "el" 'load-library
+
     ;; Files
     "." 'find-file
-    "fl" 'load-file
     "ff" 'dired-jump
     "fr" 'counsel-recentf
     "fs" 'save-buffer
