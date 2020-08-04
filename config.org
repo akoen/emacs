@@ -437,9 +437,10 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-feature winner
   :after evil
-  :bind (:map evil-normal-state-map
-              ("Q" . winner-undo))
   :config
+  ;; We do not want to defer since winner does not start logging until
+  ;; it is loaded
+  (bind-key "Q" #'winner-undo evil-normal-state-map)
   (winner-mode 1))
 #+END_SRC
 * Core Utilities
