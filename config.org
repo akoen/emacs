@@ -1761,16 +1761,17 @@ Allow RefTeX to plug into AUCTeX
   :after lsp-mode
   :general
   (leader-key
-    :keymaps 'dap-mode-map
+    :keymaps 'lsp-mode-map
     "dd" 'dap-debug
     "dr" 'dap-debug-restart
-    "dc" 'dap-continue
-    "dsi" 'dap-step-in
-    "dso" 'dap-step-out
+    "dh" 'dap-hydra
     "dbt" 'dap-breakpoint-toggle
-    "dul" 'dap-ui-locals)
+    "du" 'dap-ui-show-many-windows)
 
   :config
+  (add-hook 'dap-stopped-hook
+            (lambda (arg) (call-interactively #'dap-hydra)))
+
   (dap-mode 1)
   (dap-ui-mode 1)
   (require 'dap-gdb-lldb)
