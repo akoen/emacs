@@ -1650,7 +1650,8 @@ Allow RefTeX to plug into AUCTeX
 ;; Mostly borrowed from https://github.com/CSRaghunandan/.emacs.d/blob/master/setup-files/setup-js.el
 (use-package js2-mode
   :ensure-system-package (tsserver . "sudo npm i -g typescript-language-server")
-  :mode (("\\.js$" . js2-mode))
+  :mode "\\.m?js\\'"
+  :interpreter "node"
   :hook ((js2-mode . (lambda ()
                        (flycheck-mode)
                        (company-mode))))
@@ -1687,8 +1688,7 @@ Allow RefTeX to plug into AUCTeX
 *** rjsx-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package rjsx-mode
-  :after js2-mode
-  :mode "\\.js\\'")
+  :mode "components/.+\\.js$")
 #+END_SRC
 ** LSP-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1825,7 +1825,6 @@ For OpenGl shader programming.
 (use-package glsl-mode
   :mode ("\\.vs\\'"
          "\\.fs\\'"
-         "\\.fs\\"
          "\\.glsl\\'"
          "\\.geom\\'"
          "\\.frag\\'"
@@ -1846,16 +1845,15 @@ As always, trying to make use of LSP.
 ** Lua
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package lua-mode
-  :delight "Λ "
   :mode "\\.lua\\'"
-  :interpreter ("lua" . lua-mode))
+  :interpreter "lua")
 #+END_SRC
 
 ** Json
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package json-mode
-  :mode "\\.js\\(?:on\\|[hl]int\\(rc\\)?\\)\\'")
+  :mode "\\.json\\'")
 #+END_SRC
 * Writing
 #+BEGIN_SRC emacs-lisp :tangle yes
