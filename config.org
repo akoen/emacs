@@ -1401,8 +1401,6 @@ A package which allows for much greater customization of the org agenda.
                             (:name "All Todos")))))))))
 
   (setq org-super-agenda-header-map (make-sparse-keymap)) ;; removes custom keybindings which are in opposition to evil-org
-
-  :config
   (org-super-agenda-mode))
 #+END_SRC
 
