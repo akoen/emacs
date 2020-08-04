@@ -1824,6 +1824,10 @@ While ccls in nice in theory, it has given me nothing but trouble. We will use c
   :hook (cmake-mode . cmake-font-lock-activate))
 #+END_SRC
 
+** CSharp
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package csharp-mode)
+#+END_SRC
 ** GLSL
 For OpenGl shader programming.
 
