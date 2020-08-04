@@ -1519,11 +1519,13 @@ A package which allows for much greater customization of the org agenda.
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-ref
   :after org
+  :init
+  ;; must be called at init
+  (setq org-ref-completion-library 'org-ref-ivy-cite)
   :config
-  (setq org-ref-completion-library 'org-ref-ivy-cite
-        org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex
-        org-ref-default-bibliography (list (concat docs-dir "zotero-bib.bib"))
-        org-ref-notes-directory brain-dir))
+  (setq org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex
+   org-ref-default-bibliography (list (concat docs-dir "zotero-bib.bib"))
+   org-ref-notes-directory brain-dir))
 #+END_SRC
 
 *** (disabled) org-ref-ox-hugo
