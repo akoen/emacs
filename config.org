@@ -841,14 +841,15 @@ _r_eload    e_x_pand    _?_ list
               ("?" yas-describe-tables)
               ("q" nil "cancel" :color blue)))
   :init
+  ;; Automatically expand snippet when # condition: 'auto is used in snippet header
   (defun my--yas-try-expanding-auto-snippets ()
     (when (and (boundp 'yas-minor-mode) yas-minor-mode)
       (let ((yas-buffer-local-condition ''(require-snippet-condition . auto)))
         (yas-expand))))
 
   (defun company-mode/backend-with-yas (backend)
-    "Add :with company-yasnippet to company BACKENDS.
-Taken from https://github.com/syl20bnr/spacemacs/pull/179."
+    "Add :with company-yasnippet to company BACKENDS. Taken from
+https://github.com/syl20bnr/spacemacs/pull/179."
     (if (and (listp backend) (member 'company-yasnippet backend))
         backend
       (append (if (consp backend) backend (list backend))
@@ -860,6 +861,7 @@ Taken from https://github.com/syl20bnr/spacemacs/pull/179."
 
   ;; Disable successful loading messages
   (setq yas-verbosity 2)
+
   (yas-global-mode 1))
 #+END_SRC
 
