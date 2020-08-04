@@ -788,6 +788,15 @@ Adds additional functionality on top of dired.
   (smartparens-global-mode 1))
 #+END_SRC
 
+** Folding
+#+BEGIN_SRC emacs-lisp :tangle yes
+;; Adapted from doom emacs
+(use-feature hideshow
+  :config
+  ;; Do not fold comments
+  (setq hs-hide-comments-when-hiding-all nil)
+  (add-hook 'prog-mode-hook 'hs-minor-mode))
+#+END_SRC
 ** Helpful
 
 #+BEGIN_SRC emacs-lisp :tangle yes
