@@ -1352,7 +1352,12 @@ Let you copy formatted org-mode content to the clipboard. Requires the package =
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package htmlize
   :after org)
+
 (use-package ox-clip
+  :general
+  (leader-key
+    :keymaps 'org-mode-map
+    "oy" 'ox-clip-formatted-copy)
   :after org)
 #+END_SRC
 *** org-Protocol
