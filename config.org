@@ -1740,6 +1740,8 @@ Allow RefTeX to plug into AUCTeX
                     (cons 'company-capf
                           (remq 'company-capf company-backends)))))
 
+  (setq lsp-server-install-dir (concat emacs-etc-dir "lsp/"))
+
   (setq lsp-enable-indentation nil
         lsp-enable-on-type-formatting nil
         lsp-prefer-capf t
@@ -1845,12 +1847,19 @@ For OpenGl shader programming.
 As always, trying to make use of LSP.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package lsp-python-ms
-  :after lsp-clients
-  :init
-  (setq lsp-python-ms-dir (concat emacs-etc-dir "mspyls/")))
+(use-feature python
+  :mode ("/Pipfile\\'" . conf-mode))
 
-(use-feature python)
+(use-package lsp-pyright
+  ;; TODO Remove this line when available on Melpa
+  :straight (lsp-pyright :type git :host github :repo "emacs-lsp/lsp-pyright")
+  :after lsp-clients)
+
+(use-package pipenv
+  :commands pipenv-project-p
+  :hook (python-mode . pipenv-mode)
+  :init (setq pipenv-with-projectile nil))
+
 #+END_SRC
 ** Lua
 #+BEGIN_SRC emacs-lisp :tangle yes
