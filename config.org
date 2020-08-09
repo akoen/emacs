@@ -1868,6 +1868,10 @@ As always, trying to make use of LSP.
   (setenv "WORKON_HOME" "/home/alex/.local/share/virtualenvs/")
   (pyvenv-mode +1))
 
+(use-package blacken
+  :commands blacken-mode
+  :hook (python-mode . blacken-mode))
+
 (use-package pipenv
   :commands pipenv-project-p
   :hook (python-mode . pipenv-mode)
