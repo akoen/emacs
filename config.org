@@ -840,6 +840,15 @@ _r_eload    e_x_pand    _?_ list
               ("x" yas-expand)
               ("?" yas-describe-tables)
               ("q" nil "cancel" :color blue)))
+  ;; Bind C-j to yas-expand. Taken from https://github.com/KaratasFurkan/.emacs.d/blob/master/README.org#yasnippet-snippet-completion
+  :bind*
+  (("C-j" . yas-expand)
+   :map yas-minor-mode-map
+   ("TAB" . nil)
+   ("<tab>" . nil)
+   :map yas-keymap
+   ("TAB" . (lambda () (interactive) (company-abort) (yas-next-field)))
+   ("<tab>" . (lambda () (interactive) (company-abort) (yas-next-field))))
   :init
   ;; Automatically expand snippet when # condition: 'auto is used in snippet header
   (defun my--yas-try-expanding-auto-snippets ()
@@ -847,18 +856,7 @@ _r_eload    e_x_pand    _?_ list
       (let ((yas-buffer-local-condition ''(require-snippet-condition . auto)))
         (yas-expand))))
 
-  (defun company-mode/backend-with-yas (backend)
-    "Add :with company-yasnippet to company BACKENDS. Taken from
-https://github.com/syl20bnr/spacemacs/pull/179."
-    (if (and (listp backend) (member 'company-yasnippet backend))
-        backend
-      (append (if (consp backend) backend (list backend))
-              '(:with company-yasnippet))))
-  (add-hook 'post-command-hook #'my--yas-try-expanding-auto-snippets)
   :config
-  (with-eval-after-load 'company
-    (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends)))
-
   ;; Disable successful loading messages
   (setq yas-verbosity 2)
 
