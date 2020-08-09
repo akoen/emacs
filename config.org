@@ -86,8 +86,10 @@ Doom one is beautiful
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package doom-themes
+  :custom-face
+  (font-lock-comment-face ((t (:slant italic))))
   :config
-  (load-theme 'doom-one t)
+  (load-theme 'doom-spacegrey t)
   (doom-themes-org-config))
 #+END_SRC
 
