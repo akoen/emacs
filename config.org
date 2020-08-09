@@ -1850,7 +1850,14 @@ As always, trying to make use of LSP.
 (use-feature python
   :mode ("/Pipfile\\'" . conf-mode))
 
+;; FIXME Currently, neither lsp-python-ms nor lsp-pyright work
+;; properly. Currently using pyls, but it's not very nice...
+(use-package lsp-python-ms
+  :disabled t
+  :after lsp-clients)
+
 (use-package lsp-pyright
+  :disabled t
   ;; TODO Remove this line when available on Melpa
   :straight (lsp-pyright :type git :host github :repo "emacs-lsp/lsp-pyright")
   :after lsp-clients)
@@ -1860,6 +1867,7 @@ As always, trying to make use of LSP.
   :config
   (setenv "WORKON_HOME" "/home/alex/.local/share/virtualenvs/")
   (pyvenv-mode +1))
+
 (use-package pipenv
   :commands pipenv-project-p
   :hook (python-mode . pipenv-mode)
