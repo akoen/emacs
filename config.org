@@ -633,9 +633,6 @@ Counsel contains ivy enhancements for commonly-used functions.
   :config
   (define-key ivy-minibuffer-map [escape] 'minibuffer-keyboard-quit)
 
-  ;; cleanup
-  (setq recentf-save-file (concat emacs-cache-dir "recentf"))
-
   ;; Search Debug folders for makefiles
   (add-to-list 'counsel-compile-build-directories "Debug")
 
@@ -811,14 +808,35 @@ Adds additional functionality on top of dired.
   (global-set-key [remap describe-key]      #'helpful-key)
   (global-set-key [remap describe-symbol]   #'helpful-symbol)
 
-  :config
-  ;; Always select help window when opened
-  (setq help-window-select t)
+  ;; TODO Verify that functions are rebound on first load
   ;; Remap counsel keybinds to helpful commands
   (with-eval-after-load 'counsel
     (setq counsel-describe-function-function #'helpful-callable
-          counsel-describe-variable-function #'helpful-variable)))
+          counsel-describe-variable-function #'helpful-variable))
+  :config
+  ;; Always select help window when opened
+  (setq help-window-select t))
 #+END_SRC
+** Recentf
+
+Keeps a list of recently opened files.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-feature recentf
+  :config
+  (setq recentf-save-file (concat emacs-cache-dir "recentf"))
+  (setq recentf-max-menu-item 300)
+  (setq recentf-max-saved-item 300)
+  (setq recentf-exclude
+   '("recentf" ;; remove the recentf load file
+     ".*?autoloads.el$"
+     ".gitignore" ;; ignore `.gitignore' files in projects
+     "/tmp/" ;; ignore temporary files
+     "^/\\(?:ssh\\|su\\|sudo\\)?:" ;; ignore tramp/ssh files
+     ))
+  (recentf-mode +1))
+#+END_SRC
+
 * Utilities
 Utilities which add functionality to emacs
 ** Yasnippet
