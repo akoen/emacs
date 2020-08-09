@@ -1855,6 +1855,11 @@ As always, trying to make use of LSP.
   :straight (lsp-pyright :type git :host github :repo "emacs-lsp/lsp-pyright")
   :after lsp-clients)
 
+(use-package pyvenv
+  :after python
+  :config
+  (setenv "WORKON_HOME" "/home/alex/.local/share/virtualenvs/")
+  (pyvenv-mode +1))
 (use-package pipenv
   :commands pipenv-project-p
   :hook (python-mode . pipenv-mode)
