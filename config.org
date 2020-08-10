@@ -86,8 +86,10 @@ Doom one is beautiful
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package doom-themes
+  :custom-face
+  (font-lock-comment-face ((t (:slant italic))))
   :config
-  (load-theme 'doom-one t)
+  (load-theme 'doom-spacegrey t)
   (doom-themes-org-config))
 #+END_SRC
 
@@ -631,9 +633,6 @@ Counsel contains ivy enhancements for commonly-used functions.
   :config
   (define-key ivy-minibuffer-map [escape] 'minibuffer-keyboard-quit)
 
-  ;; cleanup
-  (setq recentf-save-file (concat emacs-cache-dir "recentf"))
-
   ;; Search Debug folders for makefiles
   (add-to-list 'counsel-compile-build-directories "Debug")
 
@@ -809,14 +808,35 @@ Adds additional functionality on top of dired.
   (global-set-key [remap describe-key]      #'helpful-key)
   (global-set-key [remap describe-symbol]   #'helpful-symbol)
 
-  :config
-  ;; Always select help window when opened
-  (setq help-window-select t)
+  ;; TODO Verify that functions are rebound on first load
   ;; Remap counsel keybinds to helpful commands
   (with-eval-after-load 'counsel
     (setq counsel-describe-function-function #'helpful-callable
-          counsel-describe-variable-function #'helpful-variable)))
+          counsel-describe-variable-function #'helpful-variable))
+  :config
+  ;; Always select help window when opened
+  (setq help-window-select t))
 #+END_SRC
+** Recentf
+
+Keeps a list of recently opened files.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-feature recentf
+  :config
+  (setq recentf-save-file (concat emacs-cache-dir "recentf"))
+  (setq recentf-max-menu-item 300)
+  (setq recentf-max-saved-item 300)
+  (setq recentf-exclude
+   '("recentf" ;; remove the recentf load file
+     ".*?autoloads.el$"
+     ".gitignore" ;; ignore `.gitignore' files in projects
+     "/tmp/" ;; ignore temporary files
+     "^/\\(?:ssh\\|su\\|sudo\\)?:" ;; ignore tramp/ssh files
+     ))
+  (recentf-mode +1))
+#+END_SRC
+
 * Utilities
 Utilities which add functionality to emacs
 ** Yasnippet
@@ -840,6 +860,15 @@ _r_eload    e_x_pand    _?_ list
               ("x" yas-expand)
               ("?" yas-describe-tables)
               ("q" nil "cancel" :color blue)))
+  ;; Bind C-j to yas-expand. Taken from https://github.com/KaratasFurkan/.emacs.d/blob/master/README.org#yasnippet-snippet-completion
+  :bind*
+  (("C-j" . yas-expand)
+   :map yas-minor-mode-map
+   ("TAB" . nil)
+   ("<tab>" . nil)
+   :map yas-keymap
+   ("TAB" . (lambda () (interactive) (company-abort) (yas-next-field)))
+   ("<tab>" . (lambda () (interactive) (company-abort) (yas-next-field))))
   :init
   ;; Automatically expand snippet when # condition: 'auto is used in snippet header
   (defun my--yas-try-expanding-auto-snippets ()
@@ -847,18 +876,7 @@ _r_eload    e_x_pand    _?_ list
       (let ((yas-buffer-local-condition ''(require-snippet-condition . auto)))
         (yas-expand))))
 
-  (defun company-mode/backend-with-yas (backend)
-    "Add :with company-yasnippet to company BACKENDS. Taken from
-https://github.com/syl20bnr/spacemacs/pull/179."
-    (if (and (listp backend) (member 'company-yasnippet backend))
-        backend
-      (append (if (consp backend) backend (list backend))
-              '(:with company-yasnippet))))
-  (add-hook 'post-command-hook #'my--yas-try-expanding-auto-snippets)
   :config
-  (with-eval-after-load 'company
-    (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends)))
-
   ;; Disable successful loading messages
   (setq yas-verbosity 2)
 
@@ -1867,6 +1885,10 @@ As always, trying to make use of LSP.
   :config
   (setenv "WORKON_HOME" "/home/alex/.local/share/virtualenvs/")
   (pyvenv-mode +1))
+
+(use-package blacken
+  :commands blacken-mode
+  :hook (python-mode . blacken-mode))
 
 (use-package pipenv
   :commands pipenv-project-p
