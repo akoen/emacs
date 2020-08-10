@@ -1162,8 +1162,23 @@ We use a font that's easier on the eyes for long blocks of text
 
 **** SRC blocks
 #+BEGIN_SRC emacs-lisp :tangle yes
-(setq org-src-tab-acts-natively t
-      org-src-preserve-indentation t) ; use native major-mode indentation
+(use-feature org-src
+  :general
+  (leader-key
+    :map org-mode-map
+    "o=" 'my--org-indent-src-block)
+
+  :config
+  (setq org-src-tab-acts-natively t
+        org-src-preserve-indentation t) ; use native major-mode indentation
+
+  ;; Indents an src block without having to enter it
+  (defun my--org-indent-src-block ()
+    (interactive)
+    (org-edit-special)
+    (indent-region (point-min) (point-max))
+    (org-edit-src-exit))
+  )
 #+END_SRC
 **** Circular Bullets
 Make bullets circular
