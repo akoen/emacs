@@ -12,7 +12,7 @@ https://github.com/CSRaghunandan/.emacs.d/tree/master/setup-files
 
 Alright, let's do this:
 * Initialization
-** Lexical binding
+** Lexical Binding
 
 [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Lexical-Binding.html][Lexical binding]] improves performance.
 
@@ -20,14 +20,24 @@ Alright, let's do this:
 ;;; init.el --- The personal Emacs configuration of Alex Koen -*- lexical-binding: t; -*-
 #+END_SRC
 
-** Personal information
+** Performance Optimizations
+*** Garbage collector
+
+The garbage collector eats up a lot of time during startup, so turn up its memory threshold to prevent it from getting triggered.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq gc-cons-threshold (* 100 1024 1024)
+      gc-cons-percentage 0.6)
+#+END_SRC
+
+** Personal Information
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq user-full-name "Alex Koen"
       user-mail-address "alex@koen.ca")
 #+END_SRC
 
-** Macros and functions
+** Macros & Functions
 
 use-feature from [[https://github.com/raxod502/radian/blob/develop/emacs/radian.el]]. Tells straight not to look for a package.
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -40,16 +50,24 @@ NAME and ARGS are as in `use-package'."
      ,@args))
 #+END_SRC
 
-** Optimizations
-*** Garbage collector
+** Exec Path From Shell
 
-The garbage collector eats up a lot of time during startup, so turn up its memory threshold to prevent it from getting triggered.
+This sets the variable exec-path to the normal shell's PATH variable. This doesn't normally get set in daemon mode.
 
+[[https://www.reddit.com/r/emacs/comments/f8xwau/hack_replace_execpathfromshell/fioa62n/]]
 #+BEGIN_SRC emacs-lisp :tangle yes
-(setq gc-cons-threshold (* 100 1024 1024)
-      gc-cons-percentage 0.6)
+(use-package exec-path-from-shell
+  :config
+  (cond ((display-graphic-p)
+         (setq exec-path
+               (or (eval-when-compile
+                     (when (require 'exec-path-from-shell nil t)
+                       (setq exec-path-from-shell-check-startup-files nil)
+                       (nconc exec-path-from-shell-variables '("SSH_AUTH_LOCK" "PATH" "NNN_PLUG"))
+                       (exec-path-from-shell-initialize)
+                       exec-path))
+                   exec-path)))))
 #+END_SRC
-
 ** Set Directories
 
 Note that system directories are set in init.el
@@ -79,8 +97,82 @@ Move files are folders to appropriate locations:
       tramp-persistency-file-name (concat emacs-cache-dir "tramp-persistency.el"))
 #+END_SRC
 
-** Appearance
-*** Theme
+* Better Defaults
+** Misc
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq vc-follow-symlinks t           ; don't ask for confirmation when opening symlinked file
+      indent-tabs-mode nil           ; prefer spaces
+      tab-width	4                    ; set width for tabs
+      ring-bell-function 'ignore     ; silent bell when you make a mistake
+      x-select-enable-clipboard t    ; allow pasting selection outside of emacs
+      kill-buffer-query-functions nil
+      initial-major-mode 'org-mode
+      delete-by-moving-to-trash t    ; move files to trash when deleting
+      sentence-end-double-space nil) ; end sentences with a single space
+#+END_SRC
+
+** Backups
+
+By default, Emacs saves backups relative to the current directory. This is abhorrent. We change this.
+
+# TODO fix auto-save
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq make-backup-files t ; make backups file even when in version controlled dir
+      create-lockfiles nil ; they cause problems
+      backup-directory-alist (list (cons "." (concat emacs-cache-dir "backups/")))
+      backup-by-copying t  ; Don't delink hardlinks
+      version-control t  ; Use version numbers on backups
+      delete-old-versions t  ; Automatically delete excess backups
+      kept-new-versions 20  ; how many of the newest versions to keep
+      kept-old-versions 5  ; and how many of the old
+      auto-save-list-file-prefix (concat emacs-cache-dir "autosave/"))
+#+END_SRC
+
+** Revert
+
+Automatically reload buffers on file change
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(global-auto-revert-mode 1)
+#+END_SRC
+
+** Helpful
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package helpful
+  :commands helpful--read-symbol
+  :init
+  (global-set-key [remap describe-function] #'helpful-callable)
+  (global-set-key [remap describe-command]  #'helpful-command)
+  (global-set-key [remap describe-variable] #'helpful-variable)
+  (global-set-key [remap describe-key]      #'helpful-key)
+  (global-set-key [remap describe-symbol]   #'helpful-symbol)
+
+  ;; TODO Verify that functions are rebound on first load
+  ;; Remap counsel keybinds to helpful commands
+  (with-eval-after-load 'counsel
+    (setq counsel-describe-function-function #'helpful-callable
+          counsel-describe-variable-function #'helpful-variable))
+  :config
+  ;; Always select help window when opened
+  (setq help-window-select t))
+#+END_SRC
+** Which Key
+
+A small buffer which shows the list of commands you can execute next.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package which-key
+  :init
+  (setq which-key-separator " ")
+  (setq which-key-prefix-prefix "+")
+  :config
+  (which-key-mode 1))
+#+END_SRC
+
+* Appearance
+** Theme
 
 Doom one is beautiful
 
@@ -93,16 +185,16 @@ Doom one is beautiful
   (doom-themes-org-config))
 #+END_SRC
 
-*** Text
-**** Font
+** Text
+*** Font
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (set-frame-font "Fira Code 12")
 (set-face-attribute 'default nil :height 100)
 #+END_SRC
 
-*** Disable unecessary UI elements
-**** Tool Bar
+** Disable unecessary UI elements
+*** Tool Bar
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (menu-bar-mode -1)
@@ -111,13 +203,13 @@ Doom one is beautiful
 (tooltip-mode -1)
 #+END_SRC
 
-**** Startup Screen
+*** Startup Screen
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq inhibit-startup-screen t)	; inhibit useless and old-school startup screen
 #+END_SRC
 
-*** Prompts
+** Prompts
 
 Make yes or no prompts be y or n prompts
 
@@ -125,7 +217,7 @@ Make yes or no prompts be y or n prompts
 (fset 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 
-*** Relative line numbers
+** Relative line numbers
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (global-display-line-numbers-mode t)
@@ -134,14 +226,14 @@ Make yes or no prompts be y or n prompts
       display-line-numbers-width-start t)
 #+END_SRC
 
-*** Show matching parentheses
+** Show matching parentheses
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq show-paren-delay 0)
 (show-paren-mode 1)
 #+END_SRC
 
-*** Smooth Scrolling
+** Smooth Scrolling
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package smooth-scrolling
   :init
@@ -152,13 +244,37 @@ Make yes or no prompts be y or n prompts
   :config
   (setq scroll-margin 5))
 #+END_SRC
-*** All the icons
+** all-the-icons
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package all-the-icons)
+#+END_SRC
+
+** smartparens
+
+[[https://github.com/Fuco1/smartparens][Utility]] for managing parenthesis in Emacs
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package smartparens
+  :init
+  ;; Don't highlight - overly distracting
+  (setq sp-highlight-pair-overlay nil
+        sp-highlight-wrap-overlay nil
+        sp-highlight-wrap-tag-overlay nil)
+  :config
+  ;; automatically add newline between braces
+  (dolist (brace '("(" "{" "["))
+    (sp-pair brace nil :post-handlers '(:add ("||\n[i]" "RET"))))
+  (smartparens-global-mode 1))
+#+END_SRC
+
+** All the icons
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package all-the-icons
   :defer t)
 #+END_SRC
 
-*** Doom-modeline
+** Doom-modeline
 
 A fancy and fast mode-line inspired by minimalistic design
 
@@ -167,7 +283,7 @@ A fancy and fast mode-line inspired by minimalistic design
   :init (doom-modeline-mode 1))
 #+END_SRC
 
-*** hl-todo
+** hl-todo
 
 Highlights keywords in comments
 
@@ -194,45 +310,6 @@ Highlights keywords in comments
           ;; For things that just gotta go and will soon be gone.
           ("DEPRECATED" font-lock-doc-face bold))))
 #+END_SRC
-** Revert
-
-Automatically reload buffers on file change
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(global-auto-revert-mode 1)
-#+END_SRC
-
-** Backups
-
-By default, Emacs saves backups relative to the current directory. This is abhorrent. We change this.
-
-# TODO fix auto-save
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(setq make-backup-files t ; make backups file even when in version controlled dir
-      create-lockfiles nil ; they cause problems
-      backup-directory-alist (list (cons "." (concat emacs-cache-dir "backups/")))
-      backup-by-copying t  ; Don't delink hardlinks
-      version-control t  ; Use version numbers on backups
-      delete-old-versions t  ; Automatically delete excess backups
-      kept-new-versions 20  ; how many of the newest versions to keep
-      kept-old-versions 5  ; and how many of the old
-      auto-save-list-file-prefix (concat emacs-cache-dir "autosave/"))
-#+END_SRC
-
-** Better Defaults
-#+BEGIN_SRC emacs-lisp :tangle yes
-(setq-default vc-follow-symlinks t           ; don't ask for confirmation when opening symlinked file
-              indent-tabs-mode nil           ; prefer spaces
-              tab-width	4                    ; set width for tabs
-              ring-bell-function 'ignore     ; silent bell when you make a mistake
-              x-select-enable-clipboard t    ; allow pasting selection outside of emacs
-              kill-buffer-query-functions nil
-              initial-major-mode 'org-mode
-              delete-by-moving-to-trash t    ; move files to trash when deleting
-              sentence-end-double-space nil) ; end sentences with a single space
-#+END_SRC
-
 * Keybindings
 ** Unbind RET
 
@@ -445,43 +522,85 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   (bind-key "Q" #'winner-undo evil-normal-state-map)
   (winner-mode 1))
 #+END_SRC
-* Core Utilities
+* Completion
+** Company
 
-Utilities which are essential for rational operation of Emacs
-
-** Exec Path From Shell
-
-This sets the variable exec-path to the normal shell's PATH variable. This doesn't normally get set in daemon mode.
-
-[[https://www.reddit.com/r/emacs/comments/f8xwau/hack_replace_execpathfromshell/fioa62n/]]
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package exec-path-from-shell
+(use-package company
+  :defer 0.5
+  :bind (:map company-active-map
+              ("C-n" . company-select-next-or-abort)
+              ("C-p" . company-select-previous-or-abort)
+
+              ;; Make TAB always complete the current selection, instead of
+              ;; only completing a common prefix.
+              ("<tab>" . #'company-complete-selection)
+              ("TAB" . #'company-complete-selection)
+
+              ;; Make RET trigger a completion if and only if the user has
+              ;; explicitly interacted with Company, instead of always
+              ;; doing so.
+              :filter (company-explicit-action-p)
+              ("<return>" . #'company-complete-selection)
+              ("RET" . #'company-complete-selection))
+
   :config
-  (cond ((display-graphic-p)
-         (setq exec-path
-               (or (eval-when-compile
-                     (when (require 'exec-path-from-shell nil t)
-                       (setq exec-path-from-shell-check-startup-files nil)
-                       (nconc exec-path-from-shell-variables '("SSH_AUTH_LOCK" "PATH" "NNN_PLUG"))
-                       (exec-path-from-shell-initialize)
-                       exec-path))
-                   exec-path)))))
+  ;; Make completions display faster
+  (setq company-idle-delay 0.15)
+  ;; don't downcase results from company-dabbrev
+  (setq company-dabbrev-downcase nil)
+  ;; use only buffers with same major-mode for company-dabbrev
+  (setq company-dabbrev-other-buffers t)
+  ;; Make completions display when you have only typed one character,
+  ;; instead of three.
+  (setq company-minimum-prefix-length 1))
 #+END_SRC
-** Which Key
 
-A small buffer which shows the list of commands you can execute next.
+** Yasnippet
 
+A package with which you can insert code or text snippets based on templates.
+
+We define a function to autocomplete snippets. See [[https://github.com/joaotavora/yasnippet/issues/998]]
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package which-key
+(use-package yasnippet
+  :general
+  (leader-key "cy" (defhydra hydra-yas (:color blue
+                                        :hint nil)
+              "
+_i_nsert    _n_ew       _v_isit
+_r_eload    e_x_pand    _?_ list
+"
+              ("i" yas-insert-snippet)
+              ("n" yas-new-snippet)
+              ("v" yas-visit-snippet-file)
+              ("r" yas-reload-all)
+              ("x" yas-expand)
+              ("?" yas-describe-tables)
+              ("q" nil "cancel" :color blue)))
+  ;; Bind C-j to yas-expand. Taken from https://github.com/KaratasFurkan/.emacs.d/blob/master/README.org#yasnippet-snippet-completion
+  :bind*
+  (("C-j" . yas-expand)
+   :map yas-minor-mode-map
+   ("TAB" . nil)
+   ("<tab>" . nil)
+   :map yas-keymap
+   ("TAB" . (lambda () (interactive) (company-abort) (yas-next-field)))
+   ("<tab>" . (lambda () (interactive) (company-abort) (yas-next-field))))
   :init
-  (setq which-key-separator " ")
-  (setq which-key-prefix-prefix "+")
+  ;; Automatically expand snippet when # condition: 'auto is used in snippet header
+  (defun my--yas-try-expanding-auto-snippets ()
+    (when (and (boundp 'yas-minor-mode) yas-minor-mode)
+      (let ((yas-buffer-local-condition ''(require-snippet-condition . auto)))
+        (yas-expand))))
+
   :config
-  (which-key-mode 1))
+  ;; Disable successful loading messages
+  (setq yas-verbosity 2)
+
+  (yas-global-mode 1))
 #+END_SRC
 
-** Completion
-*** Ivy
+** Ivy
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ivy
@@ -502,7 +621,7 @@ A small buffer which shows the list of commands you can execute next.
 
   (ivy-mode 1))
 #+END_SRC
-*** Ivy-Rich
+** Ivy-Rich
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ivy-rich
@@ -601,7 +720,7 @@ A small buffer which shows the list of commands you can execute next.
   (ivy-rich-mode 1))
 #+END_SRC
 
-**** Flx
+*** Flx
 
 Sublime-text fuzzy matching for Emacs. Package used following Doom's ivy configuration.
 
@@ -619,7 +738,7 @@ Sublime-text fuzzy matching for Emacs. Package used following Doom's ivy configu
         ivy-initial-inputs-alist nil))
 #+END_SRC
 
-*** Counsel
+** Counsel
 
 Counsel contains ivy enhancements for commonly-used functions.
 
@@ -654,7 +773,7 @@ Counsel contains ivy enhancements for commonly-used functions.
 
 #+END_SRC
 
-**** Counsel-projectile
+*** Counsel-projectile
 
 Allows for further integration between ivy and projectile.
 
@@ -665,15 +784,19 @@ Allows for further integration between ivy and projectile.
   (counsel-projectile-mode 1))
 #+END_SRC
 
-*** Swiper
+** Swiper
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package swiper
   :bind (("M-s" . swiper)))
 #+END_SRC
-*** wgrep
+** wgrep
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package wgrep)
 #+END_SRC
+* Project, Files, and System
+
+For tools that deal with files.
+
 ** Projectile
 
 Project management.
@@ -715,6 +838,31 @@ Project management.
   (interactive)
   (let ((default-directory dotfiles-dir))
     (counsel-projectile-find-file)))
+#+END_SRC
+** Magit
+
+An inteface to Git. The mascot of Emacs packages.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package magit
+  :defer t
+  :init
+  (setq transient-history-file (concat emacs-etc-dir "transient/history")))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package evil-magit
+  :after magit)
+#+END_SRC
+
+** Vterm
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package vterm
+  :ensure-system-package (vterm-ctrl . libvterm)
+  :commands vterm vterm-mode
+  :init
+  (setq vterm-kill-buffer-on-exit t)
+  (with-eval-after-load 'evil (evil-set-initial-state 'vterm-mode 'emacs)))
 #+END_SRC
 ** Dired
 
@@ -769,54 +917,6 @@ Adds additional functionality on top of dired.
           ("\\.md\\'" xdg-open))))
 #+END_SRC
 
-** Smartparens
-
-[[https://github.com/Fuco1/smartparens][Utility]] for managing parenthesis in Emacs
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package smartparens
-  :init
-  ;; Don't highlight - overly distracting
-  (setq sp-highlight-pair-overlay nil
-        sp-highlight-wrap-overlay nil
-        sp-highlight-wrap-tag-overlay nil)
-  :config
-  ;; automatically add newline between braces
-  (dolist (brace '("(" "{" "["))
-    (sp-pair brace nil :post-handlers '(:add ("||\n[i]" "RET"))))
-  (smartparens-global-mode 1))
-#+END_SRC
-
-** Folding
-#+BEGIN_SRC emacs-lisp :tangle yes
-;; Adapted from doom emacs
-(use-feature hideshow
-  :config
-  ;; Do not fold comments
-  (setq hs-hide-comments-when-hiding-all nil)
-  (add-hook 'prog-mode-hook 'hs-minor-mode))
-#+END_SRC
-** Helpful
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package helpful
-  :commands helpful--read-symbol
-  :init
-  (global-set-key [remap describe-function] #'helpful-callable)
-  (global-set-key [remap describe-command]  #'helpful-command)
-  (global-set-key [remap describe-variable] #'helpful-variable)
-  (global-set-key [remap describe-key]      #'helpful-key)
-  (global-set-key [remap describe-symbol]   #'helpful-symbol)
-
-  ;; TODO Verify that functions are rebound on first load
-  ;; Remap counsel keybinds to helpful commands
-  (with-eval-after-load 'counsel
-    (setq counsel-describe-function-function #'helpful-callable
-          counsel-describe-variable-function #'helpful-variable))
-  :config
-  ;; Always select help window when opened
-  (setq help-window-select t))
-#+END_SRC
 ** Recentf
 
 Keeps a list of recently opened files.
@@ -837,123 +937,19 @@ Keeps a list of recently opened files.
   (recentf-mode +1))
 #+END_SRC
 
-* Utilities
-Utilities which add functionality to emacs
-** Yasnippet
-
-A package with which you can insert code or text snippets based on templates.
-
-We define a function to autocomplete snippets. See [[https://github.com/joaotavora/yasnippet/issues/998]]
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package yasnippet
-  :general
-  (leader-key "cy" (defhydra hydra-yas (:color blue
-                                        :hint nil)
-              "
-_i_nsert    _n_ew       _v_isit
-_r_eload    e_x_pand    _?_ list
-"
-              ("i" yas-insert-snippet)
-              ("n" yas-new-snippet)
-              ("v" yas-visit-snippet-file)
-              ("r" yas-reload-all)
-              ("x" yas-expand)
-              ("?" yas-describe-tables)
-              ("q" nil "cancel" :color blue)))
-  ;; Bind C-j to yas-expand. Taken from https://github.com/KaratasFurkan/.emacs.d/blob/master/README.org#yasnippet-snippet-completion
-  :bind*
-  (("C-j" . yas-expand)
-   :map yas-minor-mode-map
-   ("TAB" . nil)
-   ("<tab>" . nil)
-   :map yas-keymap
-   ("TAB" . (lambda () (interactive) (company-abort) (yas-next-field)))
-   ("<tab>" . (lambda () (interactive) (company-abort) (yas-next-field))))
-  :init
-  ;; Automatically expand snippet when # condition: 'auto is used in snippet header
-  (defun my--yas-try-expanding-auto-snippets ()
-    (when (and (boundp 'yas-minor-mode) yas-minor-mode)
-      (let ((yas-buffer-local-condition ''(require-snippet-condition . auto)))
-        (yas-expand))))
-
-  :config
-  ;; Disable successful loading messages
-  (setq yas-verbosity 2)
-
-  (yas-global-mode 1))
-#+END_SRC
-
-** NeoTree and Icons
+** NeoTree
 Displays the folder tree
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package all-the-icons)
-
+;; TODO Use this or remove this
 (use-package neotree
   :init
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
 #+END_SRC
 
-** Magit
-
-An inteface to version control system Git
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package magit
-  :defer t
-  :init
-  (setq transient-history-file (concat emacs-etc-dir "transient/history")))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package evil-magit
-  :after magit)
-#+END_SRC
-
-** Company
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package company
-  :defer 0.5
-  :bind (:map company-active-map
-              ("C-n" . company-select-next-or-abort)
-              ("C-p" . company-select-previous-or-abort)
-
-              ;; Make TAB always complete the current selection, instead of
-              ;; only completing a common prefix.
-              ("<tab>" . #'company-complete-selection)
-              ("TAB" . #'company-complete-selection)
-
-              ;; Make RET trigger a completion if and only if the user has
-              ;; explicitly interacted with Company, instead of always
-              ;; doing so.
-              :filter (company-explicit-action-p)
-              ("<return>" . #'company-complete-selection)
-              ("RET" . #'company-complete-selection))
-
-  :config
-  ;; Make completions display faster
-  (setq company-idle-delay 0.15)
-  ;; don't downcase results from company-dabbrev
-  (setq company-dabbrev-downcase nil)
-  ;; use only buffers with same major-mode for company-dabbrev
-  (setq company-dabbrev-other-buffers t)
-  ;; Make completions display when you have only typed one character,
-  ;; instead of three.
-  (setq company-minimum-prefix-length 1))
-#+END_SRC
-
-** Vterm
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package vterm
-  :ensure-system-package (vterm-ctrl . libvterm)
-  :commands vterm vterm-mode
-  :init
-  (setq vterm-kill-buffer-on-exit t)
-  (with-eval-after-load 'evil (evil-set-initial-state 'vterm-mode 'emacs)))
-#+END_SRC
-* Org-mode
-** Configuration
-*** Base
+* Text & Organization
+** Org-mode
+*** Configuration
+**** Base
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-feature org
   :hook
@@ -996,7 +992,7 @@ An inteface to version control system Git
 
 #+END_SRC
 
-*** Todo keywords
+**** Todo keywords
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq org-todo-keywords
@@ -1011,7 +1007,7 @@ An inteface to version control system Git
               ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
               ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
 #+END_SRC
-*** Emphasis
+**** Emphasis
 
 (enabled) Replace underline with highlight
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1042,7 +1038,7 @@ An inteface to version control system Git
                           '(("\\(!\\)\\([^[:space:]][^\n\r\t]+[^[:space:]]\\)\\(!\\)" . 'font-lock-highlight-face ))))
 (add-hook 'org-mode-hook 'add-highlight-keywords)
 #+END_SRC
-*** Capture
+**** Capture
 
 Set up capture templates. The backquoted list allows me to selectively evaluate parts of the list with a , (in this case the concat statement).
 
@@ -1087,7 +1083,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (org-capture))
 #+END_SRC
 
-*** Refile configuration
+**** Refile configuration
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-feature org-refile
@@ -1107,7 +1103,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (advice-add 'org-refile :after 'org-save-all-org-buffers))
 #+END_SRC
 
-*** Agenda
+**** Agenda
 
 Set agenda settings
 
@@ -1142,7 +1138,7 @@ Set agenda settings
   (advice-add 'org-agenda-quit :before 'org-save-all-org-buffers))
 #+END_SRC
 
-*** Variable Pitch Mode
+**** Variable Pitch Mode
 
 We use a font that's easier on the eyes for long blocks of text
 
@@ -1164,12 +1160,12 @@ We use a font that's easier on the eyes for long blocks of text
                     'org-document-info-keyword))))
 #+END_SRC 
 
-*** SRC blocks
+**** SRC blocks
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq org-src-tab-acts-natively t
       org-src-preserve-indentation t) ; use native major-mode indentation
 #+END_SRC
-*** Circular Bullets
+**** Circular Bullets
 Make bullets circular
 #+BEGIN_SRC emacs-lisp :tangle yes
 (font-lock-add-keywords 'org-mode
@@ -1179,7 +1175,7 @@ Make bullets circular
                            0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "→")))))
 #+END_SRC
 
-*** Autosort
+**** Autosort
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defun my--org-entry-has-subentries ()
   "Any entry with subheadings"
@@ -1207,7 +1203,7 @@ Make bullets circular
 
                                         ;(add-hook 'org-mode-hook #'my--org-buffer-sort-by-property)
 #+END_SRC
-*** Search headlines in agenda files
+**** Search headlines in agenda files
 
 Taken from https://github.com/jkitchin/scimax/blob/131f7f6f537c56f1d30396e79634a8b6cd6c887b/scimax-org.el#L693
 
@@ -1236,15 +1232,15 @@ Taken from https://github.com/jkitchin/scimax/blob/131f7f6f537c56f1d30396e79634a
 			(goto-char (plist-get (cdr candidate) :position))
 			(outline-show-entry)))))
 #+END_SRC
-** Packages
-*** Babel
-**** ob-mermaid
+*** Packages
+**** Babel
+***** ob-mermaid
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ob-mermaid
   :custom
   (ob-mermaid-cli-path "~/node_modules/.bin/mmdc"))
 #+END_SRC
-*** EVIL-Org
+**** EVIL-Org
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package evil-org
   :after org
@@ -1257,7 +1253,7 @@ Taken from https://github.com/jkitchin/scimax/blob/131f7f6f537c56f1d30396e79634a
   (evil-org-agenda-set-keys))
 #+END_SRC
 
-*** org-Bullets
+**** org-Bullets
 Make the header bullets look prettier
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-bullets
@@ -1267,7 +1263,7 @@ Make the header bullets look prettier
         '("◉" "◎" "⚫" "○" "►" "◇"))
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 #+END_SRC
-*** org-calfw
+**** org-calfw
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package calfw
   :commands cfw:open-calendar-buffer
@@ -1292,7 +1288,7 @@ Make the header bullets look prettier
              my-open-calendar))
 #+END_SRC
 
-*** org-checklist
+**** org-checklist
 
 Allows for resetting of checkboxes when item is marked DONE.
 
@@ -1300,7 +1296,7 @@ Allows for resetting of checkboxes when item is marked DONE.
 (use-feature org-checklist
   :after org)
 #+END_SRC
-*** org-download
+**** org-download
 Automatically insert images via drag-and-drop
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1336,7 +1332,7 @@ Inspired by https://github.com/daviderestivo/emacs-config/blob/6086a7013020e19c0
       (expand-file-name filename-with-timestamp dirname)))
   (setq org-download-method 'my-org-download-method))
 #+END_SRC
-*** org-edna
+**** org-edna
 Advanced dependency management
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1345,7 +1341,7 @@ Advanced dependency management
 :config
 (org-edna-mode))
 #+END_SRC
-*** org-journal
+**** org-journal
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-journal
   :custom
@@ -1357,14 +1353,14 @@ Advanced dependency management
   (org-journal-time-format "" ))
 
 #+END_SRC
-*** org-modules
+**** org-modules
 #+BEGIN_SRC emacs-lisp :tangle yes
 (require 'org-install)
 (setq org-modules '(org-habit))
 (org-load-modules-maybe t)
 #+END_SRC
 
-*** org-oxclip
+**** org-oxclip
 Let you copy formatted org-mode content to the clipboard. Requires the package =xclip= to run.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1378,7 +1374,7 @@ Let you copy formatted org-mode content to the clipboard. Requires the package =
     "oy" 'ox-clip-formatted-copy)
   :after org)
 #+END_SRC
-*** org-Protocol
+**** org-Protocol
 
 Allows for external applications to trigger custom actions without external dependencies
 
@@ -1393,7 +1389,7 @@ Allows for external applications to trigger custom actions without external depe
 
 #+END_SRC
 
-*** org-super-agenda
+**** org-super-agenda
 
 A package which allows for much greater customization of the org agenda.
 
@@ -1422,7 +1418,7 @@ A package which allows for much greater customization of the org agenda.
   (org-super-agenda-mode))
 #+END_SRC
 
-*** ox-hugo
+**** ox-hugo
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ox-hugo
   :ensure-system-package hugo
@@ -1431,7 +1427,7 @@ A package which allows for much greater customization of the org agenda.
   (setq org-hugo-set-lastmod t
         org-hugo-default-section-directory "notes"))
 #+END_SRC
-*** ox-Pandoc
+**** ox-Pandoc
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ox-pandoc
   :ensure-system-package pandoc
@@ -1443,8 +1439,8 @@ A package which allows for much greater customization of the org agenda.
           (?4 "to html5 and open." org-pandoc-export-to-html5-and-open)
           (?$ "as html5." org-pandoc-export-as-html5))))
 #+END_SRC
-** Zettelkasten
-*** org-roam
+*** Zettelkasten
+**** org-roam
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-roam
   :ensure-system-package
@@ -1484,7 +1480,7 @@ A package which allows for much greater customization of the org agenda.
 -  source :: ${ref}"
            :unnarrowed t))))
 #+END_SRC
-*** org-roam-bibtex
+**** org-roam-bibtex
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-roam-bibtex
   :after org-roam
@@ -1503,7 +1499,7 @@ A package which allows for much greater customization of the org agenda.
 - author :: ${author-or-editor}"
            :unnarrowed t))))
 #+END_SRC
-*** ivy-bibtex
+**** ivy-bibtex
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ivy-bibtex
@@ -1533,7 +1529,7 @@ A package which allows for much greater customization of the org agenda.
          ":END:\n\n")))
 
 #+END_SRC
-*** org-ref
+**** org-ref
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-ref
   :after org
@@ -1546,7 +1542,7 @@ A package which allows for much greater customization of the org agenda.
    org-ref-notes-directory brain-dir))
 #+END_SRC
 
-*** (disabled) org-ref-ox-hugo
+**** (disabled) org-ref-ox-hugo
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-ref-ox-hugo
   :disabled t
@@ -1566,7 +1562,7 @@ A package which allows for much greater customization of the org agenda.
                  ("misc" . "${author} (${year}). *${title}*. Retrieved from [${howpublished}](${howpublished}). ${note}.")
                  (nil . "${author}, *${title}* (${year})."))))
 #+END_SRC
-*** org-noter
+**** org-noter
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-noter
   :after (:any org pdf-view)
@@ -1581,7 +1577,44 @@ A package which allows for much greater customization of the org agenda.
    ;; Everything is relative to the main notes file
    org-noter-notes-search-path (list (concat brain-dir "papers/"))))
 #+END_SRC
-* LaTeX
+*** Reviews
+
+Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defun my--daily-review ()
+  (interactive)
+  (let ((org-capture-templates `(("d" "Daily Review" entry (file (lambda () (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org")))
+                                  (file ,(concat org-dir "Templates/daily-review.org"))))))
+    (progn
+      (org-capture nil "d"))))
+
+(defun my--visit-daily-review ()
+"Visit the file corresponding to today's daily review"
+(interactive)
+(find-file (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org")))
+
+(defun my--weekly-review ()
+  (interactive)
+  (let ((org-capture-templates `(("w" "weekly review" entry (file+olp+datetree (lambda () (concat org-dir "Reviews/reviews_" (format-time-string "%Y") ".org")))
+                                  (file ,(concat org-dir "Templates/weekly-review.org"))))))
+    (progn
+      (org-capture nil "w")
+      (org-capture-finalize t)
+      (org-speed-move-safe 'outline-up-heading)
+      (org-narrow-to-subtree))))
+
+(defun my--monthly-review ()
+  (interactive)
+  (let ((org-capture-templates `(("m" "Monthly Review" entry (file+olp+datetree (lambda () (concat org-dir "Reviews/reviews_" (format-time-string "%Y") ".org")))
+                                  (file ,(concat org-dir "Templates/monthly-review.org"))))))
+    (progn
+      (org-capture nil "m")
+      (org-capture-finalize t)
+      (org-speed-move-safe 'outline-up-heading)
+      (org-narrow-to-subtree))))
+#+END_SRC
+** LaTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package latex
   :straight auctex
@@ -1602,7 +1635,7 @@ A package which allows for much greater customization of the org agenda.
 (set-default 'preview-scale-function 2.0)
 #+END_SRC
 
-** RefTeX
+*** RefTeX
 
 Allow RefTeX to plug into AUCTeX
 
@@ -1613,20 +1646,93 @@ Allow RefTeX to plug into AUCTeX
 (setq reftex-use-external-file-handlers t)
 #+END_SRC
 
+** Writing
+*** olivetti
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package olivetti
+  :config
+  (setq olivetti-body-width 80))
+
+#+END_SRC
+
+*** langtool
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package langtool
+  :ensure-system-package languagetool
+  :commands (langtool-check
+             langtool-check-done
+             langtool-show-message-at-point
+             langtool-correct-buffer)
+  :general
+  (leader-key
+    :keymaps 'org-mode-map
+    "llb" 'langtool-check-buffer
+    "llc" 'langtool-check-done)
+  :init
+  (setq langtool-default-language "en-CA")
+  :config
+  (setq langtool-java-classpath "/usr/share/languagetool:/usr/share/java/languagetool/*"))
+#+END_SRC
+
+*** Writing Function
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defvar writemode 1 "Set default writing mode state.")
+(defun writing-mode ()
+  "Configure writing environment."
+  (interactive)
+  (cond
+   ((= writemode 1)
+    ;;(focus-mode t)
+    (olivetti-mode t)
+    (variable-pitch-mode 1) ;; All fonts with variable pitch.
+    (text-scale-increase 0.5)
+    (display-line-numbers-mode -1)
+    (setq-local writemode 2))
+   ((= writemode 2)
+    ;;(focus-mode -1)
+    (olivetti-mode -1)
+    (variable-pitch-mode 0) ;; All fonts with variable pitch.
+    (text-scale-decrease 0)
+    (display-line-numbers-mode t)
+    (setq-local display-line-numbers 'relative)
+    (setq-local writemode 1))))
+#+END_SRC
+*** Flyspell
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+;; find aspell and hunspell automatically
+(use-package flyspell
+  :config
+  (setq ispell-program-name "aspell"
+        ispell-dictionary "canadian"
+        ispell-silently-savep t))
+#+END_SRC
 * Development
-** Flycheck
+** Tools
+*** Folding
+#+BEGIN_SRC emacs-lisp :tangle yes
+;; Adapted from doom emacs
+(use-feature hideshow
+  :config
+  ;; Do not fold comments
+  (setq hs-hide-comments-when-hiding-all nil)
+  (add-hook 'prog-mode-hook 'hs-minor-mode))
+#+END_SRC
+*** Flycheck
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package flycheck)
 #+END_SRC
-** EditorConfig
+*** EditorConfig
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package editorconfig
   :config
   (editorconfig-mode 1))
 #+END_SRC
-* Lang
-** Web
-*** web mode
+** Lang
+*** Web
+**** web mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; Config mostly stolen from https://github.com/raxod502/radian/blob/develop/emacs/radian.el
 (use-package web-mode
@@ -1660,15 +1766,15 @@ Allow RefTeX to plug into AUCTeX
 (use-package gulp-task-runner
   :defer t)
 #+END_SRC
-*** restclient
+**** restclient
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; Make sure to use comments (#) as separators
 (use-package restclient
   :mode (("\\.rest" . restclient-mode)))
 #+END_SRC
-** Javascript
-*** js2-mode
+*** Javascript
+**** js2-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; Mostly borrowed from https://github.com/CSRaghunandan/.emacs.d/blob/master/setup-files/setup-js.el
 (use-package js2-mode
@@ -1698,7 +1804,7 @@ Allow RefTeX to plug into AUCTeX
         js2-strict-missing-semi-warning nil
         js2-strict-trailing-comma-warning nil))
 #+END_SRC
-*** prettier-js
+**** prettier-js
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package prettier-js
@@ -1708,12 +1814,12 @@ Allow RefTeX to plug into AUCTeX
                               "--single-quote" "true"
                               "--trailing-comma" "all")))
 #+END_SRC
-*** rjsx-mode
+**** rjsx-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package rjsx-mode
   :mode "components/.+\\.js$")
 #+END_SRC
-** LSP-mode
+*** LSP-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; Make sure to install jansson
 (use-package lsp-mode
@@ -1774,7 +1880,7 @@ Allow RefTeX to plug into AUCTeX
         lsp-ui-doc-max-height 8))
 #+END_SRC
 
-** DAP
+*** DAP
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package dap-mode
   :ensure-system-package lldb
@@ -1798,7 +1904,7 @@ Allow RefTeX to plug into AUCTeX
   (require 'dap-node)
   (require 'dap-python))
 #+END_SRC
-** C/C++
+*** C/C++
 To configure a new C program:
 1. Create a =CMakeLists.txt= file. Eg:
 #+BEGIN_SRC cmake :tangle no
@@ -1817,7 +1923,7 @@ cmake -H. -BDebug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
 ln -s Debug/compile_commands.json
 #+END_SRC
 
-*** ccls
+**** ccls
 
 While ccls in nice in theory, it has given me nothing but trouble. We will use clangd instead.
 
@@ -1833,7 +1939,7 @@ While ccls in nice in theory, it has given me nothing but trouble. We will use c
     (add-to-list 'projectile-project-root-files-top-down-recurring "compile_commands.json")))
 #+END_SRC
 
-*** CMake
+**** CMake
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package cmake-mode
@@ -1844,11 +1950,11 @@ While ccls in nice in theory, it has given me nothing but trouble. We will use c
   :hook (cmake-mode . cmake-font-lock-activate))
 #+END_SRC
 
-** CSharp
+*** CSharp
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package csharp-mode)
 #+END_SRC
-** GLSL
+*** GLSL
 For OpenGl shader programming.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1860,7 +1966,7 @@ For OpenGl shader programming.
          "\\.frag\\'"
          "\\.vert\\'"))
 #+END_SRC
-** Python
+*** Python
 
 As always, trying to make use of LSP.
 
@@ -1896,114 +2002,16 @@ As always, trying to make use of LSP.
   :init (setq pipenv-with-projectile nil))
 
 #+END_SRC
-** Lua
+*** Lua
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package lua-mode
   :mode "\\.lua\\'"
   :interpreter "lua")
 #+END_SRC
 
-** Json
+*** Json
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package json-mode
   :mode "\\.json\\'")
-#+END_SRC
-* Writing
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package olivetti
-  :config
-  (setq olivetti-body-width 80))
-
-(use-package langtool
-  :ensure-system-package languagetool
-  :commands (langtool-check
-             langtool-check-done
-             langtool-show-message-at-point
-             langtool-correct-buffer)
-  :general
-  (leader-key
-    :keymaps 'org-mode-map
-    "llb" 'langtool-check-buffer
-    "llc" 'langtool-check-done)
-  :init
-  (setq langtool-default-language "en-CA")
-  :config
-  (setq langtool-java-classpath "/usr/share/languagetool:/usr/share/java/languagetool/*"))
-#+END_SRC
-
-* Functions
-** Writing Function
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(defvar writemode 1 "Set default writing mode state.")
-(defun writing-mode ()
-  "Configure writing environment."
-  (interactive)
-  (cond
-   ((= writemode 1)
-    ;;(focus-mode t)
-    (olivetti-mode t)
-    (variable-pitch-mode 1) ;; All fonts with variable pitch.
-    (text-scale-increase 0.5)
-    (display-line-numbers-mode -1)
-    (setq english-mode 1)
-    (setq-local writemode 2))
-   ((= writemode 2)
-    ;;(focus-mode -1)
-    (olivetti-mode -1)
-    (variable-pitch-mode 0) ;; All fonts with variable pitch.
-    (text-scale-decrease 0)
-    (display-line-numbers-mode t)
-    (setq english-mode 2)
-    (setq-local display-line-numbers 'relative)
-    (setq-local writemode 1))))
-#+END_SRC
-** Ispell
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-;; find aspell and hunspell automatically
-(use-package flyspell
-  :config
-  (setq ispell-program-name "aspell"
-        ispell-dictionary "canadian"
-        ispell-silently-savep t))
-#+END_SRC
-* Organization
-** Reviews
-
-Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(defun my--daily-review ()
-  (interactive)
-  (let ((org-capture-templates `(("d" "Daily Review" entry (file (lambda () (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org")))
-                                  (file ,(concat org-dir "Templates/daily-review.org"))))))
-    (progn
-      (org-capture nil "d"))))
-
-(defun my--visit-daily-review ()
-"Visit the file corresponding to today's daily review"
-(interactive)
-(find-file (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org")))
-
-(defun my--weekly-review ()
-  (interactive)
-  (let ((org-capture-templates `(("w" "weekly review" entry (file+olp+datetree (lambda () (concat org-dir "Reviews/reviews_" (format-time-string "%Y") ".org")))
-                                  (file ,(concat org-dir "Templates/weekly-review.org"))))))
-    (progn
-      (org-capture nil "w")
-      (org-capture-finalize t)
-      (org-speed-move-safe 'outline-up-heading)
-      (org-narrow-to-subtree))))
-
-(defun my--monthly-review ()
-  (interactive)
-  (let ((org-capture-templates `(("m" "Monthly Review" entry (file+olp+datetree (lambda () (concat org-dir "Reviews/reviews_" (format-time-string "%Y") ".org")))
-                                  (file ,(concat org-dir "Templates/monthly-review.org"))))))
-    (progn
-      (org-capture nil "m")
-      (org-capture-finalize t)
-      (org-speed-move-safe 'outline-up-heading)
-      (org-narrow-to-subtree))))
 #+END_SRC
