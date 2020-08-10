@@ -2015,3 +2015,16 @@ As always, trying to make use of LSP.
 (use-package json-mode
   :mode "\\.json\\'")
 #+END_SRC
+** Functions
+
+*** Align Comments in Region
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defun my--align-comments (beginning end)
+  "Align comments in region"
+  (interactive "*r")
+  (align-regexp beginning end (concat "\\(\\s-*\\)"
+                                      (regexp-quote comment-start)) nil 2))
+(leader-key
+  "c=c" 'my--align-comments)
+#+END_SRC
