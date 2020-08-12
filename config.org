@@ -1633,11 +1633,15 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package latex
   :straight auctex
+  :bind
+  (:map TeX-mode-map
+        ("C-<return>" . my--triple-newline))
   :config
   (add-hook 'LaTeX-mode-hook
             (lambda ()
               (prettify-symbols-mode)))
   (add-hook 'LaTeX-mode-hook 'visual-line-mode)
+
   (setq TeX-save-query nil)
   (setq TeX-auto-save t)
   (setq Tex-parse-self t)
@@ -1646,8 +1650,17 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
   (setq TeX-source-correlate-method 'synctex)
   ;; inhibit the question to start a server process
   (setq TeX-source-correlate-start-server t)
-  (setq TeX-view-program-selection '((output-pdf "Okular"))))
-(set-default 'preview-scale-function 2.0)
+  (setq TeX-view-program-selection '((output-pdf "Okular")))
+  (set-default 'preview-scale-function 2.0)
+
+;; TODO Function to repeat newline?
+  (defun my--triple-newline ()
+    "Inserts three newlines. Useful for rephrasing"
+    (interactive)
+    (save-excursion
+      (newline)
+      (newline)
+      (newline))))
 #+END_SRC
 
 *** RefTeX
