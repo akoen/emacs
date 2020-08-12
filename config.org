@@ -149,12 +149,14 @@ Automatically reload buffers on file change
   (global-set-key [remap describe-key]      #'helpful-key)
   (global-set-key [remap describe-symbol]   #'helpful-symbol)
 
-  ;; TODO Verify that functions are rebound on first load
   ;; Remap counsel keybinds to helpful commands
   (with-eval-after-load 'counsel
     (setq counsel-describe-function-function #'helpful-callable
           counsel-describe-variable-function #'helpful-variable))
   :config
+  ;; By default, evil shadows helpful keys
+  (evil-define-key 'normal helpful-mode-map "q" 'quit-window)
+
   ;; Always select help window when opened
   (setq help-window-select t))
 #+END_SRC
