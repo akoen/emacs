@@ -2000,6 +2000,11 @@ For OpenGl shader programming.
 
 As always, trying to make use of LSP.
 
+Arch packages:
+1. flake8 for flycheck
+2. python-black for style
+3. python-language-server for lsp
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-feature python
   :mode ("/Pipfile\\'" . conf-mode))
@@ -2007,7 +2012,6 @@ As always, trying to make use of LSP.
 ;; FIXME Currently, neither lsp-python-ms nor lsp-pyright work
 ;; properly. Currently using pyls, but it's not very nice...
 (use-package lsp-python-ms
-  :disabled t
   :after lsp-clients)
 
 (use-package lsp-pyright
@@ -2046,7 +2050,6 @@ As always, trying to make use of LSP.
   :mode "\\.json\\'")
 #+END_SRC
 ** Functions
-
 *** Align Comments in Region
 
 #+BEGIN_SRC emacs-lisp :tangle yes
