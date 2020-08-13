@@ -1421,7 +1421,7 @@ A package which allows for much greater customization of the org agenda.
   :after org-agenda
   :config
   (setq org-agenda-custom-commands
-        '(("v" "Agenda"
+        '(("a" "All"
            ((agenda "" ((org-agenda-span 'day)
                         (org-super-agenda-groups
                         '((:name "Personal"
@@ -1435,7 +1435,14 @@ A package which allows for much greater customization of the org agenda.
                          (org-super-agenda-groups
                           '((:name "This week"
                                    :tag "this_week")
-                            (:name "All Todos")))))))))
+                            (:name "All Todos")))))))
+	  ("t" "Today"
+	   ((agenda "" ((org-agenda-span 'day)
+			(org-deadline-warning-days 0)
+			(org-agenda-sorting-strategy
+			 '(priority-down))
+			))))
+	  ))
 
   (setq org-super-agenda-header-map (make-sparse-keymap)) ;; removes custom keybindings which are in opposition to evil-org
   (org-super-agenda-mode))
