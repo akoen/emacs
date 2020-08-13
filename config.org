@@ -1129,13 +1129,16 @@ Set agenda settings
 
   ;; Skip done items in agenda
   (setq org-agenda-skip-scheduled-if-done t)
-
   (setq org-agenda-skip-deadline-if-done t)
 
   ;; align tags to right side
   (setq org-agenda-tags-column -100)
 
   (setq org-agenda-skip-unavailable-files t)
+
+  (defun my/org-has-children ()
+    (if (save-excursion (org-goto-first-child)) "▶" " "))
+  (add-to-list 'org-agenda-prefix-format '(agenda  . "%i%-3:(my/org-has-children) %-12:c%?-12t% s "))
 
   (advice-add 'org-agenda-quit :before 'org-save-all-org-buffers))
 #+END_SRC
