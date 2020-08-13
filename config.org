@@ -1118,6 +1118,9 @@ Set agenda settings
   ;;don't show tasks as scheduled if they are already shown as a deadline
   (setq org-agenda-skip-scheduled-if-deadline-is-shown t)
 
+  ;; Do not dim blocked tasks
+  (setq org-agenda-dim-blocked-tasks nil)
+
   ;; Remove uneccesary whitespace
   (setq org-agenda-compact-blocks t)
 
