@@ -1112,37 +1112,40 @@ Set agenda settings
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-feature org-agenda
   :config
-  ;; warn me of any deadlines in next 7 days
+
   (setq org-deadline-warning-days 7)
-
-  ;;don't show tasks as scheduled if they are already shown as a deadline
   (setq org-agenda-skip-scheduled-if-deadline-is-shown t)
-
-  ;; Do not dim blocked tasks
   (setq org-agenda-dim-blocked-tasks nil)
 
   ;; Remove uneccesary whitespace
   (setq org-agenda-compact-blocks t)
 
-  ;; Use entire window
+  ;; Use current window for agenda buffer
   (setq org-agenda-window-setup 'only-window)
 
-  ;; Set agenda files
+  ;; Use all org files in org-dir
   (setq org-agenda-files (list org-dir))
+  (setq org-agenda-skip-unavailable-files t)
 
-  ;; Skip done items in agenda
   (setq org-agenda-skip-scheduled-if-done t)
   (setq org-agenda-skip-deadline-if-done t)
 
   ;; align tags to right side
   (setq org-agenda-tags-column -100)
 
-  (setq org-agenda-skip-unavailable-files t)
-
+  ;; Label items with children using an arrow
   (defun my/org-has-children ()
     (if (save-excursion (org-goto-first-child)) "▶" " "))
   (add-to-list 'org-agenda-prefix-format '(agenda  . "%i%-3:(my/org-has-children) %-12:c%?-12t% s "))
 
+
+  (defun my--check-sync-conflicts ()
+    (when (directory-files org-dir nil "sync-conflict")
+      (message "Warning: Sync conflicts")))
+
+  (add-hook 'org-agenda-finalize-hook #'my--check-sync-conflicts)
+
+  ;; Save all org buffers before exiting agenda
   (advice-add 'org-agenda-quit :before 'org-save-all-org-buffers))
 #+END_SRC
 
