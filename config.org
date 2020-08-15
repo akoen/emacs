@@ -1824,7 +1824,7 @@ Allow RefTeX to plug into AUCTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; Mostly borrowed from https://github.com/CSRaghunandan/.emacs.d/blob/master/setup-files/setup-js.el
 (use-package js2-mode
-  :ensure-system-package (tsserver . "sudo npm i -g typescript-language-server")
+  :ensure-system-package (tsserver . "sudo npm i -g typescript-language-server && sudo pacman -S typescript")
   :mode "\\.m?js\\'"
   :interpreter "node"
   :hook ((js2-mode . (lambda ()
