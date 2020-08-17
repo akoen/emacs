@@ -627,7 +627,7 @@ _r_eload    e_x_pand    _?_ list
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ivy-rich
-  :after ivy
+  :after (ivy counsel)
   :preface
   (defun ivy-rich-branch-candidate (candidate)
     "Displays the branch candidate of the candidate for ivy-rich."
