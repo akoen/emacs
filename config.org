@@ -1249,6 +1249,8 @@ We use a font that's easier on the eyes for long blocks of text
   (setq org-src-tab-acts-natively t
         org-src-preserve-indentation t) ; use native major-mode indentation
 
+  (setq org-src-window-setup 'current-window)
+
   ;; Indents an src block without having to enter it
   (defun my--org-indent-src-block ()
     (interactive)
