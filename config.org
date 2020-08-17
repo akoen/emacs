@@ -328,7 +328,6 @@ Unbind return from evil, so that org-return-follows-link works.
 Space is the best leader key.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-;; load general
 (use-package general
   :after which-key
   :config
@@ -383,13 +382,13 @@ Space is the best leader key.
     "oi" 'org-roam-insert
     "of" 'org-roam-find-file
     "og" 'org-roam-graph
-    "oS" 'my--ivy-org-jump-to-agenda-heading
-
     "ojj" 'org-journal-new-entry
     "oje" 'org-journal-new-scheduled-entry
     "ojs" 'org-journal-search-forever
 
     ;; Search
+    "so" 'my--ivy-org-jump-to-file-heading
+    "sO" 'my--ivy-org-jump-to-agenda-heading
     "sb" 'swiper
     "sp" 'counsel-projectile-rg
 
@@ -1302,8 +1301,19 @@ Make bullets circular
 Taken from https://github.com/jkitchin/scimax/blob/131f7f6f537c56f1d30396e79634a8b6cd6c887b/scimax-org.el#L693
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+
+(defun my--ivy-org-jump-to-heading (headlines)
+  (ivy-read "Headline: "
+	    (reverse headlines)
+	    :action (lambda (candidate)
+		      (org-mark-ring-push)
+		      (find-file (plist-get (cdr candidate) :file))
+		      (goto-char (plist-get (cdr candidate) :position))
+		      (outline-show-entry))))
+
 (defun my--ivy-org-jump-to-agenda-heading ()
-  "Jump to a heading in an agenda file."
+  "Jump to a heading in an agenda file. More visceral than
+counsel-org-agenda-headlines"
   (interactive)
   (let ((headlines '()))
     (loop for file in (org-agenda-files) do
@@ -1318,13 +1328,23 @@ Taken from https://github.com/jkitchin/scimax/blob/131f7f6f537c56f1d30396e79634a
 			     :file file
 			     :position (match-beginning 0))
 			    headlines)))))
-    (ivy-read "Headline: "
-	      (reverse headlines)
-	      :action (lambda (candidate)
-			(org-mark-ring-push)
-			(find-file (plist-get (cdr candidate) :file))
-			(goto-char (plist-get (cdr candidate) :position))
-			(outline-show-entry)))))
+(my--ivy-org-jump-to-heading headlines)))
+
+(defun my--ivy-org-jump-to-file-heading ()
+  "Jump to org heading in current buffer."
+  (interactive)
+  (let ((headlines '()))
+	    (save-excursion
+	      (goto-char (point-min))
+	      (while (re-search-forward org-heading-regexp nil t)
+		(cl-pushnew (list
+			     (format "%-80s (%s)"
+				     (match-string 0)
+				     (file-name-nondirectory buffer-file-name))
+			     :file buffer-file-name
+			     :position (match-beginning 0))
+			    headlines)))
+  (my--ivy-org-jump-to-heading headlines)))
 #+END_SRC
 *** Packages
 **** Babel
@@ -1375,7 +1395,7 @@ Make the header bullets look prettier
         cfw:fchar-top-right-corner ?┓))
 
 (use-package calfw-org
-  :general (leader-key "os" 'cfw:open-org-calendar)
+  :general (leader-key "ot" 'cfw:open-org-calendar)
   :commands (cfw:open-org-calendar
              cfw:org-create-source
              cfw:open-org-calendar-withkevin
