@@ -180,6 +180,7 @@ Doom one is beautiful
 (use-package doom-themes
   :custom-face
   (font-lock-comment-face ((t (:slant italic))))
+
   :config
   (load-theme 'doom-spacegrey t)
   (doom-themes-org-config))
@@ -1736,7 +1737,6 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
   (setq TeX-source-correlate-method 'synctex)
   ;; inhibit the question to start a server process
   (setq TeX-source-correlate-start-server t)
-  (setq TeX-view-program-selection '((output-pdf "Okular")))
   (set-default 'preview-scale-function 2.0)
 
 ;; TODO Function to repeat newline?
@@ -1822,6 +1822,39 @@ Allow RefTeX to plug into AUCTeX
   (setq ispell-program-name "aspell"
         ispell-dictionary "canadian"
         ispell-silently-savep t))
+#+END_SRC
+** PDF
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package pdf-tools
+  :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
+  :init
+  ;; build automatically
+  (pdf-tools-install :no-query)
+  :config
+
+  (setq pdf-view-display-size 'fit-page)
+
+  ;; HiDPI support
+  (setq pdf-view-use-scaling t
+	pdf-view-use-imagemagick nil)
+
+  ;; revert pdf automatically after latex compilation completes in auctex
+  (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
+
+  ;; automatically annotate highlights
+  (setq pdf-annot-activate-created-annotations t)
+
+  ;; add history for PDF files
+  (add-hook 'pdf-view-mode-hook #'pdf-history-minor-mode))
+
+(use-feature pdf-view
+  :after pdf-tools
+  :config
+  (setq pdf-view-display-size 'fit-page)
+
+  ;; HiDPI support
+  (setq pdf-view-use-scaling t
+	pdf-view-use-imagemagick nil))
 #+END_SRC
 * Development
 ** Tools
