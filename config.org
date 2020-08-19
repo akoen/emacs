@@ -871,8 +871,12 @@ An inteface to Git. The mascot of Emacs packages.
   :ensure-system-package (vterm-ctrl . libvterm)
   :commands vterm vterm-mode
   :init
-  (setq vterm-kill-buffer-on-exit t)
-  (with-eval-after-load 'evil (evil-set-initial-state 'vterm-mode 'emacs)))
+  (setq vterm-kill-buffer-on-exit t))
+
+(use-package vterm-toggle
+  :commands vterm-toggle vterm-toggle-cd
+  :bind
+  (("C-`" . vterm-toggle-cd)))
 #+END_SRC
 ** Dired
 
