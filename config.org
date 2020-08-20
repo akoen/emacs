@@ -1868,6 +1868,99 @@ Allow RefTeX to plug into AUCTeX
   (setq pdf-view-use-scaling t
 	pdf-view-use-imagemagick nil))
 #+END_SRC
+* Email
+
+** Reading Email
+
+Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.d/blob/master/config.org
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package mu4e
+  :commands mu4e mu4e-compose-new
+  :general
+  (leader-key
+    "mm" 'mu4e
+    "mc" 'mu4e-compose-new)
+  :init
+  (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
+
+  (setq mu4e-maildir "~/.mail")
+  (setq mu4e-attachment-dir "~/Downloads")
+  :config
+  (setq mu4e-get-mail-command "mbsync -a")
+
+  ;; Fixes duplicate UID errors
+  (setq mu4e-change-filenames-when-moving t)
+
+  (setq mu4e-compose-format-flowed t ; visual-line-mode + auto-fill upon sending
+	mu4e-view-show-addresses t
+	mu4e-sent-messages-behavior 'sent
+	mu4e-hide-index-messages t
+	;; try to show images
+	mu4e-view-show-images t
+	mu4e-view-image-max-width 800
+	mu4e-compose-dont-reply-to-self t
+	message-kill-buffer-on-exit t ; close after sending
+	;; use helm/ivy
+	mu4e-completing-read-function 'ivy-completing-read
+	;; set user agent
+	mail-user-agent 'mu4e-user-agent
+	;; no need to ask
+	mu4e-confirm-quit nil)
+
+  ;; Folders
+  (setq mu4e-sent-folder "/Sent"
+	mu4e-drafts-folder "/Drafts"
+	mu4e-trash-folder "/Trash"
+	mu4e-refile-folder "/Archive"
+	mu4e-compose-signature  "Alex Koen\nhttps://alexkoen.com")
+
+  ;; Use fancy icons
+  (setq mu4e-use-fancy-chars t
+	mu4e-headers-draft-mark '("D" . "")
+	mu4e-headers-flagged-mark '("F" . "")
+	mu4e-headers-new-mark '("N" . "")
+	mu4e-headers-passed-mark '("P" . "")
+	mu4e-headers-replied-mark '("R" . "")
+	mu4e-headers-seen-mark '("S" . "")
+	mu4e-headers-trashed-mark '("T" . "")
+	mu4e-headers-attach-mark '("a" . "")
+	mu4e-headers-encrypted-mark '("x" . "")
+	mu4e-headers-signed-mark '("s" . "")
+	mu4e-headers-unread-mark '("u" . ""))
+
+  ;; Auto update
+  (setq mu4e-update-interval (* 15 60))
+  (setq mu4e-index-update-in-background t)
+
+  ;; Enable spellcheck
+  (add-hook 'mu4e-compose-mode-hook 'flyspell-mode)
+
+  ;; Html mails might be better rendered in a browser
+  (add-to-list 'mu4e-view-actions '("View in browser" . mu4e-action-view-in-browser)))
+
+  #+END_SRC
+
+** Receiving Mail
+
+
+Create ~/.authinfo.gpg
+#+BEGIN_SRC
+machine imap.mailbox.com login alex@koen.ca password <password> port 993
+machine smtp.mailbox.com login alex@koen.ca password <password> port 587
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-feature message
+  :init
+  (setq message-send-mail-function 'smtpmail-send-it))
+
+(use-feature smtpmail
+  :init
+  (setq smtpmail-smtp-server "smtp.mailbox.org"
+        smtpmail-smtp-service 587
+        smtpmail-smtp-user "alex@koen.ca"
+        smtpmail-stream-type 'starttls))
+#+END_SRC
 * Development
 ** Tools
 *** Folding
