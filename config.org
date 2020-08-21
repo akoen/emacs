@@ -80,7 +80,10 @@ Note that system directories are set in init.el
   "Archive directory")
 
 (defconst org-dir "~/Dropbox/Org/"
-  "Tasks directory")
+  "Org directory")
+
+(defconst journal-dir "~/Documents/Areas/Journal/"
+  "Org directory")
 
 (defconst brain-dir "~/Brain/org/"
   "Braindump directory")
@@ -190,7 +193,7 @@ Doom one is beautiful
 *** Font
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(set-frame-font "Fira Code 12")
+(set-frame-font "JetBrains Mono")
 (set-face-attribute 'default nil :height 100)
 #+END_SRC
 
@@ -1345,7 +1348,7 @@ Taken from https://github.com/jkitchin/scimax/blob/131f7f6f537c56f1d30396e79634a
 counsel-org-agenda-headlines"
   (interactive)
   (let ((headlines '()))
-    (loop for file in (org-agenda-files) do
+    (cl-loop for file in (org-agenda-files) do
 	  (with-current-buffer (find-file-noselect file)
 	    (save-excursion
 	      (goto-char (point-min))
@@ -1487,13 +1490,14 @@ Advanced dependency management
 **** org-journal
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-journal
-  :custom
-  (org-journal-cache-dir emacs-cache-dir)
-  (org-journal-date-prefix "#+TITLE: ")
-  (org-journal-dir (concat brain-dir "/journal/"))
-  (org-journal-file-format "%Y-%m-%d.org")
-  (org-journal-date-format "%A %Y-%m-%d")
-  (org-journal-time-format "" ))
+  :after org
+  :init
+  (setq org-journal-cache-dir emacs-cache-dir
+        org-journal-date-prefix "#+TITLE: "
+        org-journal-dir journal-dir
+        org-journal-file-format "%Y-%m-%d.org"
+        org-journal-date-format "%A %Y-%m-%d"
+        org-journal-time-format "" ))
 
 #+END_SRC
 **** org-modules
@@ -2006,7 +2010,7 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
   (add-to-list 'web-mode-content-types-alist
                '("jsx" . "\\.js[x]?\\'"))
 
-;; Fix comments in javascript mode
+  ;; Fix comments in javascript mode
   (let ((types '("javascript" "jsx")))
     (setq web-mode-comment-formats
           (cl-remove-if (lambda (item)
@@ -2088,7 +2092,7 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
   :init
   (defun my--lsp-enable ()
     "Enable lsp-mode in all programming modes except those specified below. Taken from https://github.com/raxod502/radian/blob/develop/emacs/radian.el"
-     (when (derived-mode-p #'prog-mode #'text-mode)
+    (when (derived-mode-p #'prog-mode #'text-mode)
       (unless (or (null buffer-file-name)
                   (derived-mode-p
                    ;; `lsp-mode' doesn't support Elisp, so let's avoid
@@ -2112,9 +2116,9 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
   :config
   ;; TODO - Add company-capf to front of backends. The following line is a fix. See https://github.com/emacs-lsp/lsp-mode/issues/1736
   (add-hook 'lsp-managed-mode-hook (lambda ()
-        (setq-local company-backends
-                    (cons 'company-capf
-                          (remq 'company-capf company-backends)))))
+                     (setq-local company-backends
+                         (cons 'company-capf
+                               (remq 'company-capf company-backends)))))
 
   (setq lsp-server-install-dir (concat emacs-etc-dir "lsp/"))
 
