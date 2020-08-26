@@ -1986,6 +1986,23 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
   :config
   (editorconfig-mode 1))
 #+END_SRC
+*** Compilation
+
+Hide compilation buffer if successful
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-feature compile
+  :config
+  (add-hook 'compilation-finish-functions
+	    (lambda (buf str)
+	      (if (null (string-match ".*exited abnormally.*" str))
+		  ;;no errors, make the compilation window go away in a few seconds
+		  (progn
+		    (run-at-time
+		     "1 sec" nil 'delete-windows-on
+		     (get-buffer-create "*compilation*"))
+		    (message "No Compilation Errors!"))))))
+#+END_SRC
 ** Lang
 *** Web
 **** web mode
