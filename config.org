@@ -895,7 +895,7 @@ An inteface to Git. The mascot of Emacs packages.
         dired-clean-confirm-killing-deleted-buffers nil) ;; don't ask just do
 
   ;; Show directories before files + default -al
-  (setq dired-listing-switches "-ahl -v --group-directories-first")
+  (setq dired-listing-switches "-lAX --group-directories-first")
 
   ;; The standard ls details are extraneous
   (add-hook 'dired-mode-hook #'dired-hide-details-mode)
