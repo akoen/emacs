@@ -79,10 +79,10 @@ Note that system directories are set in init.el
 (defconst archive-dir (concat docs-dir "Archive/")
   "Archive directory")
 
-(defconst org-dir "~/Dropbox/Org/"
+(defconst org-dir "~/Org/"
   "Org directory")
 
-(defconst journal-dir "~/Documents/Areas/Journal/"
+(defconst journal-dir "~/Journal/"
   "Org directory")
 
 (defconst brain-dir "~/Brain/org/"
