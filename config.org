@@ -1968,6 +1968,22 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
   ;; Enable spellcheck
   (add-hook 'mu4e-compose-mode-hook 'flyspell-mode)
 
+  ;; Org-capture emails. Stolen from https://github.com/munen/emacs.d/blob/master/configuration.org#capture-templates
+  (defun from-name (fromname fromaddress from)
+    "Get name of message sender"
+    (nth 0
+	 (seq-filter '(lambda (s)
+			(not (string-empty-p s)))
+		     (list fromname fromaddress from))))
+
+  (add-to-list 'org-capture-templates
+	       `("m" "Mail" entry (file+olp ,(concat org-dir "refile.org") "Refile")
+		 "* TODO %? %(from-name \"%:fromname\" \"%:fromaddress\" \"%:from\") %a"))
+
+  (define-key mu4e-headers-mode-map (kbd "C-c c") 'mu4e-org-store-and-capture)
+  (define-key mu4e-view-mode-map    (kbd "C-c c") 'mu4e-org-store-and-capture)
+
+
   ;; Html mails might be better rendered in a browser
   (add-to-list 'mu4e-view-actions '("View in browser" . mu4e-action-view-in-browser)))
 
