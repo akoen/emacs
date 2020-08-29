@@ -1965,6 +1965,24 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
   (setq mu4e-update-interval (* 15 60))
   (setq mu4e-index-update-in-background t)
 
+  ;; Saved queries
+  (setq mu4e-bookmarks
+	'(( :name  "Unread messages"
+		   :query "flag:unread AND NOT flag:trashed"
+		   :key ?u)
+	  ( :name "Today's messages"
+		  :query "date:today..now"
+		  :key ?t)
+	  ( :name "All in inbox"
+		  :query "maildir:/Inbox OR maildir:/Inbox/*"
+		  :key ?i)
+	  ( :name "Last 7 days"
+		  :query "date:7d..now"
+		  :key ?w)
+	  ( :name "Messages with images"
+		  :query "mime:image/*"
+		  :key ?p)))
+
   ;; Enable spellcheck
   (add-hook 'mu4e-compose-mode-hook 'flyspell-mode)
 
