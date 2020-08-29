@@ -897,6 +897,18 @@ An inteface to Git. The mascot of Emacs packages.
   ;; Show directories before files + default -al
   (setq dired-listing-switches "-lAX --group-directories-first")
 
+  ;; Show contents of .desc file in minibuffer
+  (defun show-folder-description ()
+    (interactive)
+    (if (file-exists-p "./.desc")
+	(let ((description
+	       (with-temp-buffer
+		 (insert-file-contents "./.desc")
+		 (buffer-string))))
+	  (message description))))
+
+  (add-hook 'dired-after-readin-hook #'show-folder-description)
+
   ;; The standard ls details are extraneous
   (add-hook 'dired-mode-hook #'dired-hide-details-mode)
 
