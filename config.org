@@ -929,21 +929,32 @@ Adds additional functionality on top of dired.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-feature dired-x
+  :hook (dired-mode . dired-omit-mode)
   :config
   (setq dired-omit-verbose nil)
 
-  ;; Set the default application when using ! or & on files.
-  ;; Taken from doom emacs
-  (setq dired-guess-shell-alist-user
-        `(("\\.\\(?:docx\\|pdf\\|djvu\\|eps\\)\\'" xdg-open)
-          ("\\.\\(?:jpe?g\\|png\\|gif\\|xpm\\)\\'" xdg-open)
-          ("\\.\\(?:xcf\\)\\'" xdg-open)
-          ("\\.csv\\'" xdg-open)
-          ("\\.tex\\'" xdg-open)
-          ("\\.\\(?:mp4\\|mkv\\|avi\\|flv\\|rm\\|rmvb\\|ogv\\)\\(?:\\.part\\)?\\'" xdg-open)
-          ("\\.\\(?:mp3\\|flac\\)\\'" xdg-open)
-          ("\\.html?\\'" xdg-open)
-          ("\\.md\\'" xdg-open))))
+  (setq dired-omit-files
+	(concat dired-omit-files
+		"\\|^.DS_Store\\'"
+		"\\|^.project\\(?:ile\\)?\\'"
+		"\\|^.\\(svn\\|git\\)\\'"
+		"\\|^.ccls-cache\\'"
+		"\\|\\(?:\\.js\\)?\\.meta\\'"
+		"\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"))
+
+
+;; Set the default application when using ! or & on files.
+;; Taken from doom emacs
+(setq dired-guess-shell-alist-user
+      `(("\\.\\(?:docx\\|pdf\\|djvu\\|eps\\)\\'" xdg-open)
+	("\\.\\(?:jpe?g\\|png\\|gif\\|xpm\\)\\'" xdg-open)
+	("\\.\\(?:xcf\\)\\'" xdg-open)
+	("\\.csv\\'" xdg-open)
+	("\\.tex\\'" xdg-open)
+	("\\.\\(?:mp4\\|mkv\\|avi\\|flv\\|rm\\|rmvb\\|ogv\\)\\(?:\\.part\\)?\\'" xdg-open)
+	("\\.\\(?:mp3\\|flac\\)\\'" xdg-open)
+	("\\.html?\\'" xdg-open)
+	("\\.md\\'" xdg-open))))
 #+END_SRC
 
 ** Recentf
