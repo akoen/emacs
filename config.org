@@ -942,7 +942,6 @@ Adds additional functionality on top of dired.
 		"\\|\\(?:\\.js\\)?\\.meta\\'"
 		"\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"))
 
-
 ;; Set the default application when using ! or & on files.
 ;; Taken from doom emacs
 (setq dired-guess-shell-alist-user
@@ -1120,7 +1119,14 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   "run org-capture in capture frame"
   (select-frame-by-name "capture")
   (switch-to-buffer (get-buffer-create "*scratch*"))
-  (org-capture))
+  (org-capture)
+
+;; System-wide org-agenda
+(defadvice org-agenda-quit
+    (after delete-capture-frame activate)
+  "Advise capture-finalize to close the frame"
+  (when (equal "agenda" (frame-parameter nil 'name))
+    (delete-frame))))
 #+END_SRC
 
 **** Refile configuration
