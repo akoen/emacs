@@ -1904,6 +1904,7 @@ Allow RefTeX to plug into AUCTeX
 
 Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.d/blob/master/config.org
 #+BEGIN_SRC emacs-lisp :tangle yes
+;; FIXME cannot use aliases
 (use-package mu4e
   :commands mu4e mu4e-compose-new
   :general
@@ -1932,6 +1933,8 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
 	message-kill-buffer-on-exit t ; close after sending
 	;; use helm/ivy
 	mu4e-completing-read-function 'ivy-completing-read
+        ;; Do not reply to self
+        mu4e-compose-dont-reply-to-self t
 	;; set user agent
 	mail-user-agent 'mu4e-user-agent
 	;; no need to ask
