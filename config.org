@@ -1140,6 +1140,8 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
     (not (member (nth 2 (org-heading-components)) org-done-keywords)))
 
   (setq org-refile-target-verify-function 'bh/verify-refile-target)
+
+  ;; FIXME apply: Wrong number of arguments: (0 . 0), 3
   (advice-add 'org-refile :after 'org-save-all-org-buffers))
 #+END_SRC
 
@@ -2051,7 +2053,7 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
 #+END_SRC
 *** Compilation
 
-Hide compilation buffer if successful
+Hide compilation buffer if successful.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-feature compile
@@ -2223,7 +2225,6 @@ Hide compilation buffer if successful
   :after lsp-mode
   :general
   (leader-key
-    :keymaps 'lsp-mode-map
     "dd" 'dap-debug
     "dr" 'dap-debug-restart
     "dh" 'dap-hydra
