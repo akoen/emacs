@@ -1016,7 +1016,6 @@ Displays the folder tree
         org-hide-emphasis-markers t                                       ; hide the markers for italics and bold
         org-pretty-entities t                                             ; show entities as UTF8 characters
         org-image-actual-width (/ (display-pixel-width) 3)
-        org-log-repeat nil                                               ; do not record a closing timestamp
         org-export-with-smart-quotes t)
 
   :custom-face 
@@ -1277,6 +1276,21 @@ A package which allows for much greater customization of the org agenda.
 	  next-headline)))))
 #+END_SRC
 
+**** org-modules
+#+BEGIN_SRC emacs-lisp :tangle yes
+(require 'org-install)
+(setq org-modules '(org-habit))
+(org-load-modules-maybe t)
+#+END_SRC
+
+***** Habits
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-feature org-habit
+  :config
+  (setq org-log-repeat 'time
+        org-log-into-drawer t)
+#+END_SRC
 **** Variable Pitch Mode
 
 We use a font that's easier on the eyes for long blocks of text
@@ -1531,13 +1545,6 @@ Advanced dependency management
         org-journal-time-format "" ))
 
 #+END_SRC
-**** org-modules
-#+BEGIN_SRC emacs-lisp :tangle yes
-(require 'org-install)
-(setq org-modules '(org-habit))
-(org-load-modules-maybe t)
-#+END_SRC
-
 **** org-oxclip
 Let you copy formatted org-mode content to the clipboard. Requires the package =xclip= to run.
 
