@@ -1232,7 +1232,7 @@ A package which allows for much greater customization of the org agenda.
 		     (org-agenda-sorting-strategy
 		      '(priority-down))))))))
 
-  (setq org-super-agenda-header-map (make-sparse-keymap)) ;; removes custom keybindings which are in opposition to evil-org
+  (setq org-super-agenda-header-map (copy-keymap org-agenda-mode-map)) ;; org-super-agenda does not copy keymap late enough
   (org-super-agenda-mode))
 #+end_src
 
