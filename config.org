@@ -2014,6 +2014,21 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
   (define-key mu4e-headers-mode-map (kbd "C-c c") 'mu4e-org-store-and-capture)
   (define-key mu4e-view-mode-map    (kbd "C-c c") 'mu4e-org-store-and-capture)
 
+  ;; Set from address based on address that message was sent to. See https://www.djcbsoftware.nl/code/mu/mu4e/Compose-hooks.html
+  (defun my--set-from-address ()
+    "Set the From address based on the To address of the original."
+    (let ((msg mu4e-compose-parent-message)) ;; msg is shorter...
+      (when msg
+	(setq user-mail-address
+	      (cond
+	       ((mu4e-message-contact-field-matches msg :to "akoen@mailbox.org")
+		"akoen@mailbox.org")
+	       ((mu4e-message-contact-field-matches msg :to "jx7gq@mailbox.org")
+		"jx7gq@mailbox.org")
+	       (t "alex@koen.ca"))))))
+
+  (add-hook 'mu4e-compose-pre-hook #'my--set-from-address)
+
   ;; Remove the +T flag from trash. This emulates the behaviour of GUI clients. Emails are otherwise deleted when moving to trash.
   (setf (alist-get 'trash mu4e-marks)
 	(list :char '("d" . "▼")
