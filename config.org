@@ -2014,6 +2014,17 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
   (define-key mu4e-headers-mode-map (kbd "C-c c") 'mu4e-org-store-and-capture)
   (define-key mu4e-view-mode-map    (kbd "C-c c") 'mu4e-org-store-and-capture)
 
+  ;; Remove the +T flag from trash. This emulates the behaviour of GUI clients. Emails are otherwise deleted when moving to trash.
+  (setf (alist-get 'trash mu4e-marks)
+	(list :char '("d" . "▼")
+	      :prompt "dtrash"
+	      :dyn-target (lambda (target msg)
+			    (mu4e-get-trash-folder msg))
+	      :action (lambda (docid msg target)
+			;; Here's the main difference to the regular trash mark,
+			;; no +T before -N so the message is not marked as
+			;; IMAP-deleted:
+			(mu4e~proc-move docid (mu4e~mark-check-target target) "-N"))))
 
   ;; Html mails might be better rendered in a browser
   (add-to-list 'mu4e-view-actions '("View in browser" . mu4e-action-view-in-browser)))
