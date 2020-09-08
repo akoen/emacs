@@ -1496,7 +1496,7 @@ Automatically insert images via drag-and-drop
     :keymaps 'org-mode-map
     "ods" 'org-download-screenshot)
   :config
-  (setq org-download-screenshot-method "maim -s %s")
+  (setq org-download-screenshot-method "maim -u -s %s")
   (defun my-org-download-method (link)
     "This is a helper function for org-download.
 It creates a folder in the root directory named after the
