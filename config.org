@@ -1790,13 +1790,19 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
   (setq TeX-auto-save t)
   (setq Tex-parse-self t)
   (setq TeX-PDF-mode t)
+
+  ;; Set up pdf viewer
+  (setq TeX-view-program-list '(("Evince" "evince --page-index=%(outpage) %o")))
+  (setq TeX-view-program-selection '((output-pdf "Evince")))
   ;; Method for enabling forward and inverse search 
   (setq TeX-source-correlate-method 'synctex)
   ;; inhibit the question to start a server process
   (setq TeX-source-correlate-start-server t)
+
+
   (set-default 'preview-scale-function 2.0)
 
-;; TODO Function to repeat newline?
+  ;; TODO Function to repeat newline?
   (defun my--triple-newline ()
     "Inserts three newlines. Useful for rephrasing"
     (interactive)
