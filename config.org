@@ -1227,10 +1227,9 @@ A package which allows for much greater customization of the org agenda.
 	   ((agenda ""
 		    ((org-agenda-span 'day)
 		     (org-deadline-warning-days 0)
-		     (org-agenda-sorting-strategy
-		      '(priority-down))))))))
+		     (org-super-agenda-groups my--super-agenda-groups)))))))
 
-  (setq org-super-agenda-header-map (copy-keymap org-agenda-mode-map)) ;; org-super-agenda does not copy keymap late enough
+  (setq org-super-agenda-header-map (make-sparse-keymap)) ;; org-super-agenda does not copy keymap late enough
   (org-super-agenda-mode))
 #+end_src
 
