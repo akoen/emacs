@@ -1606,6 +1606,7 @@ Allows for external applications to trigger custom actions without external depe
   (after-init . org-roam-mode)
   :init
   (setq org-roam-directory brain-dir
+	org-roam-db-location "~/org-roam.db"
         org-roam-tag-sources '(prop last-directory)
         org-roam-graph-exclude-matcher '("journal")
         org-roam-link-title-format "§%s")
