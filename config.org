@@ -1617,12 +1617,14 @@ Allows for external applications to trigger custom actions without external depe
         '(("d" "default" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "${slug}"
-           :head "#+title: ${title}\n"
+           :head "#+setupfile: ../hugo_setup.org
+,#+title: ${title}\n"
            :unnarowed t)
           ("b" "book" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "books/${slug}"
-           :head "#+title: ${title}\n
+           :head "#+setupfile: ../hugo_setup.org
+,#+title: ${title}
 
 - author ::
 - tags :: "
@@ -1631,11 +1633,12 @@ Allows for external applications to trigger custom actions without external depe
         '(("r" "ref" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "websites/${slug}"
-           :head "#+roam_key: ${ref}
+           :head "#+setupfile: ../hugo_setup.org
+	   ,#+roam_key: ${ref}
 ,#+title: ${title}
 
 -  source :: ${ref}"
-           :unnarrowed t))))
+	   :unnarrowed t))))
 #+END_SRC
 **** org-roam-bibtex
 #+BEGIN_SRC emacs-lisp :tangle yes
