@@ -1286,7 +1286,7 @@ A package which allows for much greater customization of the org agenda.
 (use-feature org-habit
   :config
   (setq org-log-repeat 'time
-        org-log-into-drawer t)
+        org-log-into-drawer t))
 #+END_SRC
 **** Variable Pitch Mode
 
