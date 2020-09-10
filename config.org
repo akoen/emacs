@@ -930,17 +930,15 @@ Adds additional functionality on top of dired.
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-feature dired-x
   :hook (dired-mode . dired-omit-mode)
+  :general
+  (general-define-key
+   :states 'normal
+   :keymaps 'dired-mode-map
+   ")" 'dired-omit-mode)
   :config
   (setq dired-omit-verbose nil)
 
-  (setq dired-omit-files
-	(concat dired-omit-files
-		"\\|^.DS_Store\\'"
-		"\\|^.project\\(?:ile\\)?\\'"
-		"\\|^.\\(svn\\|git\\)\\'"
-		"\\|^.ccls-cache\\'"
-		"\\|\\(?:\\.js\\)?\\.meta\\'"
-		"\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"))
+  (setq dired-omit-files "^\\.")
 
 ;; Set the default application when using ! or & on files.
 ;; Taken from doom emacs
