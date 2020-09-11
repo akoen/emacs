@@ -1880,6 +1880,7 @@ Allow RefTeX to plug into AUCTeX
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; find aspell and hunspell automatically
 (use-package flyspell
+  :hook ((org-mode markdown-mode TeX-mode rst-mode mu4e-compose-mode git-commit-mode) . flyspell-mode)
   :config
   (setq ispell-program-name "aspell"
         ispell-dictionary "canadian"
@@ -2002,9 +2003,6 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
 	  ( :name "Messages with images"
 		  :query "mime:image/*"
 		  :key ?p)))
-
-  ;; Enable spellcheck
-  (add-hook 'mu4e-compose-mode-hook 'flyspell-mode)
 
   (add-to-list 'org-capture-templates
 	       `("m" "Mail" entry (file+olp ,(concat org-dir "refile.org") "Refile")
