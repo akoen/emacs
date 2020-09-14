@@ -1219,23 +1219,25 @@ A package which allows for much greater customization of the org agenda.
   :after org-agenda
   :config
   (setq org-agenda-custom-commands
-        '(("a" "All"
-           ((agenda ""
+	'(("a" "All"
+	   ((agenda ""
 		    ((org-agenda-span 'day)
 		     (org-super-agenda-groups
 		      '((:discard (:tag "refile"))
 			(:name "Personal"
-			       :time-grid t
+			       ;; :time-grid t
 			       :tag "personal")
 			(:auto-property "Class")
 			(:name "School Other"
-			       :file-path "school")))))
-
-	    (tags-todo "refile"
-		       ((org-agenda-overriding-header "Refile")))
-	    (alltodo ""
-		     ((org-agenda-overriding-header "Stuck Projects")
-		      (org-agenda-skip-function 'my--skip-non-stuck-projects)))
+			       :file-path "school")
+			(:auto-property "Goal")))))
+	    (todo "TODO"
+		     ((org-agenda-overriding-header "Refile")
+		      (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline))))
+	    ;; TODO This is not useful as it is
+	    ;; (alltodo ""
+	    ;; 	     ((org-agenda-overriding-header "Stuck Projects")
+	    ;; 	      (org-agenda-skip-function 'my--skip-non-stuck-projects)))
 	    (todo "NEXT"
 		  ((org-agenda-overriding-header "Next Tasks")))
 	    (todo "WAITING"
@@ -1246,7 +1248,15 @@ A package which allows for much greater customization of the org agenda.
 	   ((agenda ""
 		    ((org-agenda-span 'day)
 		     (org-deadline-warning-days 0)
-		     (org-super-agenda-groups my--super-agenda-groups)))))))
+		     (org-super-agenda-groups
+		      '((:name "Must do"
+			       :priority "A")
+			(:name "Good to do"
+			       :priority "B")
+			(:name "Time-permitting"
+			       :priority "C")
+			(:name "Unsorted"
+			       :anything)))))))))
 
   (setq org-super-agenda-header-map (make-sparse-keymap)) ;; org-super-agenda does not copy keymap late enough
   (org-super-agenda-mode))
