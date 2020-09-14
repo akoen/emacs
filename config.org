@@ -1008,6 +1008,7 @@ Displays the folder tree
         org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id ; use unique ID's for links
         org-id-locations-file (concat org-dir ".orgids")
         org-clone-delete-id t
+	org-log-done 'time
         org-catch-invisible-edits 'show
         org-confirm-babel-evaluate nil                                    ; do not ask for confirmation
         org-return-follows-link t
