@@ -1885,7 +1885,7 @@ Allow RefTeX to plug into AUCTeX
   (leader-key
     :keymaps 'org-mode-map
     "llb" 'langtool-check-buffer
-    "llc" 'langtool-check-done)
+    "lld" 'langtool-check-done)
   :init
   (setq langtool-default-language "en-CA")
   :config
