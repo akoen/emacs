@@ -1176,6 +1176,22 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   ;; align tags to right side
   (setq org-agenda-tags-column -100)
 
+
+  (defun my--org-agenda-process-inbox-item ()
+    "Process a single item in the org-agenda."
+    (interactive)
+    (org-with-wide-buffer
+     ;; (org-agenda-schedule)
+     ;; (org-agenda-deadline)
+     ;; (org-agenda-set-tags)
+     (org-agenda-priority)
+     ;; (call-interactively 'my-org-agenda-set-effort)
+     (org-agenda-refile nil nil t)))
+
+  (general-mmap
+   :keymaps 'org-agenda-mode-map
+   "p" 'my--org-agenda-process-inbox-item)
+
   ;; Label items with children using an arrow
   (defun my/org-has-children ()
     (if (save-excursion (org-goto-first-child)) "▶" " "))
