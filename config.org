@@ -1575,6 +1575,20 @@ Let you copy formatted org-mode content to the clipboard. Requires the package =
     "oy" 'ox-clip-formatted-copy)
   :after org)
 #+END_SRC
+**** org-pomodoro
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-pomodoro
+  :general
+  (leader-key
+    "op" 'org-pomodoro)
+  (general-mmap
+    :keymaps 'org-agenda-mode-map
+    "P" 'org-pomodoro)
+
+  :config
+  ;; prefer PulseAudio to ALSA
+  (setq org-pomodoro-audio-player (or (executable-find "paplay") org-pomodoro-audio-player)))
+#+END_SRC
 **** org-Protocol
 
 Allows for external applications to trigger custom actions without external dependencies
