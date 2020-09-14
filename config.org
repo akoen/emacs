@@ -1872,6 +1872,18 @@ Allow RefTeX to plug into AUCTeX
   (setq langtool-java-classpath "/usr/share/languagetool:/usr/share/java/languagetool/*"))
 #+END_SRC
 
+*** writegood
+
+Checks for signs of bad writing.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package writegood-mode
+:general
+(leader-key
+"lw" 'writegood-mode))
+#+END_SRC
+
+
 *** Writing Function
 
 #+BEGIN_SRC emacs-lisp :tangle yes
