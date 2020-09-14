@@ -1292,6 +1292,12 @@ A package which allows for much greater customization of the org agenda.
 	  next-headline)))))
 #+END_SRC
 
+**** org-clock
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-feature org-clock
+  :config
+  (setq org-clock-out-remove-zero-time-clocks t))
+#+END_SRC
 **** org-modules
 #+BEGIN_SRC emacs-lisp :tangle yes
 (require 'org-install)
