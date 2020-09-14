@@ -334,6 +334,7 @@ Space is the best leader key.
   :after which-key
   :config
   (general-override-mode)
+  (general-evil-setup)
 
   (general-create-definer leader-key
     :states '(normal insert visual motion emacs)
