@@ -1951,7 +1951,7 @@ Checks for signs of bad writing.
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; find aspell and hunspell automatically
 (use-package flyspell
-  :hook ((org-mode markdown-mode TeX-mode rst-mode mu4e-compose-mode git-commit-mode) . flyspell-mode)
+  :hook ((org-mode markdown-mode TeX-mode rst-mode mu4e-compose-mode notmuch-message-mode git-commit-mode) . flyspell-mode)
   :config
   (setq ispell-program-name "aspell"
         ispell-dictionary "canadian"
