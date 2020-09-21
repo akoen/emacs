@@ -1224,6 +1224,8 @@ A package which allows for much greater customization of the org agenda.
 		    ((org-agenda-span 'day)
 		     (org-super-agenda-groups
 		      '((:discard (:tag "refile"))
+			(:name "Agenda"
+			       :time-grid t)
 			(:name "Personal"
 			       ;; :time-grid t
 			       :tag "personal")
@@ -1231,9 +1233,13 @@ A package which allows for much greater customization of the org agenda.
 			(:name "School Other"
 			       :file-path "school")
 			(:auto-property "Goal")))))
-	    (todo "TODO"
-		     ((org-agenda-overriding-header "Refile")
-		      (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline))))
+	    (alltodo ""
+		     ((org-super-agenda-groups
+		       '((:name "Refile"
+				:and (:scheduled nil :deadline nil :todo "TODO")
+				:tag "refile")
+			 (:discard (:anything))
+			 ))))
 	    ;; TODO This is not useful as it is
 	    ;; (alltodo ""
 	    ;; 	     ((org-agenda-overriding-header "Stuck Projects")
@@ -1249,7 +1255,9 @@ A package which allows for much greater customization of the org agenda.
 		    ((org-agenda-span 'day)
 		     (org-deadline-warning-days 0)
 		     (org-super-agenda-groups
-		      '((:name "Must do"
+		      '((:name "Agenda"
+			       :time-grid t)
+			(:name "Must do"
 			       :priority "A")
 			(:name "Good to do"
 			       :priority "B")
