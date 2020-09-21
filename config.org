@@ -2179,11 +2179,12 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
 	notmuch-message-headers-visible nil
 	notmuch-saved-searches
 	'((:name "Inbox"
-		 :query "tag:inbox and tag:screened and tag:unread"
+		 :query "tag:screened and tag:unread"
 		 :search-type 'tree
 		 :key "i")
 	  (:name "Previously Seen"
 		 :query "tag:screened and not tag:unread"
+		 :search-type 'tree
 		 :key "I")
 	  (:name "Unscreened"
 		 :query "tag:inbox and not tag:screened"
@@ -2195,179 +2196,209 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
 	  (:name "The Papertrail"
 		 :query "tag:ledger"
 		 :key "p")
+	  (:name "Set Aside "
+		 :query "tag:aside"
+		 :key "a")
 	  (:name "Drafts"
 		 :query "tag:draft"
 		 :key "d"))
-	notmuch-show-markk-read-tags '("-inbox" "-unread" "+archived")
-	notmuch-archive-tags '("-inbox" "-unread" "+archived"))
+	notmuch-show-mark-read-tags '("-unread")
+	notmuch-archive-tags '("-unread"))
 
-  (setq notmuch-hooks-dir "~/.notmuch/hooks")
-
+  (setq notmuch-hooks-dir "~/.notmuch/hooks"
+	notmuch-drafts-folder "Drafts"
+	notmuch-fcc-dirs "Sent")
 
   (general-nmap
-   :keymaps 'notmuch-hello-mode-map
-   "u" 'my--notmuch-update
-   )
+    :keymaps 'notmuch-hello-mode-map
+    "u" 'my--notmuch-update
+    )
 
-   ;; Bindings in `notmuch-show-mode'
+  ;; Bindings in `notmuch-show-mode'
   (general-nmap
-   :keymaps 'notmuch-show-mode-map
-   "r" 'notmuch-show-reply
-   "R" 'notmuch-show-reply-sender
-   "C" 'my--notmuch-reply-later
-   )
+    :keymaps 'notmuch-show-mode-map
+    "r" 'notmuch-show-reply
+    "R" 'notmuch-show-reply-sender
+    "C" 'my--notmuch-reply-later
+    )
 
-   ;; Bindings in `notmuch-search-mode'
+  ;; Bindings in `notmuch-search-mode'
   (general-nmap
-   :keymaps 'notmuch-search-mode-map
-   "r" 'notmuch-search-reply-to-thread
-   "R" 'notmuch-search-reply-to-thread-sender
-   "/" 'notmuch-search-filter
-   "A" 'my--notmuch-archive-all
-   "D" 'my--notmuch-delete-all
-   "L" 'my--notmuch-filter-by-from
-   ";" 'my--notmuch-search-by-from
-   "d" 'my--notmuch-search-delete-and-archive-thread
+    :keymaps 'notmuch-search-mode-map
+    "M-RET" 'notmuch-tree-from-search-current-query
+    "r" 'notmuch-search-reply-to-thread
+    "R" 'notmuch-search-reply-to-thread-sender
+    "/" 'notmuch-search-filter
+    "A" 'my--notmuch-archive-all
+    "D" 'my--notmuch-delete-all
+    "L" 'my--notmuch-filter-by-from
+    ";" 'my--notmuch-search-by-from
+    "d" 'my--notmuch-search-delete-and-archive-thread
 
-   ;; The HEY Workflow Bindings
-   "S" 'my--notmuch-move-sender-to-spam
-   "I" 'my--notmuch-move-sender-to-screened
-   "P" 'my--notmuch-move-sender-to-papertrail
-   "f" 'my--notmuch-move-sender-to-thefeed
-   "C" 'my--notmuch-reply-later
-   )
+    ;; The HEY Workflow Bindings
+    "S" 'my--notmuch-move-sender-to-spam
+    "I" 'my--notmuch-move-sender-to-screened
+    "P" 'my--notmuch-move-sender-to-papertrail
+    "F" 'my--notmuch-move-sender-to-thefeed
+    "C" 'my--notmuch-reply-later
+    )
 
   ;; Bindings in `notmuch-tree-mode'
   (general-nmap
-   :keymaps 'notmuch-tree-mode-map
-   "C" 'my--notmuch-reply-later
-   )
-
-(defun my--notmuch-search-get-from ()
-  "A helper function to find the email address for the given email."
-  (let ((notmuch-addr-sexp (car
-			    (notmuch-call-notmuch-sexp "address"
-						       "--format=sexp"
-						       "--format-version=1"
-						       "--output=sender"
-						       (notmuch-search-find-thread-id)))))
-    (plist-get notmuch-addr-sexp :name-addr)))
+    :keymaps 'notmuch-tree-mode-map
+    "C" 'my--notmuch-reply-later
+    )
 
 
+  ;; Adapted from mu4e to send format=flowed messages
+  (add-hook 'notmuch-message-mode-hook '(lambda ()
+					  (turn-off-auto-fill)
+					  (setq truncate-lines nil
+						word-wrap t
+						mml-enable-flowed t
+						use-hard-newlines t)
+					  (visual-line-mode t)))
 
-(defun my--notmuch-tree-get-from ()
-  "A helper function to find the email address for the given email.
+  (defun my--notmuch-search-get-from ()
+    "A helper function to find the email address for the given email."
+    (let ((notmuch-addr-sexp (car
+			      (notmuch-call-notmuch-sexp "address"
+							 "--format=sexp"
+							 "--format-version=1"
+							 "--output=sender"
+							 (notmuch-search-find-thread-id)))))
+      (plist-get notmuch-addr-sexp :name-addr)))
+
+
+
+  (defun my--notmuch-tree-get-from ()
+    "A helper function to find the email address for the given email.
 Assumes `notmuch-tree-mode'."
-  (plist-get (notmuch-tree-get-prop :headers) :From))
+    (plist-get (notmuch-tree-get-prop :headers) :From))
 
-(defun my--notmuch-get-from ()
-  "Find the From email address for the email at point."
-  (car (notmuch-clean-address (cond
-			       ((eq major-mode 'notmuch-show-mode)
-				(notmuch-show-get-from))
-			       ((eq major-mode 'notmuch-tree-mode)
-				(my--notmuch-tree-get-from))
-			       ((eq major-mode 'notmuch-search-mode)
-				(my--notmuch-search-get-from))
-			       ((t nil))))))
+  (defun my--notmuch-get-from ()
+    "Find the From email address for the email at point."
+    (car (notmuch-clean-address (cond
+				 ((eq major-mode 'notmuch-show-mode)
+				  (notmuch-show-get-from))
+				 ((eq major-mode 'notmuch-tree-mode)
+				  (my--notmuch-tree-get-from))
+				 ((eq major-mode 'notmuch-search-mode)
+				  (my--notmuch-search-get-from))
+				 ((t nil))))))
 
-(defun my--notmuch-filter-by-from ()
-  "Filter the current search view to show all emails sent from the sender of the current thread."
-  (interactive)
-  (notmuch-search-filter (concat "from:" (my--notmuch-get-from))))
+  (defun my--notmuch-filter-by-from ()
+    "Filter the current search view to show all emails sent from the sender of the current thread."
+    (interactive)
+    (notmuch-search-filter (concat "from:" (my--notmuch-get-from))))
 
-(defun my--notmuch-search-by-from (&optional no-display)
-  "Show all emails sent from the sender of the current thread.
+  (defun my--notmuch-search-by-from (&optional no-display)
+    "Show all emails sent from the sender of the current thread.
 NO-DISPLAY is sent forward to `notmuch-search'."
-  (interactive)
-  (notmuch-search (concat "from:" (my--notmuch-get-from))
-		  notmuch-search-oldest-first
-		  nil
-		  nil
-		  no-display))
+    (interactive)
+    (notmuch-search (concat "from:" (my--notmuch-get-from))
+		    notmuch-search-oldest-first
+		    nil
+		    nil
+		    no-display))
 
-(defun my--notmuch-tag-by-from (tag-changes &optional beg end refresh)
-  "Apply TAG-CHANGES to all emails from the sender of the current thread.
+  (defun my--notmuch-tag-by-from (tag-changes &optional beg end refresh)
+    "Apply TAG-CHANGES to all emails from the sender of the current thread.
 BEG and END provide the region, but are ignored. They are defined
 since `notmuch-search-interactive-tag-changes' returns them. If
 REFRESH is true, refresh the buffer from which we started the
 search."
-  (interactive (notmuch-search-interactive-tag-changes))
-  (let ((this-buf (current-buffer)))
-    (my--notmuch-search-by-from t)
-    ;; This is a dirty hack since I can't find a way to run a
-    ;; temporary hook on `notmuch-search' completion. So instead of
-    ;; waiting on the search to complete in the background and then
-    ;; making tag-changes on it, I will just sleep for a short amount
-    ;; of time. This is generally good enough and works, but is not
-    ;; guaranteed to work every time. I'm fine with this.
-    (sleep-for 0.5)
-    (notmuch-search-tag-all tag-changes)
-    (when refresh
-      (set-buffer this-buf)
-      (notmuch-refresh-this-buffer))))
+    (interactive (notmuch-search-interactive-tag-changes))
+    (let ((this-buf (current-buffer)))
+      (my--notmuch-search-by-from t)
+      ;; This is a dirty hack since I can't find a way to run a
+      ;; temporary hook on `notmuch-search' completion. So instead of
+      ;; waiting on the search to complete in the background and then
+      ;; making tag-changes on it, I will just sleep for a short amount
+      ;; of time. This is generally good enough and works, but is not
+      ;; guaranteed to work every time. I'm fine with this.
+      (sleep-for 0.5)
+      (notmuch-search-tag-all tag-changes)
+      (when refresh
+	(set-buffer this-buf)
+	(notmuch-refresh-this-buffer))))
 
-(defun my--notmuch-add-addr-to-db (nmaddr nmdbfile)
-  "Add the email address NMADDR to the db-file NMDBFILE."
-  (append-to-file (format "%s\n" nmaddr) nil nmdbfile))
+  (defun my--notmuch-add-addr-to-db (nmaddr nmdbfile)
+    "Add the email address NMADDR to the db-file NMDBFILE."
+    (append-to-file (format "%s\n" nmaddr) nil nmdbfile)
+    (notmuch-refresh-this-buffer))
 
-(defun my--notmuch-move-sender-to-thefeed ()
-  "For the email at point, move the sender of that email to the feed.
+  (defun my--notmuch-remove-addr-from-db (nmaddr nmdbfile)
+    "Remove the email address NMADDR from the db-file NMDBFILE and remove all db tags."
+    (with-temp-file nmdbfile
+      (insert-file-contents nmdbfile)
+      (delete-matching-lines nmaddr)))
+
+  ;; TODO Make removal a function
+  (defun my--notmuch-move-sender-to-thefeed ()
+    "For the email at point, move the sender of that email to the feed.
 This means:
 1. All new email should go to the feed and skip the inbox altogether.
 2. All existing email should be updated with the tag =thefeed=.
 3. All existing email should be removed from the inbox."
-  (interactive)
-  (my--notmuch-add-addr-to-db (my--notmuch-get-from)
-                                 (format "%s/thefeed.db" notmuch-hooks-dir))
-  (my--notmuch-tag-by-from '("+thefeed" "+archived" "-inbox")))
+    (interactive)
+    (my--notmuch-add-addr-to-db (my--notmuch-get-from) (format "%s/thefeed.db" notmuch-hooks-dir))
+    (my--notmuch-remove-addr-from-db (my--notmuch-get-from) (format "%s/ledger.db" notmuch-hooks-dir))
+    (my--notmuch-remove-addr-from-db (my--notmuch-get-from) (format "%s/screened.db" notmuch-hooks-dir))
+    (my--notmuch-remove-addr-from-db (my--notmuch-get-from) (format "%s/spam.db" notmuch-hooks-dir))
+    (my--notmuch-tag-by-from '("+thefeed" "-inbox" "-ledger" "-screened" "-spam")))
 
-(defun my--notmuch-move-sender-to-papertrail ()
-  "For the email at point, move the sender of that email to the papertrail.
+  (defun my--notmuch-move-sender-to-papertrail ()
+    "For the email at point, move the sender of that email to the papertrail.
 This means:
 1. All new email should go to the papertrail and skip the inbox altogether.
 2. All existing email should be updated with the tag =ledger/TAG-NAME=.
 3. All existing email should be removed from the inbox."
-  (interactive)
-  (my--notmuch-add-addr-to-db (my--notmuch-get-from)
-				 (format "%s/ledger.db" notmuch-hooks-dir))
-  (my--notmuch-tag-by-from '("+ledger" "+archived" "-inbox" "-unread")))
+    (interactive)
+    (my--notmuch-add-addr-to-db (my--notmuch-get-from) (format "%s/ledger.db" notmuch-hooks-dir))
+    (my--notmuch-remove-addr-from-db (my--notmuch-get-from) (format "%s/thefeed.db" notmuch-hooks-dir))
+    (my--notmuch-remove-addr-from-db (my--notmuch-get-from) (format "%s/screened.db" notmuch-hooks-dir))
+    (my--notmuch-remove-addr-from-db (my--notmuch-get-from) (format "%s/spam.db" notmuch-hooks-dir))
+    (my--notmuch-tag-by-from '("+ledger" "-inbox" "-unread" "-thefeed" "-screened" "-spam")))
 
-(defun my--notmuch-move-sender-to-screened ()
-  "For the email at point, move the sender of that email to Screened Emails.
+  (defun my--notmuch-move-sender-to-screened ()
+    "For the email at point, move the sender of that email to Screened Emails.
 This means:
 1. All new email should be tagged =screened= and show up in the inbox.
 2. All existing email should be updated to add the tag =screened=."
-  (interactive)
-  (my--notmuch-add-addr-to-db (my--notmuch-get-from)
-				 (format "%s/screened.db" notmuch-hooks-dir))
-  (my--notmuch-tag-by-from '("+screened")))
+    (interactive)
+    (my--notmuch-add-addr-to-db (my--notmuch-get-from) (format "%s/screened.db" notmuch-hooks-dir))
+    (my--notmuch-remove-addr-from-db (my--notmuch-get-from) (format "%s/ledger.db" notmuch-hooks-dir))
+    (my--notmuch-remove-addr-from-db (my--notmuch-get-from) (format "%s/thefeed.db" notmuch-hooks-dir))
+    (my--notmuch-remove-addr-from-db (my--notmuch-get-from) (format "%s/spam.db" notmuch-hooks-dir))
+    (my--notmuch-tag-by-from '("+screened" "-ledger" "-thefeed" "-spam")))
 
-(defun my--notmuch-move-sender-to-spam ()
-  "For the email at point, move the sender of that email to spam.
+  (defun my--notmuch-move-sender-to-spam ()
+    "For the email at point, move the sender of that email to spam.
 This means:
 1. All new email should go to =spam= and skip the inbox altogether.
 2. All existing email should be updated with the tag =spam=.
 3. All existing email should be removed from the inbox."
-  (interactive)
-  (my--notmuch-add-addr-to-db (my--notmuch-get-from)
-				 (format "%s/spam.db" notmuch-hooks-dir))
-  (my--notmuch-tag-by-from '("+spam" "+deleted" "+archived" "-inbox" "-unread" "-screened")))
+    (interactive)
+    (my--notmuch-add-addr-to-db (my--notmuch-get-from) (format "%s/spam.db" notmuch-hooks-dir))
+    (my--notmuch-remove-addr-from-db (my--notmuch-get-from) (format "%s/ledger.db" notmuch-hooks-dir))
+    (my--notmuch-remove-addr-from-db (my--notmuch-get-from) (format "%s/thefeed.db" notmuch-hooks-dir))
+    (my--notmuch-remove-addr-from-db (my--notmuch-get-from) (format "%s/screened.db" notmuch-hooks-dir))
+    (my--notmuch-tag-by-from '("+spam" "-inbox" "-unread" "-screened" "-ledger" "-screened" "-thefeed")))
 
-(defun my--notmuch-reply-later ()
-  "Capture this email for replying later."
-  (interactive)
-  (org-capture nil "m"))
+  (defun my--notmuch-reply-later ()
+    "Capture this email for replying later."
+    (interactive)
+    (org-capture nil "m"))
 
-(setq notmuch-address-selection-function
-      (lambda (prompt collection initial-input)
-	(completing-read prompt
-			 (cons initial-input collection)
-			 nil
-			 t
-			 nil
-			 'notmuch-address-history)))
-)
+  (setq notmuch-address-selection-function
+	(lambda (prompt collection initial-input)
+	  (completing-read prompt
+			   (cons initial-input collection)
+			   nil
+			   t
+			   nil
+			   'notmuch-address-history))))
 
 
 (use-package org-mime
