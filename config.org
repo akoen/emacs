@@ -193,8 +193,8 @@ Doom one is beautiful
 *** Font
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(set-frame-font "JetBrains Mono")
-(set-face-attribute 'default nil :height 100)
+(add-to-list 'default-frame-alist '(font . "JetBrains Mono-10" ))
+(set-face-attribute 'default nil :font "JetBrains Mono-10" :height 100)
 #+END_SRC
 
 ** Disable unecessary UI elements
