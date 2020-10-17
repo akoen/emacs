@@ -2717,8 +2717,7 @@ Arch packages:
   :config
   (add-to-list 'global-mode-string
                '(pyvenv-virtual-env-name (" venv:" pyvenv-virtual-env-name " "))
-               'append))
-
+               'append)
 
   :preface
   (defun find-pyvenv-directory (path)
