@@ -1661,7 +1661,7 @@ Allows for external applications to trigger custom actions without external depe
           ("b" "book" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "books/${slug}"
-           :head "#+setupfile: ../hugo_setup.org
+           :head "#+setupfile: ../../hugo_setup.org
 ,#+title: ${title}
 
 - author ::
