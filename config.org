@@ -999,7 +999,8 @@ Displays the folder tree
         org-startup-indented t                                            ; indent each level of heading
         org-hide-emphasis-markers t                                       ; hide the markers for italics and bold
         org-pretty-entities t                                             ; show entities as UTF8 characters
-        org-image-actual-width (/ (display-pixel-width) 3)
+        org-image-actual-width 500
+	org-startup-with-inline-images t
         org-export-with-smart-quotes t)
 
   :custom-face 
