@@ -2669,7 +2669,6 @@ While ccls in nice in theory, it has given me nothing but trouble. We will use c
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ccls
-  :disabled t
   :ensure-system-package ccls
   :after lsp
   :init
