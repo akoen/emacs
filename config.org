@@ -1882,15 +1882,26 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
       (newline))))
 #+END_SRC
 
+*** CdLaTeX
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package cdlatex
+  :after latex
+  :hook (LaTeX-mode . turn-on-cdlatex))
+#+END_SRC
+
 *** RefTeX
 
 Allow RefTeX to plug into AUCTeX
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(add-hook 'LaTeX-mode-hook 'turn-on-reftex)
-(setq reftex-plug-into-AUCTeX t)
-(setq reftex-extra-bindings t)
-(setq reftex-use-external-file-handlers t)
+(use-package reftex
+  :after latex
+  :hook (LaTeX-mode . turn-on-reftex)
+  :custom
+  (reftex-plug-into-AUCTeX t)
+  (reftex-extra-bindings t)
+  (reftex-use-external-file-handlers t))
 #+END_SRC
 
 ** Writing
