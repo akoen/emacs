@@ -225,6 +225,7 @@ Make yes or no prompts be y or n prompts
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (global-display-line-numbers-mode t)
+(global-hl-line-mode +1)
 (setq display-line-numbers-type 'relative
       display-line-numbers-grow-only t)
 
