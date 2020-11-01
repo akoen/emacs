@@ -228,9 +228,15 @@ Make yes or no prompts be y or n prompts
 (global-hl-line-mode +1)
 (setq display-line-numbers-type 'relative
       display-line-numbers-grow-only t)
-
 ;; Prevent lines from being shifted when order of magnitude increases.
 (setq display-line-numbers-width-start t)
+
+;; Disable line numbers for some modes
+(dolist (mode '(term-mode-hook
+                shell-mode-hook
+                treemacs-mode-hook
+                eshell-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
 #+END_SRC
 
 ** Show matching parentheses
