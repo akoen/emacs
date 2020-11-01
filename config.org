@@ -866,6 +866,13 @@ An inteface to Git. The mascot of Emacs packages.
   :defer t
   :init
   (setq transient-history-file (concat emacs-etc-dir "transient/history")))
+
+(use-package magit-todos
+  :after magit hl-todo
+  :custom
+  (magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?") ; make colon optional
+  :config
+  (magit-todos-mode))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle yes
