@@ -490,6 +490,7 @@ Allows for traditional vim bindings inside of emacs
   :after evil
   :config
   (setq evil-collection-mode-list (delete 'vterm evil-collection-mode-list)) ;; Otherwise throws error
+  (setq evil-collection-company-use-tng nil)
   (evil-collection-init))
 #+END_SRC
 
