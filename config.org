@@ -1088,12 +1088,40 @@ Displays the folder tree
   (font-lock-add-keywords nil
                           '(("\\(!\\)\\([^[:space:]][^\n\r\t]+[^[:space:]]\\)\\(!\\)" . 'font-lock-highlight-face ))))
 (add-hook 'org-mode-hook 'add-highlight-keywords)
-#+END_SRC
+#+end_src
+
+**** Pretty-symbols
+#+begin_src emacs-lisp :tangle yes
+(add-hook 'org-mode-hook (lambda ()
+			   (push '("#+title: "        . "") prettify-symbols-alist)
+			   (push '("#+subtitle: "     . "") prettify-symbols-alist)
+			   (push '("#+author: "       . "- ") prettify-symbols-alist)
+			   (push '("#+begin_src"      . "λ") prettify-symbols-alist)
+			   (push '("#+end_src"        . "…") prettify-symbols-alist)
+			   (push '("#+results:"       . "→") prettify-symbols-alist)
+			   (push '(":results:"        . "⋰") prettify-symbols-alist)
+			   (push '("#+name:"          . "-") prettify-symbols-alist)
+			   (push '("#+begin_example"  . "~") prettify-symbols-alist)
+			   (push '("#+begin_example"  . "~") prettify-symbols-alist)
+			   (push '("#+end_example"    . "~") prettify-symbols-alist)
+			   (push '("#+end_example"    . "~") prettify-symbols-alist)
+			   (push '("#+DOWNLOADED:"    . "→") prettify-symbols-alist)
+			   (push '("#+begin_verbatim" . "") prettify-symbols-alist)
+			   (push '("#+end_verbatim"   . "") prettify-symbols-alist)
+			   (push '("#+begin_verse"    . "") prettify-symbols-alist)
+			   (push '("#+end_verse"      . "") prettify-symbols-alist)
+			   (push '("#+begin_quote"    . "»") prettify-symbols-alist)
+			   (push '("#+end_quote"      . "«") prettify-symbols-alist)
+			   (push '("#+tblfm:"         . "∫") prettify-symbols-alist)
+			   (push '("[X]"              . (?\[ (Br . Bl) ?✓ (Br . Bl) ?\])) prettify-symbols-alist)
+			   (push '("\\\\"             . "↩") prettify-symbols-alist)
+			   (prettify-symbols-mode)))
+#+end_src
 **** Capture
 
 Set up capture templates. The backquoted list allows me to selectively evaluate parts of the list with a , (in this case the concat statement).
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 ;; TODO use directory variables
 (setq org-capture-templates
       `(("t" "Todo" entry (file+headline ,(concat org-dir "refile.org") "Refile")
