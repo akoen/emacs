@@ -179,7 +179,22 @@ A small buffer which shows the list of commands you can execute next.
   :config
   (which-key-mode 1))
 #+END_SRC
+** No littering
 
+#+begin_src emacs-lisp :tangle yes
+(use-package no-littering
+  :config
+  (with-eval-after-load 'recentf
+    (add-to-list 'recentf-exclude no-littering-var-directory)
+    (add-to-list 'recentf-exclude no-littering-etc-directory))
+
+  (setq auto-save-file-name-transforms
+	`((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+
+  ;; no-littering changes default snippets directory, so I changed it back.
+  (add-to-list 'yas-snippet-dirs
+	       (expand-file-name "snippets" user-emacs-directory)))
+#+end_src
 * Appearance
 ** Theme
 
