@@ -2640,27 +2640,30 @@ Hide compilation buffer if successful.
     :keymaps 'lsp-mode-map
     "cr" 'lsp-rename
     "cl" 'lsp-find-definition
-    "cd" 'lsp-describe-thing-at-point
-    "cpd" 'lsp-ui-peek-find-definitions
+    "cd" 'lsp-ui-doc-glance
     "cpl" 'lsp-ui-peek-find-references)
-
+  :hook (lsp-mode . lsp-enable-which-key-integration)
   :init
+  ;; FIXME keymap does not work
+  (setq lsp-keymap-prefix "C-l"
+	lsp-before-save-edits nil ;; Do not autoformat buffer
+	lsp-file-watch-threshold 1500)
   (defun my--lsp-enable ()
     "Enable lsp-mode in all programming modes except those specified below. Taken from https://github.com/raxod502/radian/blob/develop/emacs/radian.el"
     (when (derived-mode-p #'prog-mode #'text-mode)
       (unless (or (null buffer-file-name)
-                  (derived-mode-p
-                   ;; `lsp-mode' doesn't support Elisp, so let's avoid
-                   ;; triggering the autoload just for checking that, yes,
-                   ;; there's nothing to do for the *scratch* buffer.
-                   #'emacs-lisp-mode
-                   ;; Disable for modes that we currently use a specialized
-                   ;; framework for, until they are phased out in favor of
-                   ;; LSP.
+		  (derived-mode-p
+		   ;; `lsp-mode' doesn't support Elisp, so let's avoid
+		   ;; triggering the autoload just for checking that, yes,
+		   ;; there's nothing to do for the *scratch* buffer.
+		   #'emacs-lisp-mode
+		   ;; Disable for modes that we currently use a specialized
+		   ;; framework for, until they are phased out in favor of
+		   ;; LSP.
 
-                   ;; other modes go HERE
-                   #'org-mode))
-        (lsp))))
+		   ;; other modes go HERE
+		   #'org-mode))
+	(lsp))))
 
   (add-hook 'after-change-major-mode-hook 'my--lsp-enable)
 
@@ -2669,27 +2672,38 @@ Hide compilation buffer if successful.
     (add-to-list 'projectile-globally-ignored-directories ".clangd"))
 
   :config
-  ;; TODO - Add company-capf to front of backends. The following line is a fix. See https://github.com/emacs-lsp/lsp-mode/issues/1736
-  (add-hook 'lsp-managed-mode-hook (lambda ()
-                     (setq-local company-backends
-                         (cons 'company-capf
-                               (remq 'company-capf company-backends)))))
-
   (setq lsp-server-install-dir (concat emacs-etc-dir "lsp/"))
-
   (setq lsp-enable-indentation nil
-        lsp-enable-on-type-formatting nil
-        lsp-prefer-capf t
-        lsp-session-file (concat emacs-etc-dir "lsp-session")
-        read-process-ouput-max (* 1024 1024)))  ;; As per <https://github.com/emacs-lsp/lsp-mode#performance>.
+	lsp-enable-on-type-formatting nil
+	lsp-session-file (concat emacs-etc-dir "lsp-session")
+	read-process-ouput-max (* 1024 1024)))  ;; As per <https://github.com/emacs-lsp/lsp-mode#performance>.
 
+  #+end_src
+
+*** lsp-ui
+#+begin_src emacs-lisp :tangle yes
 (use-package lsp-ui
   :commands lsp-ui-mode
-  :config
-  (setq lsp-ui-doc-enable nil
-        lsp-ui-sideline-show-hover nil
-        lsp-ui-doc-max-height 8))
-#+END_SRC
+  :custom
+  (lsp-ui-doc-enable nil)
+  (lsp-ui-doc-position 'top)
+  (lsp-ui-doc-delay 0)
+  (lsp-ui-peek-fontify 'always)
+  (lsp-ui-doc-include-signature t)
+  (lsp-eldoc-enable-hover nil) ; Disable eldoc displays in minibuffer
+  (lsp-ui-doc-max-height 8)
+
+  (lsp-ui-sideline-enable nil)
+  (lsp-ui-sideline-delay 0.5)
+  (lsp-ui-sideline-show-symbol nil) ;; only show code actions
+  (lsp-ui-sideline-update-mode 'line)
+  (lsp-ui-sideline-show-code-actions t)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-sideline-ignore-duplicate t)
+
+  (lsp-ui-imenu-enable nil))
+  #+end_src
+
 *** lsp-treemacs
 
 #+begin_src emacs-lisp :tangle yes
