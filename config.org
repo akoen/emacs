@@ -600,6 +600,9 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 #+begin_src emacs-lisp :tangle yes
 (use-package company
   :defer 0.5
+  :bind (:map company-active-map
+         ("<tab>" . #'company-complete-selection)
+         ("TAB" . #'company-complete-selection))
   :config
   ;; Make completions display faster
   (setq company-idle-delay 0.15)
