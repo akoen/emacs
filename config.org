@@ -2805,7 +2805,7 @@ Arch packages:
 2. python-black for style
 3. python-language-server for lsp
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (use-feature python
   :mode ("/Pipfile\\'" . conf-mode)
   :hook (python-mode . importmagic-mode))
@@ -2832,7 +2832,12 @@ Arch packages:
     (let ((project (projectile-project-name)))
       (if (member project (pyenv-mode-versions))
           (pyenv-mode-set project)
-        (pyenv-mode-unset)))))
+        (pyenv-mode-unset))))
+
+  :config
+  ;; Pyenv overrides the org-schedule keybind
+  (define-key pyenv-mode-map (kbd "C-c C-s") nil)
+  (define-key pyenv-mode-map (kbd "C-M-s") 'pyenv-mode-set))
 
 
 (use-package blacken
