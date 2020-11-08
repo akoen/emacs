@@ -2761,48 +2761,33 @@ project(Tutorial)
 
 # add the executable
 add_executable(Tutorial tutorial.cxx)
-#+END_SRC
+#+end_src
 
 2. Run the following commands:
-#+BEGIN_SRC shell :tangle no
+#+begin_src shell :tangle no
 cmake -H. -BDebug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
 ln -s Debug/compile_commands.json
-#+END_SRC
-
-**** ccls
-
-While ccls in nice in theory, it has given me nothing but trouble. We will use clangd instead.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(use-package ccls
-  :ensure-system-package ccls
-  :after lsp
-  :init
-  (with-eval-after-load 'projectile
-    (add-to-list 'projectile-globally-ignored-directories ".ccls-cache")
-    (add-to-list 'projectile-project-root-files-bottom-up ".ccls-root")
-    (add-to-list 'projectile-project-root-files-top-down-recurring "compile_commands.json")))
-#+END_SRC
+#+end_src
 
 **** CMake
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (use-package cmake-mode
   :mode ("CMAKELists\\.txt\\'" "\\.cmake\\'"))
 
 (use-package cmake-font-lock
   :after (cmake-mode)
   :hook (cmake-mode . cmake-font-lock-activate))
-#+END_SRC
+#+end_src
 
 *** CSharp
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (use-package csharp-mode)
-#+END_SRC
+#+end_src
 *** GLSL
 For OpenGl shader programming.
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (use-package glsl-mode
   :mode ("\\.vs\\'"
          "\\.fs\\'"
@@ -2810,7 +2795,7 @@ For OpenGl shader programming.
          "\\.geom\\'"
          "\\.frag\\'"
          "\\.vert\\'"))
-#+END_SRC
+#+end_src
 *** Python
 
 As always, trying to make use of LSP.
