@@ -2690,6 +2690,18 @@ Hide compilation buffer if successful.
         lsp-ui-sideline-show-hover nil
         lsp-ui-doc-max-height 8))
 #+END_SRC
+*** lsp-treemacs
+
+#+begin_src emacs-lisp :tangle yes
+(use-package lsp-treemacs
+  :after lsp
+  :general
+  (leader-key
+    ;; FIXME
+    "cts" 'lsp-treemacs-symbols
+    "cte" 'lsp-treemacs-errors-list))
+#+end_src
+
 
 *** DAP
 #+BEGIN_SRC emacs-lisp :tangle yes
