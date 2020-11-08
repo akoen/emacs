@@ -478,6 +478,18 @@ The Hydra is vanquished once Hercules, any binding that isn't the Hydra's head, 
   ("q" nil "quit" :color blue))
 #+end_src
 
+** Undo
+
+#+begin_src emacs-lisp :tangle yes
+(use-package undo-tree
+  :custom
+  (undo-tree-visualizer-diff t)
+  (undo-tree-auto-save-history t)
+  (undo-tree-enable-undo-in-region t)
+  :config
+  (global-undo-tree-mode +1))
+#+end_src
+
 ** EVIL
 
 Allows for traditional vim bindings inside of emacs
@@ -485,6 +497,9 @@ Allows for traditional vim bindings inside of emacs
 #+begin_src emacs-lisp :tangle yes
 ;; load evil
 (use-package evil
+  :after undo-tree
+  :custom
+  (evil-undo-system 'undo-tree)
   :init
   (setq evil-search-module 'evil-search
         evil-ex-substitute-global t
