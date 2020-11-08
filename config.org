@@ -2740,10 +2740,20 @@ Hide compilation buffer if successful.
   (require 'dap-node)
   (require 'dap-python))
 #+END_SRC
+(use-feature dap-python
+  :after dap-mode
+  :custom
+  (dap-python-debugger 'debugpy)
+  
+  :config
+  ;; Do not let dap ignore the virtual environment
+  (defun dap-python--pyenv-executable-find (command)
+    (executable-find "python")))
+#+end_src
 *** C/C++
 To configure a new C program:
 1. Create a =CMakeLists.txt= file. Eg:
-#+BEGIN_SRC cmake :tangle no
+#+begin_src cmake :tangle no
 cmake_minimum_required(VERSION 3.10)
 
 # set the project name
