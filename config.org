@@ -568,8 +568,8 @@ This package emulates surround.vim by Tim Pope.
 *** evil-nerd-commenter
 #+begin_src emacs-lisp :tangle yes
 (use-package evil-nerd-commenter
-  :init
-  (evilnc-default-hotkeys))
+  :general
+  (general-nmap "gcc" 'evilnc-comment-or-uncomment-lines))
 #+end_src
 
 *** evil-snipe
