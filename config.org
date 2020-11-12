@@ -1007,6 +1007,20 @@ Adds additional functionality on top of dired.
 	("\\.md\\'" "xdg-open"))))
 #+end_src
 
+*** Peep-Dired
+
+#+begin_src emacs-lisp :tangle yes
+(use-package peep-dired
+  :general
+  (general-nmap
+    :keymaps 'dired-mode-map
+    "M-RET" 'peep-dired
+    "C-n" 'peep-dired-next-file
+    "C-p" 'peep-dired-prev-file)
+  :custom
+  (peep-dired-cleanup-eagerly t)
+  (peep-dired-ignored-extensions '("mkv mp4")))
+#+end_src
 ** Recentf
 
 Keeps a list of recently opened files.
