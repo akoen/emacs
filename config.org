@@ -910,10 +910,7 @@ Project management.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package projectile
-  :commands (projectile-project-root
-             projectile-project-name
-             projectile-project-p
-             projectile-locate-dominating-file)
+  :defer 1
   :init
   (setq projectile-cache-file (concat emacs-cache-dir "projectile.cache")
         projectile-enable-caching t
