@@ -11,6 +11,21 @@ https://github.com/raxod502/radian/blob/develop/emacs/radian.el
 https://github.com/CSRaghunandan/.emacs.d/tree/master/setup-files
 
 Alright, let's do this:
+* Usage
+** Use-package
+
+Usage of :preface, :init, :config
+#+begin_src emacs-lisp :tangle no
+(use-package example
+  ;; Note that errors are never trapped in the preface, since doing so would
+  ;; hide definitions from the byte-compiler.
+  :preface (message "I'm here at byte-compile and load time.")
+  :init (message "I'm always here at startup")
+  :config
+  (message "I'm always here after the package is loaded"))
+#+end_src
+
+
 * Initialization
 ** Lexical Binding
 
