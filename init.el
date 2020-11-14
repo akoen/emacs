@@ -18,6 +18,9 @@
 
 ;; Package management
 (setq straight-base-dir emacs-local-dir)
+;; The following speeds up init time by almost a second, but is likely a hack.
+;;See https://www.gitmemory.com/issue/raxod502/straight.el/373/491018643
+(setq straight-check-for-modifications '(check-on-save))
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" straight-base-dir))
