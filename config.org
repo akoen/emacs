@@ -106,6 +106,31 @@ Move files are folders to appropriate locations:
 #+end_src
 
 * Better Defaults
+** Asynchronously tangle literate config
+
+Tangling this org file into config.el at every startup is slow. This code is borrowed from https://github.com/rememberYou/.emacs.d/blob/master/config.org
+
+#+begin_src emacs-lisp :tangle yes
+(use-package async)
+(defun my--async-babel-tangle (org-file)
+  "Tangles the org file asynchronously."
+  (let ((init-tangle-start-time (current-time))
+        (file (buffer-file-name))
+        (async-quiet-switch "-q"))
+    (async-start
+     `(lambda ()
+        (require 'org)
+        (org-babel-tangle-file ,org-file))
+     (unless *show-async-tangle-results*
+       `(lambda (result)
+          (if result
+              (message "SUCCESS: %s successfully tangled (%.2fs)."
+                       ,org-file
+                       (float-time (time-subtract (current-time)
+                                                  ',init-tangle-start-time)))
+            (message "ERROR: %s as tangle failed." ,org-file)))))))
+#+end_src
+
 ** Misc
 #+begin_src emacs-lisp :tangle yes
 (setq vc-follow-symlinks t           ; don't ask for confirmation when opening symlinked file
