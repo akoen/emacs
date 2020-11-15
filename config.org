@@ -435,12 +435,13 @@ Space is the best leader key.
   :config
   (general-override-mode)
   (general-evil-setup)
+  (general-auto-unbind-keys)
 
   (general-create-definer leader-key
-    :states '(normal insert visual motion emacs)
     :keymaps 'override
+    :states '(normal insert hybrid visual motion operator)
     :prefix "SPC"
-    :non-normal-prefix "M-SPC")
+    :non-normal-prefix "C-SPC")
 
   (leader-key
     ;; Misc
