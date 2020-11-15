@@ -754,103 +754,13 @@ _r_eload    e_x_pand    _?_ list
 #+begin_src emacs-lisp :tangle yes
 (use-package ivy-rich
   :after (ivy counsel)
-  :preface
-  (defun ivy-rich-branch-candidate (candidate)
-    "Displays the branch candidate of the candidate for ivy-rich."
-    (let ((candidate (expand-file-name candidate ivy--directory)))
-      (if (or (not (file-exists-p candidate)) (file-remote-p candidate))
-          ""
-        (format "%s%s"
-                (propertize
-                 (replace-regexp-in-string abbreviated-home-dir "~/"
-                                           (file-name-directory
-                                            (directory-file-name candidate)))
-                 'face 'font-lock-doc-face)
-                (propertize
-                 (file-name-nondirectory
-                  (directory-file-name candidate))
-                 'face 'success)))))
-
-  (defun ivy-rich-compiling (candidate)
-    "Displays compiling buffers of the candidate for ivy-rich."
-    (let* ((candidate (expand-file-name candidate ivy--directory)))
-      (if (or (not (file-exists-p candidate)) (file-remote-p candidate)
-              (not (magit-git-repo-p candidate)))
-          ""
-        (if (my--projectile-compilation-buffers candidate)
-            "compiling"
-          ""))))
-
-  (defun ivy-rich-file-group (candidate)
-    "Displays the file group of the candidate for ivy-rich"
-    (let ((candidate (expand-file-name candidate ivy--directory)))
-      (if (or (not (file-exists-p candidate)) (file-remote-p candidate))
-          ""
-        (let* ((group-id (file-attribute-group-id (file-attributes candidate)))
-               (group-function (if (fboundp #'group-name) #'group-name #'identity))
-               (group-name (funcall group-function group-id)))
-          (format "%s" group-name)))))
-
-  (defun ivy-rich-file-modes (candidate)
-    "Displays the file mode of the candidate for ivy-rich."
-    (let ((candidate (expand-file-name candidate ivy--directory)))
-      (if (or (not (file-exists-p candidate)) (file-remote-p candidate))
-          ""
-        (format "%s" (file-attribute-modes (file-attributes candidate))))))
-
-  (defun ivy-rich-file-size (candidate)
-    "Displays the file size of the candidate for ivy-rich."
-    (let ((candidate (expand-file-name candidate ivy--directory)))
-      (if (or (not (file-exists-p candidate)) (file-remote-p candidate))
-          ""
-        (let ((size (file-attribute-size (file-attributes candidate))))
-          (cond
-           ((> size 1000000) (format "%.1fM " (/ size 1000000.0)))
-           ((> size 1000) (format "%.1fk " (/ size 1000.0)))
-           (t (format "%d " size)))))))
-
-  (defun ivy-rich-file-user (candidate)
-    "Displays the file user of the candidate for ivy-rich."
-    (let ((candidate (expand-file-name candidate ivy--directory)))
-      (if (or (not (file-exists-p candidate)) (file-remote-p candidate))
-          ""
-        (let* ((user-id (file-attribute-user-id (file-attributes candidate)))
-               (user-name (user-login-name user-id)))
-          (format "%s" user-name)))))
-
-  (defun ivy-rich-switch-buffer-icon (candidate)
-    "Returns an icon for the candidate out of `all-the-icons'."
-    (with-current-buffer
-        (get-buffer candidate)
-      (let ((icon (all-the-icons-icon-for-mode major-mode :height 0.9)))
-        (if (symbolp icon)
-            (all-the-icons-icon-for-mode 'fundamental-mode :height 0.9)
-          icon))))
   :config
-  (plist-put ivy-rich-display-transformers-list
-             'counsel-find-file
-             '(:columns
-               ((ivy-rich-candidate               (:width 73))
-                (ivy-rich-file-user               (:width 8 :face font-lock-doc-face))
-                (ivy-rich-file-group              (:width 4 :face font-lock-doc-face))
-                (ivy-rich-file-modes              (:width 11 :face font-lock-doc-face))
-                (ivy-rich-file-size               (:width 7 :face font-lock-doc-face))
-                (ivy-rich-file-last-modified-time (:width 30 :face font-lock-doc-face)))))
-  (plist-put ivy-rich-display-transformers-list
-             'ivy-switch-buffer
-             '(:columns
-               ((ivy-rich-switch-buffer-icon       (:width 2))
-                (ivy-rich-candidate                (:width 40))
-                (ivy-rich-switch-buffer-size       (:width 7))
-                (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
-                (ivy-rich-switch-buffer-major-mode (:width 20 :face warning)))
-               :predicate (lambda (cand) (get-buffer cand))))
   (ivy-rich-mode 1))
 #+end_src
 
-*** Flx
+*** FLX
 
-Sublime-text fuzzy matching for Emacs. Package used following Doom's ivy configuration.
+Sublime-text fuzzy matching for Emacs completions.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package flx
@@ -868,7 +778,7 @@ Sublime-text fuzzy matching for Emacs. Package used following Doom's ivy configu
 
 ** Counsel
 
-Counsel contains ivy enhancements for commonly-used functions.
+Ivy enhancements to commonly-used functions.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package counsel
@@ -902,8 +812,6 @@ Counsel contains ivy enhancements for commonly-used functions.
 #+end_src
 
 *** Counsel-projectile
-
-Allows for further integration between ivy and projectile.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package counsel-projectile
@@ -1097,6 +1005,7 @@ Keeps a list of recently opened files.
 
 #+begin_src emacs-lisp :tangle yes
 (use-feature recentf
+  :commands projectile-recentf
   :config
   (setq recentf-save-file (concat emacs-cache-dir "recentf"))
   (setq recentf-max-menu-item 300)
@@ -1234,8 +1143,8 @@ Displays the folder tree
 			   (push '("#+end_verbatim"   . "") prettify-symbols-alist)
 			   (push '("#+begin_verse"    . "") prettify-symbols-alist)
 			   (push '("#+end_verse"      . "") prettify-symbols-alist)
-			   (push '("#+begin_quote"    . "»") prettify-symbols-alist)
-			   (push '("#+end_quote"      . "«") prettify-symbols-alist)
+			   (push '("#+begin_quote"    . "«") prettify-symbols-alist)
+			   (push '("#+end_quote"      . "»") prettify-symbols-alist)
 			   (push '("#+tblfm:"         . "∫") prettify-symbols-alist)
 			   (push '("[X]"              . (?\[ (Br . Bl) ?✓ (Br . Bl) ?\])) prettify-symbols-alist)
 			   (push '("\\\\"             . "↩") prettify-symbols-alist)
