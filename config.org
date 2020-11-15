@@ -356,12 +356,6 @@ Copied from Doom Emacs
       mouse-wheel-progressive-speed nil)  ; don't accelerate scrolling
 
 #+end_src
-** all-the-icons
-
-#+begin_src emacs-lisp :tangle yes
-(use-package all-the-icons)
-#+end_src
-
 ** smartparens
 
 [[https://github.com/Fuco1/smartparens][Utility]] for managing parenthesis in Emacs
