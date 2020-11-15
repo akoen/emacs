@@ -263,15 +263,67 @@ A small buffer which shows the list of commands you can execute next.
 * Appearance
 ** Theme
 
-Doom one is beautiful
+*** Modus-themes
+
+The Modus themes are striking and are noticeably easier to read than alternatives. The following code is taken from the theme's [[https://protesilaos.com/modus-themes/#h:69b92089-069c-4ba1-9d94-cc3415fc4f87][manual]].
 
 #+begin_src emacs-lisp :tangle yes
+(defmacro modus-themes-format-sexp (sexp &rest objects)
+  `(eval (read (format ,(format "%S" sexp) ,@objects))))(dolist (theme '("operandi" "vivendi"))
+
+  (modus-themes-format-sexp
+   (defun modus-%1$s-theme-load ()
+     (setq modus-%1$s-theme-slanted-constructs t
+           modus-%1$s-theme-bold-constructs t
+           modus-%1$s-theme-fringes 'subtle ; {nil,'subtle,'intense}
+           modus-%1$s-theme-mode-line '3d ; {nil,'3d,'moody}
+           modus-%1$s-theme-syntax 'alt-syntax ; {nil,faint,'yellow-comments,'green-strings,'yellow-comments-green-strings,'alt-syntax,'alt-syntax-yellow-comments}
+           modus-%1$s-theme-intense-hl-line nil
+           modus-%1$s-theme-intense-paren-match nil
+           modus-%1$s-theme-links 'faint ; {nil,'faint,'neutral-underline,'faint-neutral-underline,'no-underline}
+           modus-%1$s-theme-no-mixed-fonts nil
+           modus-%1$s-theme-prompts nil ; {nil,'subtle,'intense}
+           modus-%1$s-theme-completions 'moderate ; {nil,'moderate,'opinionated}
+           modus-%1$s-theme-diffs nil ; {nil,'desaturated,'fg-only}
+           modus-%1$s-theme-org-blocks 'grayscale ; {nil,'grayscale,'rainbow}
+           modus-%1$s-theme-headings  ; Read further below in the manual for this one
+           '((1 . section)
+             (2 . line)
+             (t . rainbow-line-no-bold))
+           modus-%1$s-theme-variable-pitch-headings nil
+           modus-%1$s-theme-scale-headings t
+           modus-%1$s-theme-scale-1 1.1
+           modus-%1$s-theme-scale-2 1.15
+           modus-%1$s-theme-scale-3 1.21
+           modus-%1$s-theme-scale-4 1.27
+           modus-%1$s-theme-scale-5 1.33)
+     (load-theme 'modus-%1$s t))
+   theme))
+
+(defun modus-themes-toggle ()
+  "Toggle between `modus-operandi' and `modus-vivendi' themes."
+  (interactive)
+  (if (eq (car custom-enabled-themes) 'modus-operandi)
+      (progn
+        (disable-theme 'modus-operandi)
+        (modus-vivendi-theme-load))
+    (disable-theme 'modus-vivendi)
+    (modus-operandi-theme-load)))
+
+(load-theme 'modus-vivendi t)
+#+end_src
+
+*** Doom-themes
+
+#+begin_src emacs-lisp :tangle yes
+
 (use-package doom-themes
+
   :custom-face
   (font-lock-comment-face ((t (:slant italic))))
 
   :config
-  (load-theme 'doom-spacegrey t)
+  ;; (load-theme 'doom-spacegrey t)
   (doom-themes-org-config))
 #+end_src
 
