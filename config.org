@@ -176,7 +176,7 @@ Tangling this org file into config.el at every startup is slow. This code is bor
       ring-bell-function 'ignore     ; silent bell when you make a mistake
       x-select-enable-clipboard t    ; allow pasting selection outside of emacs
       kill-buffer-query-functions nil
-      initial-major-mode 'org-mode
+      initial-major-mode 'fundamental-mode
       initial-scratch-message nil
       delete-by-moving-to-trash t    ; move files to trash when deleting
       sentence-end-double-space nil) ; end sentences with a single space
