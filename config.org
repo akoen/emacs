@@ -439,7 +439,7 @@ Space is the best leader key.
 
   (general-create-definer leader-key
     :keymaps 'override
-    :states '(normal insert hybrid visual motion operator)
+    :states '(normal insert hybrid visual motion operator emacs)
     :prefix "SPC"
     :non-normal-prefix "C-SPC")
 
