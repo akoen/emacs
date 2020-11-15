@@ -159,14 +159,13 @@ Tangling this org file into config.el at every startup is slow. This code is bor
      `(lambda ()
         (require 'org)
         (org-babel-tangle-file ,org-file))
-     (unless *show-async-tangle-results*
        `(lambda (result)
           (if result
               (message "SUCCESS: %s successfully tangled (%.2fs)."
                        ,org-file
                        (float-time (time-subtract (current-time)
                                                   ',init-tangle-start-time)))
-            (message "ERROR: %s as tangle failed." ,org-file)))))))
+            (message "ERROR: %s as tangle failed." ,org-file))))))
 #+end_src
 
 ** Misc
