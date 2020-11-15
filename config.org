@@ -395,7 +395,6 @@ Highlights keywords in comments
 
 #+begin_src emacs-lisp :tangle yes
 (use-package hl-todo
-  :hook (prog-mode . hl-todo-mode)
   :config
   (setq hl-todo-highlight-punctuation ":"
         hl-todo-keyword-faces
@@ -414,7 +413,8 @@ Highlights keywords in comments
           ;; directed at another user other than the author.
           ("NOTE" success bold)
           ;; For things that just gotta go and will soon be gone.
-          ("DEPRECATED" font-lock-doc-face bold))))
+          ("DEPRECATED" font-lock-doc-face bold)))
+  (global-hl-todo-mode 1))
 #+end_src
 * Keybindings
 ** Unbind RET
