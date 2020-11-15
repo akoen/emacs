@@ -26,6 +26,20 @@ Usage of :preface, :init, :config
   (message "I'm always here after the package is loaded"))
 #+end_src
 
+** Debugging
+
+The following blocks may be tangled to debug certain features:
+
+*** Package Loading
+
+#+begin_src emacs-lisp :tangle no
+(setq use-package-verbose t)
+#+end_src
+
+To see what's loading a package:
+#+begin_src emacs-lisp :tangle no
+(with-eval-after-load 'package (debug))
+#+end_src
 
 * Initialization
 ** Lexical Binding
