@@ -2,10 +2,10 @@
 # name: quote
 # key: quote
 # --
-#+BEGIN_QUOTE
-“$1”
+#+begin_quote
+$1
 
 — $2
-#+END_QUOTE
+#+end_quote
 
 $0

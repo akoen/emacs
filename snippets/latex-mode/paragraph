@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# name: paragraph
-# key: par
-# --
-\paragraph{${1:paragraph name}}
-
-$0

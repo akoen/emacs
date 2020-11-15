@@ -1,6 +1,0 @@
-# -*- mode: snippet -*-
-# name: equals
-# key: ==
-# condition: 'auto
-# --
-&=$0\\\\

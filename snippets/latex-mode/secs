@@ -1,6 +1,0 @@
-# -*- mode: snippet -*-
-# name: Section No Number
-# key: secs
-# --
-\section*{$1}
-$0

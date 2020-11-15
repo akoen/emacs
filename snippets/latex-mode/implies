@@ -1,6 +1,6 @@
-# -*- mode: snippet -*-
+# key: =>
 # name: implies
-# key: ->
-# condition: 'auto
+# condition: (and (texmathp) (quote auto))
+# group: math
 # --
-\implies
+\implies$0
