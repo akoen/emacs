@@ -900,12 +900,21 @@ An inteface to Git. The mascot of Emacs packages.
 #+end_src
 
 ** Vterm
+
+A fantastic terminal emulator for Emacs. Currently, there is no good way to use evil, and since I'm used to Emacs keybindings in other terminals anyways, we just set the default mode to evil.
+
 #+begin_src emacs-lisp :tangle yes
 (use-package vterm
   :ensure-system-package (vterm-ctrl . libvterm)
   :commands vterm vterm-mode
+  :general
+  (general-emap
+    :keymaps 'vterm-mode-map
+    "<escape>" 'vterm-send-escape)
+  :custom
+  (vterm-kill-buffer-on-exit t)
   :init
-  (setq vterm-kill-buffer-on-exit t))
+  (with-eval-after-load 'evil (evil-set-initial-state 'vterm-mode 'emacs)))
 
 (use-package vterm-toggle
   :commands vterm-toggle vterm-toggle-cd
