@@ -1034,9 +1034,14 @@ Displays the folder tree
 *** Configuration
 **** Base
 #+begin_src emacs-lisp :tangle yes
-(use-feature org
+(use-package org
+  :straight org-plus-contrib
+  :defer 1
   :hook
   (org-mode . visual-line-mode)
+  ;; FIXME Does not work at startup
+  :custom-face
+  (org-block-end-line ((t (:inherit org-block-begin-line))))
   :custom
   ;; calendar ical export
   (org-icalendar-include-todo nil)
@@ -1209,6 +1214,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 
 #+begin_src emacs-lisp :tangle yes
 (use-feature org-refile
+  :after org
   :init
   (setq org-refile-targets (quote ((nil :maxlevel . 3)
                                    (org-agenda-files :maxlevel . 3))))
@@ -1233,6 +1239,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 
 #+begin_src emacs-lisp :tangle yes
 (use-feature org-agenda
+  :after org
   :config
   (setq org-deadline-warning-days 7)
   (setq org-agenda-dim-blocked-tasks nil)
@@ -1348,6 +1355,7 @@ A package which allows for much greater customization of the org agenda.
 
 #+begin_src emacs-lisp :tangle yes
 (use-feature org-agenda
+  :after org
   :config
   (defun my--is-project-p ()
     "Any task with a todo keyword subtask."
@@ -1387,20 +1395,25 @@ A package which allows for much greater customization of the org agenda.
 **** org-clock
 #+begin_src emacs-lisp :tangle yes
 (use-feature org-clock
+  :after org
   :config
   (setq org-clock-out-remove-zero-time-clocks t))
 #+end_src
 **** org-modules
 #+begin_src emacs-lisp :tangle yes
-(require 'org-install)
-(setq org-modules '(org-habit))
-(org-load-modules-maybe t)
+(use-feature org-install
+  :after org
+  :custom
+  (org-modules '(org-habit))
+  :config
+  (org-load-modules-maybe t))
 #+end_src
 
 ***** Habits
 
 #+begin_src emacs-lisp :tangle yes
 (use-feature org-habit
+  :after org
   :config
   (setq org-log-repeat 'time
         org-log-into-drawer t))
@@ -1430,6 +1443,7 @@ We use a font that's easier on the eyes for long blocks of text
 **** SRC blocks
 #+begin_src emacs-lisp :tangle yes
 (use-feature org-src
+  :after org
   :general
   (leader-key
     :map org-mode-map
@@ -1441,13 +1455,34 @@ We use a font that's easier on the eyes for long blocks of text
 
   (setq org-src-window-setup 'current-window)
 
+
+  (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
+
   ;; Indents an src block without having to enter it
   (defun my--org-indent-src-block ()
     (interactive)
     (org-edit-special)
     (indent-region (point-min) (point-max))
-    (org-edit-src-exit))
-  )
+    (org-edit-src-exit)))
+#+end_src
+
+We do not run ~org-babel-do-load-languages~ because it eagerly loads packages. See https://blog.d46.us/advanced-emacs-startup/.
+#+begin_src emacs-lisp :tangle yes
+(use-package ob-ipython
+  :commands (org-babel-execute:ipython)
+  :custom
+  (org-babel-default-header-args:ipython
+   '((:results . "raw drawer")
+     (:session . "ipython")
+     (:exports . "both")
+     (:cache .   "no")
+     (:noweb . "no")
+     (:hlines . "no")
+     (:tangle . "no")
+     (:eval . "never-export"))))
+
+(use-feature ob-python
+  :commands (org-babel-execute:python))
 #+end_src
 **** Circular Bullets
 Make bullets circular
@@ -1538,13 +1573,6 @@ counsel-org-agenda-headlines"
   (my--ivy-org-jump-to-heading headlines)))
 #+end_src
 *** Packages
-**** Babel
-***** ob-mermaid
-#+begin_src emacs-lisp :tangle yes
-(use-package ob-mermaid
-  :custom
-  (ob-mermaid-cli-path "~/node_modules/.bin/mmdc"))
-#+end_src
 **** EVIL-Org
 #+begin_src emacs-lisp :tangle yes
 (use-package evil-org
@@ -1562,6 +1590,7 @@ counsel-org-agenda-headlines"
 Make the header bullets look prettier
 #+begin_src emacs-lisp :tangle yes
 (use-package org-bullets
+  :after org
   :init
   (setq org-bullets-face-name "Inconsolata-12")
   (setq org-bullets-bullet-list
@@ -1677,6 +1706,7 @@ Let you copy formatted org-mode content to the clipboard. Requires the package =
 **** org-pomodoro
 #+begin_src emacs-lisp :tangle yes
 (use-package org-pomodoro
+  :commands org-pomodoro
   :general
   (leader-key
     "op" 'org-pomodoro)
@@ -1693,27 +1723,28 @@ Let you copy formatted org-mode content to the clipboard. Requires the package =
 Allows for external applications to trigger custom actions without external dependencies
 
 #+begin_src emacs-lisp :tangle yes
-(require 'org-protocol)
-
-(defun transform-square-brackets-to-round-ones(string-to-transform)
-  "Transforms [ into ( and ] into ), other chars left unchanged."
-  (concat 
-   (mapcar #'(lambda (c) (if (equal c ?[) ?\( (if (equal c ?]) ?\) c))) string-to-transform))
-  )
-
+(use-feature org-protocol
+  :after org
+  :config
+  (defun transform-square-brackets-to-round-ones(string-to-transform)
+    "Transforms [ into ( and ] into ), other chars left unchanged."
+    (concat 
+     (mapcar #'(lambda (c) (if (equal c ?\[) ?\( (if (equal c ?\]) ?\) c))) string-to-transform))))
 #+end_src
 
 **** ox-hugo
 #+begin_src emacs-lisp :tangle yes
 (use-package ox-hugo
   :ensure-system-package hugo
-  :after ox
+  :after ox org
   :init
   (setq org-hugo-set-lastmod t
         org-hugo-default-section-directory "notes"))
 #+end_src
 **** ox-Pandoc
+#+begin_src emacs-lisp :tangle yes
 (use-package ox-pandoc
+  :after ox org
   :ensure-system-package pandoc
   :init
   (setq org-pandoc-menu-entry
@@ -1731,37 +1762,38 @@ Allows for external applications to trigger custom actions without external depe
   ((dot . graphviz)
    (sqlite3))
   :hook
-  (after-init . org-roam-mode)
-  :init
-  (setq org-roam-directory brain-dir
-	org-roam-db-location "~/org-roam.db"
-        org-roam-tag-sources '(prop last-directory)
-        org-roam-graph-exclude-matcher '("journal")
-        org-roam-link-title-format "§%s")
+  (org-mode . org-roam-mode)
+  :custom
+  (org-roam-verbose nil)
+  (org-roam-directory brain-dir)
+  (org-roam-db-location "~/org-roam.db")
+  (org-roam-tag-sources '(prop last-directory))
+  (org-roam-graph-exclude-matcher '("journal"))
+  (org-roam-link-title-format "§%s")
 
   :config
   (require 'org-roam-protocol)
   (setq org-roam-capture-templates
-        '(("d" "default" plain (function org-roam--capture-get-point)
-           "%?"
-           :file-name "${slug}"
-           :head "#+setupfile: ../hugo_setup.org
+	'(("d" "default" plain (function org-roam--capture-get-point)
+	   "%?"
+	   :file-name "${slug}"
+	   :head "#+setupfile: ../hugo_setup.org
 ,#+title: ${title}\n"
-           :unnarowed t)
-          ("b" "book" plain (function org-roam--capture-get-point)
-           "%?"
-           :file-name "books/${slug}"
-           :head "#+setupfile: ../../hugo_setup.org
+	   :unnarowed t)
+	  ("b" "book" plain (function org-roam--capture-get-point)
+	   "%?"
+	   :file-name "books/${slug}"
+	   :head "#+setupfile: ../../hugo_setup.org
 ,#+title: ${title}
 
 - author ::
 - tags :: "
-           :unnarowed t)))
+	   :unnarowed t)))
   (setq org-roam-capture-ref-templates
-        '(("r" "ref" plain (function org-roam--capture-get-point)
-           "%?"
-           :file-name "websites/${slug}"
-           :head "#+setupfile: ../hugo_setup.org
+	'(("r" "ref" plain (function org-roam--capture-get-point)
+	   "%?"
+	   :file-name "websites/${slug}"
+	   :head "#+setupfile: ../hugo_setup.org
 	   ,#+roam_key: ${ref}
 ,#+title: ${title}
 
@@ -1820,7 +1852,7 @@ Allows for external applications to trigger custom actions without external depe
 **** org-ref
 #+begin_src emacs-lisp :tangle yes
 (use-package org-ref
-  :after org
+  :commands org-ref
   :init
   ;; must be called at init
   (setq org-ref-completion-library 'org-ref-ivy-cite)
@@ -1853,7 +1885,7 @@ Allows for external applications to trigger custom actions without external depe
 **** org-noter
 #+begin_src emacs-lisp :tangle yes
 (use-package org-noter
-  :after (:any org pdf-view)
+  :after ( org pdf-view)
   :config
   (setq
    ;; The WM can handle splits
@@ -1948,8 +1980,9 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
 
 #+begin_src emacs-lisp :tangle yes
 (use-package cdlatex
-  :after latex
-  :hook (LaTeX-mode . turn-on-cdlatex))
+  :after (:any latex org)
+  :hook ((LaTeX-mode . cdlatex-mode)
+	 (org-mode . org-cdlatex-mode)))
 #+end_src
 
 *** RefTeX
@@ -2019,14 +2052,12 @@ Checks for signs of bad writing.
     (olivetti-mode t)
     (variable-pitch-mode 1) ;; All fonts with variable pitch.
     (text-scale-increase 0.5)
-    (display-line-numbers-mode -1)
     (setq-local writemode 2))
    ((= writemode 2)
     ;;(focus-mode -1)
     (olivetti-mode -1)
     (variable-pitch-mode 0) ;; All fonts with variable pitch.
     (text-scale-decrease 0)
-    (display-line-numbers-mode t)
     (setq-local display-line-numbers 'relative)
     (setq-local writemode 1))))
 #+end_src
@@ -2079,7 +2110,6 @@ Checks for signs of bad writing.
 	pdf-view-use-imagemagick nil))
 #+end_src
 * Email
-
 ** Reading Email
 
 Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.d/blob/master/config.org
@@ -2103,6 +2133,7 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
   (setq mu4e-change-filenames-when-moving t)
 
   (setq mu4e-compose-format-flowed t ; visual-line-mode + auto-fill upon sending
+	fill-flowed-encode-column 998
 	mu4e-view-show-addresses t
 	mu4e-sent-messages-behavior 'sent
 	mu4e-hide-index-messages t
@@ -2295,8 +2326,7 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
 
   (general-nmap
     :keymaps 'notmuch-hello-mode-map
-    "u" 'my--notmuch-update
-    )
+    "u" 'my--notmuch-update)
 
   ;; Bindings in `notmuch-show-mode'
   (general-nmap
@@ -2500,12 +2530,21 @@ This means:
 #+begin_src emacs-lisp :tangle yes
 ;; Adapted from doom emacs
 (use-feature hideshow
+  :hook (prog-mode . hs-minor-mode)
   :config
+
+  (defun display-code-line-counts (ov)
+    (when (eq 'code (overlay-get ov 'hs))
+      (overlay-put ov 'display
+                   (format "\t[%d...]"
+                           (count-lines (overlay-start ov)
+                                        (overlay-end ov))))))
+
   ;; Do not fold comments
   (setq hs-hide-comments-when-hiding-all nil)
+  (setq hs-set-up-overlay #'display-code-line-counts)
   (add-hook 'prog-mode-hook 'hs-minor-mode))
 #+end_src
-
 
 *** Flycheck
 #+begin_src emacs-lisp :tangle yes
@@ -2514,6 +2553,7 @@ This means:
 *** EditorConfig
 #+begin_src emacs-lisp :tangle yes
 (use-package editorconfig
+  :defer 1
   :config
   (editorconfig-mode 1))
 #+end_src
@@ -2533,6 +2573,13 @@ Hide compilation buffer if successful.
 		     "1 sec" nil 'delete-windows-on
 		     (get-buffer-create "*compilation*"))
 		    (message "No Compilation Errors!"))))))
+#+end_src
+*** rainbow-mode
+
+rainbow-mode shows hex code colours in buffers.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package rainbow-mode)
 #+end_src
 ** Lang
 *** Web
@@ -2569,25 +2616,22 @@ Hide compilation buffer if successful.
 
 (use-package gulp-task-runner
   :defer t)
-#+END_SRC
+#+end_src
 **** restclient
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 ;; Make sure to use comments (#) as separators
 (use-package restclient
   :mode (("\\.rest" . restclient-mode)))
-#+END_SRC
+#+end_src
 *** Javascript
 **** js2-mode
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 ;; Mostly borrowed from https://github.com/CSRaghunandan/.emacs.d/blob/master/setup-files/setup-js.el
 (use-package js2-mode
   :ensure-system-package (tsserver . "sudo npm i -g typescript-language-server && sudo pacman -S typescript")
   :mode "\\.m?js\\'"
   :interpreter "node"
-  :hook ((js2-mode . (lambda ()
-                       (flycheck-mode)
-                       (company-mode))))
   :init 
   (with-eval-after-load 'projectile
     (add-to-list 'projectile-globally-ignored-directories "node_modules"))
@@ -2607,24 +2651,30 @@ Hide compilation buffer if successful.
         js2-mode-show-strict-warnings nil
         js2-strict-missing-semi-warning nil
         js2-strict-trailing-comma-warning nil))
-#+END_SRC
+#+end_src
 **** prettier-js
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (use-package prettier-js
   :ensure-system-package prettier
   :hook ((js2-mode rjsx-mode json-mode) . prettier-js-mode)
   :custom (prettier-js-args '("--print-width" "100"
                               "--single-quote" "true"
                               "--trailing-comma" "all")))
-#+END_SRC
+#+end_src
 **** rjsx-mode
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (use-package rjsx-mode
   :mode "components/.+\\.js$")
-#+END_SRC
+#+end_src
+*** Java
+
+#+begin_src emacs-lisp :tangle yes
+(use-package lsp-java
+  :after lsp-mode)
+#+end_src
 *** LSP-mode
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 ;; Make sure to install jansson
 (use-package lsp-mode
   :commands lsp
@@ -2635,41 +2685,24 @@ Hide compilation buffer if successful.
     "cl" 'lsp-find-definition
     "cd" 'lsp-ui-doc-glance
     "cpl" 'lsp-ui-peek-find-references)
-  :hook (lsp-mode . lsp-enable-which-key-integration)
+  :hook (lsp-mode . (lambda ()
+		      (lsp-enable-which-key-integration t)
+		      (lsp-headerline-breadcrumb-mode 1)))
+  ((c++-mode python-mode java-mode) . lsp-deferred)
+  :custom
+  (lsp-enable-indentation nil)
+  (lsp-keep-workspace-alive nil)
+  (lsp-enable-on-type-formatting nil)
+  (read-process-ouput-max (* 1024 1024))
   :init
-  ;; FIXME keymap does not work
-  (setq lsp-keymap-prefix "C-l"
+  (setq lsp-keymap-prefix "C-c l"
 	lsp-before-save-edits nil ;; Do not autoformat buffer
+	lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols)
 	lsp-file-watch-threshold 1500)
-  (defun my--lsp-enable ()
-    "Enable lsp-mode in all programming modes except those specified below. Taken from https://github.com/raxod502/radian/blob/develop/emacs/radian.el"
-    (when (derived-mode-p #'prog-mode #'text-mode)
-      (unless (or (null buffer-file-name)
-		  (derived-mode-p
-		   ;; `lsp-mode' doesn't support Elisp, so let's avoid
-		   ;; triggering the autoload just for checking that, yes,
-		   ;; there's nothing to do for the *scratch* buffer.
-		   #'emacs-lisp-mode
-		   ;; Disable for modes that we currently use a specialized
-		   ;; framework for, until they are phased out in favor of
-		   ;; LSP.
-
-		   ;; other modes go HERE
-		   #'org-mode))
-	(lsp))))
-
-  (add-hook 'after-change-major-mode-hook 'my--lsp-enable)
 
   ;; Ignore specific directories in projectile
   (with-eval-after-load 'projectile
-    (add-to-list 'projectile-globally-ignored-directories ".clangd"))
-
-  :config
-  (setq lsp-server-install-dir (concat emacs-etc-dir "lsp/"))
-  (setq lsp-enable-indentation nil
-	lsp-enable-on-type-formatting nil
-	lsp-session-file (concat emacs-etc-dir "lsp-session")
-	read-process-ouput-max (* 1024 1024)))  ;; As per <https://github.com/emacs-lsp/lsp-mode#performance>.
+    (add-to-list 'projectile-globally-ignored-directories ".clangd")))
 
   #+end_src
 
@@ -2709,11 +2742,9 @@ Hide compilation buffer if successful.
     "cte" 'lsp-treemacs-errors-list))
 #+end_src
 
-
 *** DAP
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (use-package dap-mode
-  :ensure-system-package lldb
   :after lsp-mode
   :general
   (leader-key
@@ -2721,20 +2752,21 @@ Hide compilation buffer if successful.
     "dr" 'dap-debug-restart
     "dh" 'dap-hydra
     "dbt" 'dap-breakpoint-toggle
-    "du" 'dap-ui-show-many-windows)
+    "du" 'dap-ui-show-many-windows
+    "dU" 'dap-ui-hide-many-windows)
 
   :config
-  (add-hook 'dap-stopped-hook
-            (lambda (arg) (call-interactively #'dap-hydra)))
 
   (dap-mode 1)
   (dap-ui-mode 1)
+
   (require 'dap-gdb-lldb)
   (require 'dap-node)
+  (require 'dap-cpptools)
   (require 'dap-python))
-#+END_SRC
+
 (use-feature dap-python
-  :after dap-mode
+  :after (dap-mode python)
   :custom
   (dap-python-debugger 'debugpy)
   
@@ -2762,6 +2794,8 @@ cmake -H. -BDebug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
 ln -s Debug/compile_commands.json
 #+end_src
 
+Where ~-BDebug~ specifies the build directory (Debug)
+
 **** CMake
 
 #+begin_src emacs-lisp :tangle yes
@@ -2775,7 +2809,8 @@ ln -s Debug/compile_commands.json
 
 *** CSharp
 #+begin_src emacs-lisp :tangle yes
-(use-package csharp-mode)
+(use-package csharp-mode
+:mode "\\.cs\\'")
 #+end_src
 *** GLSL
 For OpenGl shader programming.
@@ -2801,12 +2836,14 @@ Arch packages:
 #+begin_src emacs-lisp :tangle yes
 (use-feature python
   :mode ("/Pipfile\\'" . conf-mode)
-  :hook (python-mode . importmagic-mode))
+  :custom
 
+  ;; https://github.com/gregsexton/ob-ipython/issues/89
+  (python-shell-prompt-detect-failure-warning nil))
 
 (use-package lsp-pyright
   :if (executable-find "pyright")
-  :after lsp-mode
+  :after (lsp-mode python)
   :custom
   (lsp-pyright-typechecking-mode "off"))
 
@@ -2838,27 +2875,32 @@ Arch packages:
   :hook (python-mode . blacken-mode))
 
 (use-package importmagic
-  :commands importmagic-mode)
+  :hook (python-mode . importmagic-mode))
 
+(use-package sphinx-doc
+  :after python
+  :hook (python-mode . sphinx-doc-mode))
 
-#+END_SRC
+(use-package python-pytest
+  :commands python-pytest-dispatch)
+        #+end_src
 *** Lua
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (use-package lua-mode
   :mode "\\.lua\\'"
   :interpreter "lua")
-#+END_SRC
+#+end_src
 
 *** Json
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (use-package json-mode
   :mode "\\.json\\'")
-#+END_SRC
+#+end_src
 ** Functions
 *** Align Comments in Region
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (defun my--align-comments (beginning end)
   "Align comments in region"
   (interactive "*r")
@@ -2866,4 +2908,9 @@ Arch packages:
                                       (regexp-quote comment-start)) nil 2))
 (leader-key
   "c=c" 'my--align-comments)
-#+END_SRC
+#+end_src
+
+
+# Local Variables:
+# eval: (add-hook 'after-save-hook (lambda ()(my--async-babel-tangle (concat user-emacs-directory "config.org"))) nil t)
+# End:

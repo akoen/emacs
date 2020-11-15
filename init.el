@@ -36,7 +36,6 @@
 (setq straight-use-package-by-default t)
 (straight-use-package 'use-package)
 (use-package use-package-ensure-system-package)
-(straight-use-package 'org-plus-contrib)
 
 (if (file-exists-p (expand-file-name "config.el" user-emacs-directory))
     (load-file (expand-file-name "config.el" user-emacs-directory))
