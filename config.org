@@ -235,12 +235,15 @@ A small buffer which shows the list of commands you can execute next.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package which-key
-  :init
-  (setq which-key-separator " ")
-  (setq which-key-prefix-prefix "+")
+  :demand t
+  :custom
+  (which-key-idle-delay 0.2)
+  (which-key-separator " ")
+  (which-key-prefix-prefix "+")
   :config
   (which-key-mode 1))
-#+END_SRC
+#+end_src
+
 ** No littering
 
 #+begin_src emacs-lisp :tangle yes
