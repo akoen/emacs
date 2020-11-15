@@ -567,9 +567,6 @@ Allows for traditional vim bindings inside of emacs
         evil-want-C-u-scroll t)
 
   (setq evil-want-keybinding nil) ;; use evil-collection instead
-  :bind
-  ;; (("C-f" . forward-word)
-  ;; ("C-b" . backward-word))
   :config ;; tweak evil after loading it
   ;; Make movement keys work like they should
   (define-key evil-normal-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
@@ -661,8 +658,20 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 (use-package company
   :defer 0.5
   :bind (:map company-active-map
-         ("<tab>" . #'company-complete-selection)
-         ("TAB" . #'company-complete-selection))
+              ("C-n" . company-select-next-or-abort)
+              ("C-p" . company-select-previous-or-abort)
+
+              ;; Make TAB always complete the current selection, instead of
+              ;; only completing a common prefix.
+              ("<tab>" . #'company-complete-selection)
+              ("TAB" . #'company-complete-selection)
+
+              ;; Make RET trigger a completion if and only if the user has
+              ;; explicitly interacted with Company, instead of always
+              ;; doing so.
+              :filter (company-explicit-action-p)
+              ("<return>" . #'company-complete-selection)
+              ("RET" . #'company-complete-selection))
   :config
   ;; Make completions display faster
   (setq company-idle-delay 0.15)
@@ -684,18 +693,18 @@ We define a function to autocomplete snippets. See [[https://github.com/joaotavo
 (use-package yasnippet
   :general
   (leader-key "cy" (defhydra hydra-yas (:color blue
-                                        :hint nil)
-              "
+                                               :hint nil)
+		     "
 _i_nsert    _n_ew       _v_isit
 _r_eload    e_x_pand    _?_ list
 "
-              ("i" yas-insert-snippet)
-              ("n" yas-new-snippet)
-              ("v" yas-visit-snippet-file)
-              ("r" yas-reload-all)
-              ("x" yas-expand)
-              ("?" yas-describe-tables)
-              ("q" nil "cancel" :color blue)))
+		     ("i" yas-insert-snippet)
+		     ("n" yas-new-snippet)
+		     ("v" yas-visit-snippet-file)
+		     ("r" yas-reload-all)
+		     ("x" yas-expand)
+		     ("?" yas-describe-tables)
+		     ("q" nil "cancel" :color blue)))
   ;; Bind C-j to yas-expand. Taken from https://github.com/KaratasFurkan/.emacs.d/blob/master/README.org#yasnippet-snippet-completion
   :bind*
   (("C-j" . yas-expand)
