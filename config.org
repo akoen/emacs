@@ -703,6 +703,13 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   (bind-key "Q" #'winner-undo evil-normal-state-map)
   (winner-mode 1))
 #+end_src
+** Avy
+
+#+begin_src emacs-lisp :tangle yes
+(use-package avy
+  :general
+  (general-nmap "C-s" 'evil-avy-goto-char-timer))
+#+end_src
 * Completion
 ** Company
 
