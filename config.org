@@ -372,6 +372,7 @@ Make yes or no prompts be y or n prompts
 ;; Disable line numbers for some modes
 (dolist (mode '(term-mode-hook
                 shell-mode-hook
+		vterm-mode-hook
                 treemacs-mode-hook
                 olivetti-mode-hook
                 eshell-mode-hook))
