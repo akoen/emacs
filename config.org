@@ -689,7 +689,8 @@ Allows for quick movement to 2-char sequences.
 #+begin_src emacs-lisp :tangle yes
 (use-package evil-snipe
   :config
-  (evil-snipe-mode +1))
+  (evil-snipe-mode +1)
+  (evil-snipe-override-mode +1))
 #+end_src
 *** winner-mode
 
