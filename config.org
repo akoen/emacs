@@ -927,6 +927,12 @@ Ivy enhancements to commonly-used functions.
 #+begin_src emacs-lisp :tangle yes
 (use-package wgrep)
 #+end_src
+** Hippie
+#+begin_src emacs-lisp :tangle yes
+(use-feature hipie-exp
+  :general
+  (general-define-key "M-/" 'hippie-expand))
+#+end_src
 * Project, Files, and System
 
 For tools that deal with files.
