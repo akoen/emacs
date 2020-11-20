@@ -660,6 +660,18 @@ Allows for traditional vim bindings inside of emacs
 
   (define-key evil-outer-text-objects-map "l" 'evil-a-line)
   (define-key evil-inner-text-objects-map "l" 'evil-inner-line)
+
+  (evil-define-operator my--evil-replace-with-kill-ring (beg end)
+    "Replace text object with clipboard."
+    :move-point nil
+    (interactive "<r>")
+    (save-excursion
+      (delete-region beg end)
+      (goto-char beg)
+      (call-interactively 'evil-paste-before 1)))
+
+  (define-key evil-normal-state-map "go" 'my--evil-replace-with-kill-ring)
+
   (evil-mode 1))
 #+end_src
 
