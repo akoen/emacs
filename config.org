@@ -2248,7 +2248,14 @@ Checks for signs of bad writing.
 "lw" 'writegood-mode))
 #+end_src
 
+*** typo
 
+Used to insert typographically correct symbols (like quotation marks) in text.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package typo
+  :hook (mu4e-compose-mode . typo-mode))
+#+end_src
 *** Writing Function
 
 #+begin_src emacs-lisp :tangle yes
