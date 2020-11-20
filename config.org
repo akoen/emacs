@@ -1985,6 +1985,34 @@ Allows for external applications to trigger custom actions without external depe
 -  source :: ${ref}"
 	   :unnarrowed t))))
 #+end_src
+
+**** org-roam-server
+
+Visualize the Zettelkasten.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package org-roam-server
+  :after org-roam
+  :general
+  ;; This is annoyingly verbose, but I have not found a better way.
+  (leader-key
+    "og" (lambda () (interactive)(browse-url (concat "localhost:" (number-to-string org-roam-server-port)))))
+  :custom
+  (org-roam-server-host "127.0.0.1")
+  (org-roam-server-port 1324)
+  (org-roam-server-authenticate nil)
+  (org-roam-server-export-inline-images t)
+  (org-roam-server-serve-files nil)
+  (org-roam-server-served-file-extensions '("pdf" "mp4" "ogv"))
+  (org-roam-server-network-poll t)
+  (org-roam-server-network-arrows nil)
+  (org-roam-server-network-label-truncate t)
+  (org-roam-server-network-label-truncate-length 60)
+  (org-roam-server-network-label-wrap-length 20)
+:config
+(org-roam-server-mode 1))
+#+end_src
+
 **** org-roam-bibtex
 #+begin_src emacs-lisp :tangle yes
 (use-package org-roam-bibtex
