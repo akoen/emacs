@@ -1108,9 +1108,34 @@ Adds additional functionality on top of dired.
     "M-RET" 'peep-dired
     "C-n" 'peep-dired-next-file
     "C-p" 'peep-dired-prev-file)
+  (general-nmap
+    :keymaps 'peep-dired-mode-map
+    "j" 'peep-dired-next-file
+    "k" 'peep-dired-prev-file)
+  :config
+  (add-hook 'peep-dired-hook 'evil-normalize-keymaps)
   :custom
-  (peep-dired-cleanup-eagerly t)
+  (peep-dired-cleanup-eagerly nil) ; breaks the mode if enabled!
   (peep-dired-ignored-extensions '("mkv mp4")))
+#+end_src
+*** Dired-Single
+
+#+begin_src emacs-lisp :tangle yes
+(use-package dired-single
+:after dired
+:config
+  (define-key dired-mode-map [remap dired-find-file]
+    'dired-single-buffer)
+  (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
+    'dired-single-buffer-mouse)
+  (define-key dired-mode-map [remap dired-up-directory]
+    'dired-single-up-directory))
+#+end_src
+*** Dired-Subtree
+
+#+begin_src emacs-lisp :tangle yes
+(use-package dired-subtree
+:after dired)
 #+end_src
 ** Recentf
 
