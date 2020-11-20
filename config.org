@@ -88,6 +88,13 @@ NAME and ARGS are as in `use-package'."
      ,@args))
 #+end_src
 
+** Native Comp
+
+#+begin_src emacs-lisp :tangle yes
+(use-feature comp
+:custom
+(warning-supress-log-types '((comp))))
+#+end_src
 ** Exec Path From Shell
 
 This sets the variable exec-path to the normal shell's PATH variable. This doesn't normally get set in daemon mode.
