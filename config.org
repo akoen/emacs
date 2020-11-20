@@ -1026,7 +1026,7 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
   (("C-`" . vterm-toggle-cd)))
 #+end_src
 ** Dired
-
+*** Dired
 #+begin_src emacs-lisp :tangle yes
 (use-feature dired
   :commands dired-jump
@@ -1276,7 +1276,7 @@ Displays the folder tree
 #+end_src
 **** Emphasis
 
-(enabled) Replace underline with highlight
+Replace underline with highlight
 #+begin_src emacs-lisp :tangle yes
 (setq org-emphasis-alist
       (quote (("*" bold)
@@ -1289,7 +1289,7 @@ Displays the folder tree
               )))
 #+end_src
 
-(disabled) Custom highlight face. From [[https://emacs.stackexchange.com/questions/38216/custom-faces-in-org-9-0]].
+(disabled) Custom highlight face. From [[https://emacs.stackexchange.com/questions/38216/custom-faces-in-org-9-0]]. Here is possibly a better implementation: https://kitchingroup.cheme.cmu.edu/blog/2016/11/10/Persistent-highlighting-in-Emacs/
 
 #+begin_src emacs-lisp :tangle no
 ;;; Create highlighter face for marking up text in org-mode
@@ -1647,7 +1647,7 @@ We use a font that's easier on the eyes for long blocks of text
 We do not run ~org-babel-do-load-languages~ because it eagerly loads packages. See https://blog.d46.us/advanced-emacs-startup/.
 #+begin_src emacs-lisp :tangle yes
 (use-package ob-ipython
-  :commands (org-babel-execute:ipython)
+  :commands (org-babel-execute:ipython org-edit-special)
   :custom
   (org-babel-default-header-args:ipython
    '((:results . "raw drawer")
@@ -1661,6 +1661,10 @@ We do not run ~org-babel-do-load-languages~ because it eagerly loads packages. S
 
 (use-feature ob-python
   :commands (org-babel-execute:python))
+
+;; See https://jordiinglada.net/wp/2015/03/25/scripting-in-c-2/
+(use-feature ob-C
+  :commands (org-edit-special org-babel-execute:C++ org-babel-execute:C))
 #+end_src
 **** Circular Bullets
 Make bullets circular
@@ -1936,11 +1940,14 @@ Allows for external applications to trigger custom actions without external depe
 **** org-roam
 #+begin_src emacs-lisp :tangle yes
 (use-package org-roam
-  :ensure-system-package
-  ((dot . graphviz)
-   (sqlite3))
+  :ensure-system-package sqlite3
   :hook
   (org-mode . org-roam-mode)
+  :general
+  (leader-key
+    "or" 'org-roam
+    "oi" 'org-roam-insert
+    "of" 'org-roam-find-file)
   :custom
   (org-roam-verbose nil)
   (org-roam-directory brain-dir)
