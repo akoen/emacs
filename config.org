@@ -2176,9 +2176,6 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
   ;; inhibit the question to start a server process
   (setq TeX-source-correlate-start-server t)
 
-
-  (set-default 'preview-scale-function 2.0)
-
   ;; TODO Function to repeat newline?
   (defun my--triple-newline ()
     "Inserts three newlines. Useful for rephrasing"
@@ -2295,7 +2292,7 @@ Checks for signs of bad writing.
   :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
   :init
   ;; build automatically
-  (pdf-tools-install :no-query)
+  (pdf-tools-install :no-query :skip-dependencies)
   :config
 
   (setq pdf-view-display-size 'fit-page)
@@ -2930,7 +2927,6 @@ rainbow-mode shows hex code colours in buffers.
   (lsp-ui-peek-fontify 'always)
   (lsp-ui-doc-include-signature t)
   (lsp-eldoc-enable-hover nil) ; Disable eldoc displays in minibuffer
-  (lsp-ui-doc-max-height 8)
 
   (lsp-ui-sideline-enable nil)
   (lsp-ui-sideline-delay 0.5)
