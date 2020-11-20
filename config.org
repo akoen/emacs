@@ -1216,7 +1216,46 @@ Displays the folder tree
   (org-level-1 ((t (:height 1.1))))
   (org-level-2 ((t (:height 1.1))))
   (org-level-3 ((t (:height 1.1))))
-  (org-link ((t (:underline t)))))
+  (org-link ((t (:underline t))))
+  :config
+
+;; Scrolling of inline images in org is a terrible experience, so we
+;; allow them to be toggled individually. Alternatively,
+;; https://github.com/casouri/lunarymacs/blob/master/site-lisp/iscroll.el
+;; is a promising attempt to fix scrolling itself
+ (defun org-toggle-inline-images-at-point ()
+    (interactive)
+    (when-let* ((link-region (org-in-regexp org-link-bracket-re 1)))
+      (let ((org-inline-image-overlays-old org-inline-image-overlays))
+	(save-restriction
+	  (narrow-to-region (car link-region) (cdr link-region))
+	  (if (-intersection (overlays-at (point)) org-inline-image-overlays)
+	      (mapc (lambda (ov)
+		      (when (member ov org-inline-image-overlays)
+			(delete-overlay ov)
+			(setq org-inline-image-overlays (delete ov org-inline-image-overlays))))
+		    (overlays-at (point)))
+	    (org-display-inline-images 'include-linked 'refresh))
+	  )
+	(unless (equal org-inline-image-overlays org-inline-image-overlays-old) t)) ;; if overlays did not change, the link is not inline image
+      ))
+
+  (add-hook 'org-tab-first-hook #'org-toggle-inline-images-at-point)
+  (add-hook 'org-ctrl-c-ctrl-c-hook #'org-toggle-inline-images-at-point)
+  
+;; What's more, when using ipython etc. it is often hard to read
+;; figure text since the background colour is dark.
+  (defun create-image-with-background-color (args)
+    "Specify background color of Org-mode inline image through modify `ARGS'."
+    (let* ((file (car args))
+	   (type (cadr args))
+	   (data-p (caddr args))
+	   (props (cdddr args)))
+      ;; get this return result style from `create-image'
+      (append (list file type data-p)
+	      (list :background "white")
+	      props)))
+  (advice-add 'create-image :filter-args #'create-image-with-background-color))
 
 #+end_src
 
