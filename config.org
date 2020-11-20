@@ -1105,13 +1105,16 @@ Adds additional functionality on top of dired.
   :general
   (general-nmap
     :keymaps 'dired-mode-map
-    "M-RET" 'peep-dired
-    "C-n" 'peep-dired-next-file
-    "C-p" 'peep-dired-prev-file)
+    "M-RET" 'peep-dired)
   (general-nmap
     :keymaps 'peep-dired-mode-map
     "j" 'peep-dired-next-file
-    "k" 'peep-dired-prev-file)
+    "k" 'peep-dired-prev-file
+    "C-n" 'peep-dired-next-file
+    "C-p" 'peep-dired-prev-file
+    "M-n" 'peep-dired-scroll-page-down
+    "M-p" 'peep-dired-scroll-page-up
+    "q" 'peep-dired)
   :config
   (add-hook 'peep-dired-hook 'evil-normalize-keymaps)
   :custom
