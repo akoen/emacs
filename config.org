@@ -542,10 +542,6 @@ Space is the best leader key.
     ;; Org mode
     "oa" 'org-agenda
     "oc" 'org-capture
-    "or" 'org-roam
-    "oi" 'org-roam-insert
-    "of" 'org-roam-find-file
-    "og" 'org-roam-graph
     "ojj" 'org-journal-new-entry
     "oje" 'org-journal-new-scheduled-entry
     "ojs" 'org-journal-search-forever
@@ -638,6 +634,7 @@ Allows for traditional vim bindings inside of emacs
   (define-key evil-normal-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
   (define-key evil-motion-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
   (define-key evil-motion-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
+  
   ;; Inner/around line text object from https://github.com/emacsorphanage/evil-textobj-line
   (defun evil-line-range (count beg end type &optional inclusive)
   (if inclusive
@@ -754,7 +751,9 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 #+begin_src emacs-lisp :tangle yes
 (use-package avy
   :general
-  (general-nmap "C-s" 'evil-avy-goto-char-timer))
+  (general-nmap "C-s" 'evil-avy-goto-char-timer)
+  :custom
+  (avy-background t))
 #+end_src
 * Completion
 ** Company
@@ -813,17 +812,17 @@ _r_eload    e_x_pand    _?_ list
   (:map yas-keymap
    ("TAB" . (lambda () (interactive) (company-abort) (yas-next-field)))
    ("<tab>" . (lambda () (interactive) (company-abort) (yas-next-field))))
-  :init
+  :config
+
   ;; Automatically expand snippet when # condition: 'auto is used in snippet header
   (defun my--yas-try-expanding-auto-snippets ()
     (when (and (boundp 'yas-minor-mode) yas-minor-mode)
       (let ((yas-buffer-local-condition ''(require-snippet-condition . auto)))
         (yas-expand))))
 
-  :config
-  ;; Disable successful loading messages
-  (setq yas-verbosity 2)
+  (add-hook 'post-command-hook #'my--yas-try-expanding-auto-snippets)
 
+  (setq yas-verbosity 2)
   (yas-global-mode 1))
 #+END_SRC
 
