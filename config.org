@@ -637,6 +637,12 @@ Allows for traditional vim bindings inside of emacs
   (define-key evil-normal-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
   (define-key evil-motion-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
   (define-key evil-motion-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
+
+  (defun my--evil-yank-pulse (orig-fn beg end &rest args)
+    (pulse-momentary-highlight-region beg end)
+    (apply orig-fn beg end args))
+
+  (advice-add 'evil-yank :around 'my--evil-yank-pulse)
   
   ;; Inner/around line text object from https://github.com/emacsorphanage/evil-textobj-line
   (defun evil-line-range (count beg end type &optional inclusive)
