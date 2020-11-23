@@ -749,6 +749,14 @@ This package emulates surround.vim by Tim Pope.
   (general-nmap "gcc" 'evilnc-comment-or-uncomment-lines))
 #+end_src
 
+*** evil-numbers
+#+begin_src emacs-lisp :tangle yes
+(use-package evil-numbers
+  :general
+  (general-nmap
+    "g=" 'evil-numbers/inc-at-pt
+    "g-" 'evil-numbers/dec-at-pt))
+#+end_src
 *** evil-snipe
 
 Allows for quick movement to 2-char sequences.
