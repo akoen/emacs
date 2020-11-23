@@ -2766,6 +2766,16 @@ This means:
   (add-hook 'prog-mode-hook 'hs-minor-mode))
 #+end_src
 
+*** Smerge
+
+#+begin_src emacs-lisp :tangle yes
+(use-feature smerge-mode
+:general
+(general-nmap
+  :keymaps 'smerge-mode-map
+  "RET" 'smerge-keep-current))
+#+end_src
+
 *** Flycheck
 #+begin_src emacs-lisp :tangle yes
 (use-package flycheck)
