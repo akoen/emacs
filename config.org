@@ -643,19 +643,36 @@ Allows for traditional vim bindings inside of emacs
     (apply orig-fn beg end args))
 
   (advice-add 'evil-yank :around 'my--evil-yank-pulse)
+
+  (defmacro define-and-bind-text-object (key start-regex end-regex)
+    (let ((inner-name (make-symbol "inner-name"))
+	  (outer-name (make-symbol "outer-name")))
+      `(progn
+	 (evil-define-text-object ,inner-name (count &optional beg end type)
+	   (evil-select-paren ,start-regex ,end-regex beg end type count nil))
+	 (evil-define-text-object ,outer-name (count &optional beg end type)
+	   (evil-select-paren ,start-regex ,end-regex beg end type count t))
+	 (define-key evil-inner-text-objects-map ,key (quote ,inner-name))
+	 (define-key evil-outer-text-objects-map ,key (quote ,outer-name)))))
+
+  ;; FIXME These do not work at beginning/end of region
+  ;; create "il"/"al" (inside/around) line text objects:
+  ;; (define-and-bind-text-object "l" "^\\s-*" "\\s-*$")
+  ;; create "ie"/"ae" (inside/around) entire buffer text objects:
+  (define-and-bind-text-object "e" "\\`\\s-*" "\\s-*\\'")
   
   ;; Inner/around line text object from https://github.com/emacsorphanage/evil-textobj-line
   (defun evil-line-range (count beg end type &optional inclusive)
-  (if inclusive
-      (evil-range (line-beginning-position) (line-end-position))
-    (let ((start (save-excursion
-                   (back-to-indentation)
-                   (point)))
-          (end (save-excursion
-                 (goto-char (line-end-position))
-                 (skip-syntax-backward " " (line-beginning-position))
-                 (point))))
-      (evil-range start end))))
+    (if inclusive
+	(evil-range (line-beginning-position) (line-end-position))
+      (let ((start (save-excursion
+		     (back-to-indentation)
+		     (point)))
+	    (end (save-excursion
+		   (goto-char (line-end-position))
+		   (skip-syntax-backward " " (line-beginning-position))
+		   (point))))
+	(evil-range start end))))
 
   (evil-define-text-object evil-a-line (count &optional beg end type)
     "Select range between a character by which the command is followed."
@@ -668,7 +685,7 @@ Allows for traditional vim bindings inside of emacs
   (define-key evil-inner-text-objects-map "l" 'evil-inner-line)
 
   (evil-define-operator my--evil-replace-with-kill-ring (beg end)
-    "Replace text object with clipboard."
+    "Replace text object with kill ring contents without replacing them."
     :move-point nil
     (interactive "<r>")
     (save-excursion
