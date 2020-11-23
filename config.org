@@ -5,9 +5,9 @@ I have now been using Emacs as my primary editor for almost two years. Most of t
 Regardless, Emacs is tremendous fun. I have made every possible effort to write clean, well-document code but there are bound to be bugs and inconsistencies.
 
 If you are looking for inspiration, here are the configurations from which I draw inspiration.
-| [[https://github.com/hlissner/doom-emacs]] |
-| [[https://github.com/rememberYou/.emacs.d]] |
-| https://github.com/raxod502/radian/blob/develop/emacs/radian.el |
+| [[https://github.com/hlissner/doom-emacs]]                            |
+| [[https://github.com/rememberYou/.emacs.d]]                           |
+| https://github.com/raxod502/radian/blob/develop/emacs/radian.el   |
 | https://github.com/CSRaghunandan/.emacs.d/tree/master/setup-files |
 
 #+end_src
@@ -511,6 +511,9 @@ Space is the best leader key.
     "bb" 'switch-to-buffer
     "br" 'revert-buffer
     "`" 'evil-switch-to-windows-last-buffer
+
+    ;; Bookmarks
+    "BB" 'counsel-bookmark
 
     ;; Code
     "cc" 'counsel-compile
