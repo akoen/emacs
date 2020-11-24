@@ -2821,6 +2821,18 @@ This means:
 #+begin_src emacs-lisp :tangle yes
 (use-package flycheck)
 #+end_src
+*** Comment auto-fill
+
+#+begin_src emacs-lisp :tangle yes
+(use-feature simple
+  :hook (prog-mode . auto-fill-mode)
+  :general
+  (general-nmap "M-SPC" 'cycle-spacing)
+  :custom
+  (comment-auto-fill-only-comments t)
+  (fill-column 80))
+#+end_src
+
 *** EditorConfig
 #+begin_src emacs-lisp :tangle yes
 (use-package editorconfig
