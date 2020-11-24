@@ -1749,13 +1749,19 @@ Taken from https://github.com/jkitchin/scimax/blob/131f7f6f537c56f1d30396e79634a
 #+begin_src emacs-lisp :tangle yes
 
 (defun my--ivy-org-jump-to-heading (headlines)
+  "Jumpt to heading in current org file and place cursor at top of screen."
   (ivy-read "Headline: "
 	    (reverse headlines)
 	    :action (lambda (candidate)
 		      (org-mark-ring-push)
 		      (find-file (plist-get (cdr candidate) :file))
 		      (goto-char (plist-get (cdr candidate) :position))
-		      (outline-show-entry))))
+		      (evil-scroll-line-to-top (line-number-at-pos (point)))
+		      (outline-show-entry)
+                      (let ((line (line-number-at-pos (point))))
+                        (goto-char (point-min))
+                        (forward-line (1- line)))
+                      (recenter (1- (max 1 scroll-margin))))))
 
 (defun my--ivy-org-jump-to-agenda-heading ()
   "Jump to a heading in an agenda file. More visceral than
@@ -1763,34 +1769,34 @@ counsel-org-agenda-headlines"
   (interactive)
   (let ((headlines '()))
     (cl-loop for file in (org-agenda-files) do
-	  (with-current-buffer (find-file-noselect file)
-	    (save-excursion
-	      (goto-char (point-min))
-	      (while (re-search-forward org-heading-regexp nil t)
-		(cl-pushnew (list
-			     (format "%-80s (%s)"
-				     (match-string 0)
-				     (file-name-nondirectory file))
-			     :file file
-			     :position (match-beginning 0))
-			    headlines)))))
-(my--ivy-org-jump-to-heading headlines)))
+	     (with-current-buffer (find-file-noselect file)
+	       (save-excursion
+		 (goto-char (point-min))
+		 (while (re-search-forward org-heading-regexp nil t)
+		   (cl-pushnew (list
+				(format "%-80s (%s)"
+					(match-string 0)
+					(file-name-nondirectory file))
+				:file file
+				:position (match-beginning 0))
+			       headlines)))))
+    (my--ivy-org-jump-to-heading headlines)))
 
 (defun my--ivy-org-jump-to-file-heading ()
   "Jump to org heading in current buffer."
   (interactive)
   (let ((headlines '()))
-	    (save-excursion
-	      (goto-char (point-min))
-	      (while (re-search-forward org-heading-regexp nil t)
-		(cl-pushnew (list
-			     (format "%-80s (%s)"
-				     (match-string 0)
-				     (file-name-nondirectory buffer-file-name))
-			     :file buffer-file-name
-			     :position (match-beginning 0))
-			    headlines)))
-  (my--ivy-org-jump-to-heading headlines)))
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward org-heading-regexp nil t)
+	(cl-pushnew (list
+		     (format "%-80s (%s)"
+			     (match-string 0)
+			     (file-name-nondirectory buffer-file-name))
+		     :file buffer-file-name
+		     :position (match-beginning 0))
+		    headlines)))
+    (my--ivy-org-jump-to-heading headlines)))
 #+end_src
 *** Packages
 **** EVIL-Org
