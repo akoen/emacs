@@ -828,6 +828,7 @@ A package with which you can insert code or text snippets based on templates.
 We define a function to autocomplete snippets. See [[https://github.com/joaotavora/yasnippet/issues/998]]
 #+begin_src emacs-lisp :tangle yes
 (use-package yasnippet
+  :defer 5
   :general
   (leader-key "cy" (defhydra hydra-yas (:color blue
                                                :hint nil)
