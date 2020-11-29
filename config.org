@@ -150,6 +150,11 @@ Move files are folders to appropriate locations:
 (load-file (concat emacs-dir "secrets.el"))
 #+end_src
 
+** Try
+
+#+begin_src emacs-lisp :tangle yes
+(use-package try)
+#+end_src
 * Better Defaults
 ** Asynchronously tangle literate config
 
