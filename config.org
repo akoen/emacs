@@ -18,8 +18,7 @@ Alright, let's do this:
 Usage of :preface, :init, :config
 #+begin_src emacs-lisp :tangle no
 (use-package example
-  ;; Note that errors are never trapped in the preface, since doing so would
-  ;; hide definitions from the byte-compiler.
+  ;; Note that errors are never trapped in the preface, since doing so would hide definitions from the byte-compiler.
   :preface (message "I'm here at byte-compile and load time.")
   :init (message "I'm always here at startup")
   :config
@@ -547,8 +546,7 @@ Highlights keywords in comments
 
 ;; HACK: compatibility issue with `org-switch-to-buffer-other-window'
 (advice-add #'org-switch-to-buffer-other-window :override #'switch-to-buffer-other-window))
-
-            #+end_src
+#+end_src
 
 * Keybindings
 ** Unbind RET
@@ -711,6 +709,7 @@ Allows for traditional vim bindings inside of emacs
   (define-key evil-normal-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
   (define-key evil-motion-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
   (define-key evil-motion-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
+
 
   (defun my--evil-yank-pulse (orig-fn beg end &rest args)
     (pulse-momentary-highlight-region beg end)
@@ -938,8 +937,8 @@ _r_eload    e_x_pand    _?_ list
 		     ("q" nil "cancel" :color blue)))
   :bind*
   (:map yas-keymap
-   ("TAB" . (lambda () (interactive) (company-abort) (yas-next-field)))
-   ("<tab>" . (lambda () (interactive) (company-abort) (yas-next-field))))
+	("TAB" . (lambda () (interactive) (company-abort) (yas-next-field)))
+	("<tab>" . (lambda () (interactive) (company-abort) (yas-next-field))))
   :config
 
   ;; Automatically expand snippet when # condition: 'auto is used in snippet header
@@ -984,7 +983,7 @@ _r_eload    e_x_pand    _?_ list
   (ivy-rich-mode 1))
 #+end_src
 
-*** FLX
+** FLX
 
 Sublime-text fuzzy matching for Emacs completions.
 
