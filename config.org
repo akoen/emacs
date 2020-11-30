@@ -1288,7 +1288,17 @@ Adds additional functionality on top of dired.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package dired-subtree
-:after dired)
+  :after dired)
+#+end_src
+*** Dired-Narrow
+
+#+begin_src emacs-lisp :tangle yes
+(use-package dired-narrow
+  :after dired
+  :general
+  (general-nmap
+    :keymaps 'dired-mode-map
+    "/" 'dired-narrow))
 #+end_src
 ** Recentf
 
