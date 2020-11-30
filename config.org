@@ -871,6 +871,17 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   :custom
   (avy-background t))
 #+end_src
+** Ace-window
+
+#+begin_src emacs-lisp :tangle yes
+(use-package ace-window
+  :general
+  (general-nmap "C-w" 'ace-window)
+  :custom
+  (aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+  (aw-dispatch-always t)
+  (aw-scope 'frame))
+#+end_src
 * Completion
 ** Company
 
