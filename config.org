@@ -1234,18 +1234,18 @@ Adds additional functionality on top of dired.
 
   (setq dired-omit-files "^\\.")
 
-;; Set the default application when using ! or & on files.
-;; Taken from doom emacs
-(setq dired-guess-shell-alist-user
-      `(("\\.\\(?:docx\\|pdf\\|djvu\\|eps\\)\\'" "xdg-open")
-	("\\.\\(?:jpe?g\\|png\\|gif\\|xpm\\)\\'" "xdg-open")
-	("\\.\\(?:xcf\\)\\'" "xdg-open")
-	("\\.csv\\'" "xdg-open")
-	("\\.tex\\'" "xdg-open")
-	("\\.\\(?:mp4\\|mkv\\|avi\\|flv\\|rm\\|rmvb\\|ogv\\)\\(?:\\.part\\)?\\'" "xdg-open")
-	("\\.\\(?:mp3\\|flac\\)\\'" "xdg-open")
-	("\\.html?\\'" "xdg-open")
-	("\\.md\\'" "xdg-open"))))
+  ;; Set the default application when using ! or & on files.
+  ;; Taken from doom emacs
+  (setq dired-guess-shell-alist-user
+	`(("\\.\\(?:docx\\|pdf\\|djvu\\|eps\\)\\'" "xdg-open")
+	  ("\\.\\(?:jpe?g\\|png\\|gif\\|xpm\\)\\'" "xdg-open")
+	  ("\\.\\(?:xcf\\)\\'" "xdg-open")
+	  ("\\.csv\\'" "xdg-open")
+	  ("\\.tex\\'" "xdg-open")
+	  ("\\.\\(?:mp4\\|mkv\\|avi\\|flv\\|rm\\|rmvb\\|ogv\\)\\(?:\\.part\\)?\\'" "xdg-open")
+	  ("\\.\\(?:mp3\\|flac\\)\\'" "xdg-open")
+	  ("\\.html?\\'" "xdg-open")
+	  ("\\.md\\'" "xdg-open"))))
 #+end_src
 
 *** Peep-Dired
@@ -1275,8 +1275,8 @@ Adds additional functionality on top of dired.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package dired-single
-:after dired
-:config
+  :after dired
+  :config
   (define-key dired-mode-map [remap dired-find-file]
     'dired-single-buffer)
   (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
