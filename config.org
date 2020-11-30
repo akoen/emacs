@@ -498,6 +498,7 @@ Highlights keywords in comments
 		   ("\\`\\*helpful.*?\\*\\'" :regexp t :align t :size 0.4 :autoclose t)))
   :config
 
+  ;; Adapted from https://github.com/seagle0128/.emacs.d/blob/master/lisp/init-window.el
   (defvar shackle--popup-window-list nil) ; all popup windows
   (defvar-local shackle--current-popup-window nil) ; current popup window
   (put 'shackle--current-popup-window 'permanent-local t)
@@ -525,32 +526,27 @@ Highlights keywords in comments
 		   if (and (window-live-p window)
 			   (equal (window-buffer window) buffer))
 		   collect (cons window buffer)))
-    ;; `C-g' can deactivate region
-    (when (and (called-interactively-p 'interactive)
-	       (not (region-active-p)))
-      (let (window buffer)
-	(if (one-window-p)
-	    (progn
-	      (setq window (selected-window))
-	      (when (equal (buffer-local-value 'shackle--current-popup-window
-					       (window-buffer window))
-			   window)
-		(winner-undo)))
-	  (setq window (caar shackle--popup-window-list))
-	  (setq buffer (cdar shackle--popup-window-list))
-	  (when (and (window-live-p window)
-		     (equal (window-buffer window) buffer))
-	    (delete-window window)
+    (let (window buffer)
+      (if (one-window-p)
+	  (progn
+	    (setq window (selected-window))
+	    (when (equal (buffer-local-value 'shackle--current-popup-window
+					     (window-buffer window))
+			 window)
+	      (winner-undo)))
+	(setq window (caar shackle--popup-window-list))
+	(setq buffer (cdar shackle--popup-window-list))
+	(when (and (window-live-p window)
+		   (equal (window-buffer window) buffer))
+	  (delete-window window)
 
-	    (pop shackle--popup-window-list))))))
+	  (pop shackle--popup-window-list)))))
 
+(add-hook 'my--escape-hook #'shackle-close-popup-window-hack)
+(advice-add #'shackle-display-buffer :around #'shackle-display-buffer-hack)
 
-  (add-hook 'my--escape-hook #'shackle-close-popup-window-hack)
-  ;; Default behaviour from Centaur (advice-add #'keyboard-quit :before #'shackle-close-popup-window-hack)
-  (advice-add #'shackle-display-buffer :around #'shackle-display-buffer-hack)
-
-  ;; HACK: compatibility issue with `org-switch-to-buffer-other-window'
-  (advice-add #'org-switch-to-buffer-other-window :override #'switch-to-buffer-other-window))
+;; HACK: compatibility issue with `org-switch-to-buffer-other-window'
+(advice-add #'org-switch-to-buffer-other-window :override #'switch-to-buffer-other-window))
 
             #+end_src
 
@@ -798,16 +794,24 @@ This code allows us to quit basically everything using ESC.
   "Run `my--escape-hook'."
   (interactive)
   (cond ((minibuffer-window-active-p (minibuffer-window))
-         ;; quit the minibuffer if open.
-         (abort-recursive-edit))
-        ;; Run all escape hooks. If any returns non-nil, then stop there.
-        ((run-hook-with-args-until-success 'my--escape-hook))
-        ;; don't abort macros
-        ((or defining-kbd-macro executing-kbd-macro) nil)
-        ;; Back to the default
-        ((keyboard-quit))))
+	 ;; quit the minibuffer if open.
+	 (abort-recursive-edit))
+	;; Run all escape hooks. If any returns non-nil, then stop there.
+	((run-hook-with-args-until-success 'my--escape-hook))
+	;; don't abort macros
+	((or defining-kbd-macro executing-kbd-macro) nil)
+	;; Back to the default
+	((keyboard-quit))))
 
 (global-set-key [remap keyboard-quit] #'escape-quit)
+
+(with-eval-after-load 'evil
+  ;; Taken from doom emacs.
+  (defun my--evil-escape-also-quit (&rest _)
+    "Call `escape-quit' if `evil-force-normal-state' is called interactively."
+    (when (called-interactively-p 'any)
+      (call-interactively #'escape-quit)))
+  (advice-add #'evil-force-normal-state :after #'my--evil-escape-also-quit))
 #+end_src
 
 *** evil-surround
