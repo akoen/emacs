@@ -1001,6 +1001,16 @@ Sublime-text fuzzy matching for Emacs completions.
         ivy-initial-inputs-alist nil))
 #+end_src
 
+** Ivy-Prescient
+
+#+begin_src emacs-lisp :tangle yes
+(use-package ivy-prescient
+  :hook (ivy-mode . ivy-prescient-mode)
+  :hook (ivy-prescient-mode . prescient-persist-mode)
+  :custom
+  (prescient-filter-method '(literal regexp initialism fuzzy)))
+
+#+end_src
 ** Counsel
 
 Ivy enhancements to commonly-used functions.
