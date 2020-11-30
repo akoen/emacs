@@ -1312,12 +1312,12 @@ Keeps a list of recently opened files.
   (setq recentf-max-menu-item 300)
   (setq recentf-max-saved-item 300)
   (setq recentf-exclude
-   '("recentf" ;; remove the recentf load file
-     ".*?autoloads.el$"
-     ".gitignore" ;; ignore `.gitignore' files in projects
-     "/tmp/" ;; ignore temporary files
-     "^/\\(?:ssh\\|su\\|sudo\\)?:" ;; ignore tramp/ssh files
-     ))
+	'("recentf" ;; remove the recentf load file
+	  ".*?autoloads.el$"
+	  ".gitignore" ;; ignore `.gitignore' files in projects
+	  "/tmp/" ;; ignore temporary files
+	  "^/\\(?:ssh\\|su\\|sudo\\)?:" ;; ignore tramp/ssh files
+	  ))
   (recentf-mode +1))
 #+end_src
 
@@ -1382,11 +1382,11 @@ Displays the folder tree
   (org-link ((t (:underline t))))
   :config
 
-;; Scrolling of inline images in org is a terrible experience, so we
-;; allow them to be toggled individually. Alternatively,
-;; https://github.com/casouri/lunarymacs/blob/master/site-lisp/iscroll.el
-;; is a promising attempt to fix scrolling itself
- (defun org-toggle-inline-images-at-point ()
+  ;; Scrolling of inline images in org is a terrible experience, so we
+  ;; allow them to be toggled individually. Alternatively,
+  ;; https://github.com/casouri/lunarymacs/blob/master/site-lisp/iscroll.el
+  ;; is a promising attempt to fix scrolling itself
+  (defun org-toggle-inline-images-at-point ()
     (interactive)
     (when-let* ((link-region (org-in-regexp org-link-bracket-re 1)))
       (let ((org-inline-image-overlays-old org-inline-image-overlays))
@@ -1406,8 +1406,8 @@ Displays the folder tree
   (add-hook 'org-tab-first-hook #'org-toggle-inline-images-at-point)
   (add-hook 'org-ctrl-c-ctrl-c-hook #'org-toggle-inline-images-at-point)
   
-;; What's more, when using ipython etc. it is often hard to read
-;; figure text since the background colour is dark.
+  ;; What's more, when using ipython etc. it is often hard to read
+  ;; figure text since the background colour is dark.
   (defun create-image-with-background-color (args)
     "Specify background color of Org-mode inline image through modify `ARGS'."
     (let* ((file (car args))
@@ -1543,12 +1543,12 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (switch-to-buffer (get-buffer-create "*scratch*"))
   (org-capture)
 
-;; System-wide org-agenda
-(defadvice org-agenda-quit
-    (after delete-capture-frame activate)
-  "Advise capture-finalize to close the frame"
-  (when (equal "agenda" (frame-parameter nil 'name))
-    (delete-frame))))
+  ;; System-wide org-agenda
+  (defadvice org-agenda-quit
+      (after delete-capture-frame activate)
+    "Advise capture-finalize to close the frame"
+    (when (equal "agenda" (frame-parameter nil 'name))
+      (delete-frame))))
 #+end_src
 
 **** Refile configuration
@@ -1614,8 +1614,8 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
      (org-agenda-refile nil nil t)))
 
   (general-mmap
-   :keymaps 'org-agenda-mode-map
-   "p" 'my--org-agenda-process-inbox-item)
+    :keymaps 'org-agenda-mode-map
+    "p" 'my--org-agenda-process-inbox-item)
 
   ;; Label items with children using an arrow
   (defun my/org-has-children ()
