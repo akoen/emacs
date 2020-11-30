@@ -702,6 +702,7 @@ Allows for traditional vim bindings inside of emacs
   ;; (evil-ex-search-vim-style-regexp t) Consider this
   (evil-visual-state-cursor 'hollow)
   (evil-want-C-u-delete t)
+  (evil-jumps-cross-buffers nil)
   (evil-cross-lines t)
   :config
   ;; Make movement keys work like they should
