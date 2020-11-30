@@ -1138,6 +1138,21 @@ An inteface to Git. The mascot of Emacs packages.
   :after magit)
 #+end_src
 
+#+begin_src emacs-lisp :tangle yes
+(use-package forge
+  :after magit)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package github-review
+  :after magit forge
+  :config
+  (with-eval-after-load 'forge
+    (transient-append-suffix 'forge-dispatch "c u"
+      '("c r" "Review pull request" github-review-forge-pr-at-point))))
+
+#+end_src
+
 ** Vterm
 
 A fantastic terminal emulator for Emacs. Currently, there is no good way to use evil, and since I'm used to Emacs keybindings in other terminals anyways, we just set the default mode to evil.
