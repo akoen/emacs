@@ -1336,7 +1336,6 @@ Displays the folder tree
 **** Base
 #+begin_src emacs-lisp :tangle yes
 (use-package org
-  :straight org-plus-contrib
   :defer 1
   :hook
   (org-mode . visual-line-mode)
@@ -1657,7 +1656,8 @@ A package which allows for much greater customization of the org agenda.
 			(:auto-property "Goal")))))
 	    (alltodo ""
 		     ((org-super-agenda-groups
-		       '((:name "Refile"
+		       '((:auto-property "Project")
+			 (:name "Refile"
 				:and (:scheduled nil :deadline nil :todo "TODO")
 				:tag "refile")
 			 (:discard (:anything))
@@ -1783,7 +1783,7 @@ We use a font that's easier on the eyes for long blocks of text
 
 **** SRC blocks
 #+begin_src emacs-lisp :tangle yes
-(use-feature org-src
+(use-feature ob
   :after org
   :general
   (leader-key
@@ -1792,12 +1792,10 @@ We use a font that's easier on the eyes for long blocks of text
 
   :config
   (setq org-src-tab-acts-natively t
+	org-edit-src-content-indentation 0
         org-src-preserve-indentation t) ; use native major-mode indentation
 
   (setq org-src-window-setup 'current-window)
-
-
-  (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
 
   ;; Indents an src block without having to enter it
   (defun my--org-indent-src-block ()
@@ -1979,6 +1977,7 @@ Allows for resetting of checkboxes when item is marked DONE.
 
 #+begin_src emacs-lisp :tangle yes
 (use-feature org-checklist
+  :disabled t
   :after org)
 #+end_src
 **** org-download
@@ -2025,9 +2024,9 @@ Advanced dependency management
 
 #+begin_src emacs-lisp :tangle yes
 (use-package org-edna
-:after org
-:config
-(org-edna-mode))
+  :after org
+  :config
+  (org-edna-mode))
 #+end_src
 **** org-journal
 #+begin_src emacs-lisp :tangle yes
@@ -2061,7 +2060,7 @@ Let you copy formatted org-mode content to the clipboard. Requires the package =
   :general
   (leader-key
     "op" 'org-pomodoro)
-  (general-mmap
+  (general-nmap
     :keymaps 'org-agenda-mode-map
     "P" 'org-pomodoro)
 
@@ -2178,8 +2177,8 @@ Visualize the Zettelkasten.
   (org-roam-server-network-label-truncate t)
   (org-roam-server-network-label-truncate-length 60)
   (org-roam-server-network-label-wrap-length 20)
-:config
-(org-roam-server-mode 1))
+  :config
+  (org-roam-server-mode 1))
 #+end_src
 
 **** org-roam-bibtex
@@ -2206,7 +2205,6 @@ Visualize the Zettelkasten.
 #+begin_src emacs-lisp :tangle yes
 (use-package ivy-bibtex
   :after org-roam
-  :commands ivy-bibtex
   :general
   (leader-key
     "ob" 'ivy-bibtex)
@@ -2234,14 +2232,14 @@ Visualize the Zettelkasten.
 **** org-ref
 #+begin_src emacs-lisp :tangle yes
 (use-package org-ref
-  :commands org-ref
+  :after org
   :init
   ;; must be called at init
   (setq org-ref-completion-library 'org-ref-ivy-cite)
   :config
   (setq org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex
-   org-ref-default-bibliography (list (concat docs-dir "zotero-bib.bib"))
-   org-ref-notes-directory brain-dir))
+	org-ref-default-bibliography (list (concat docs-dir "zotero-bib.bib"))
+	org-ref-notes-directory brain-dir))
 #+end_src
 
 **** (disabled) org-ref-ox-hugo
@@ -2295,9 +2293,9 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
       (org-narrow-to-subtree))))
 
 (defun my--visit-daily-review ()
-"Visit the file corresponding to today's daily review"
-(interactive)
-(find-file (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org")))
+  "Visit the file corresponding to today's daily review"
+  (interactive)
+  (find-file (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org")))
 
 (defun my--weekly-review ()
   (interactive)
@@ -2361,7 +2359,10 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
 (use-package cdlatex
   :after (:any latex org)
   :hook ((LaTeX-mode . cdlatex-mode)
-	 (org-mode . org-cdlatex-mode)))
+	 (org-mode . org-cdlatex-mode))
+  :config
+  (add-to-list 'cdlatex-math-modify-alist
+               '(66 "\\mathbb" nil t nil nil)))
 #+end_src
 
 *** RefTeX
@@ -2412,9 +2413,9 @@ Checks for signs of bad writing.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package writegood-mode
-:general
-(leader-key
-"lw" 'writegood-mode))
+  :general
+  (leader-key
+    "lw" 'writegood-mode))
 #+end_src
 
 *** typo
@@ -2465,6 +2466,7 @@ Used to insert typographically correct symbols (like quotation marks) in text.
 ** PDF
 #+begin_src emacs-lisp :tangle yes
 (use-package pdf-tools
+  ;; REVIEW waiting on politza/pdf-tools#588
   :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
   :init
   ;; build automatically
@@ -2564,20 +2566,20 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
   ;; Saved queries
   (setq mu4e-bookmarks
 	'(( :name  "Unread messages"
-		   :query "flag:unread AND NOT flag:trashed"
-		   :key ?u)
+	    :query "flag:unread AND NOT flag:trashed"
+	    :key ?u)
 	  ( :name "Today's messages"
-		  :query "date:today..now"
-		  :key ?t)
+	    :query "date:today..now"
+	    :key ?t)
 	  ( :name "All in inbox"
-		  :query "maildir:/Inbox OR maildir:/Inbox/*"
-		  :key ?i)
+	    :query "maildir:/Inbox OR maildir:/Inbox/*"
+	    :key ?i)
 	  ( :name "Last 7 days"
-		  :query "date:7d..now"
-		  :key ?w)
+	    :query "date:7d..now"
+	    :key ?w)
 	  ( :name "Messages with images"
-		  :query "mime:image/*"
-		  :key ?p)))
+	    :query "mime:image/*"
+	    :key ?p)))
 
   (add-to-list 'org-capture-templates
 	       `("m" "Mail" entry (file+olp ,(concat org-dir "refile.org") "Refile")
@@ -2616,7 +2618,7 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
   ;; Html mails might be better rendered in a browser
   (add-to-list 'mu4e-view-actions '("View in browser" . mu4e-action-view-in-browser)))
 
-  #+end_src
+#+end_src
 
 ** Receiving Mail
 
@@ -2936,10 +2938,10 @@ This means:
 
 #+begin_src emacs-lisp :tangle yes
 (use-feature smerge-mode
-:general
-(general-nmap
-  :keymaps 'smerge-mode-map
-  "RET" 'smerge-keep-current))
+  :general
+  (general-nmap
+    :keymaps 'smerge-mode-map
+    "RET" 'smerge-keep-current))
 #+end_src
 
 *** Flycheck
@@ -2965,23 +2967,25 @@ This means:
   :config
   (editorconfig-mode 1))
 #+end_src
-*** Compilation
+*** Direnv
 
-Hide compilation buffer if successful.
+The best way to manage virtual environment.
+
+For example, to create a new python project:
+
+#+begin_src bash :tangle no
+echo 'layout python3' > .envrc
+direnv allow
+pip install <packages>
+#+end_src
+
 
 #+begin_src emacs-lisp :tangle yes
-(use-feature compile
+(use-package direnv
   :config
-  (add-hook 'compilation-finish-functions
-	    (lambda (buf str)
-	      (if (null (string-match ".*exited abnormally.*" str))
-		  ;;no errors, make the compilation window go away in a few seconds
-		  (progn
-		    (run-at-time
-		     "1 sec" nil 'delete-windows-on
-		     (get-buffer-create "*compilation*"))
-		    (message "No Compilation Errors!"))))))
+  (direnv-mode 1))
 #+end_src
+
 *** rainbow-mode
 
 rainbow-mode shows hex code colours in buffers.
@@ -3079,7 +3083,14 @@ rainbow-mode shows hex code colours in buffers.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package lsp-java
-  :after lsp-mode)
+  :after lsp-clients)
+
+(use-package gradle-mode
+  :hook (java-mode . gradle-mode)
+  :general
+  (leader-key
+    :keymaps 'java-mode-map
+    "cb" 'gradle-build))
 #+end_src
 *** LSP-mode
 #+begin_src emacs-lisp :tangle yes
@@ -3092,15 +3103,17 @@ rainbow-mode shows hex code colours in buffers.
     "cr" 'lsp-rename
     "cl" 'lsp-find-definition
     "cd" 'lsp-ui-doc-glance
-    "cpl" 'lsp-ui-peek-find-references)
-  :hook (lsp-mode . (lambda ()
-		      (lsp-enable-which-key-integration t)
-		      (lsp-headerline-breadcrumb-mode 1)))
-  ((c++-mode python-mode java-mode) . lsp-deferred)
+    "cpl" 'lsp-ui-peek-find-references
+    "cpi" 'lsp-ui-peek-find-implementation)
+  :hook ((lsp-mode . (lambda ()
+		       (lsp-enable-which-key-integration t)
+		       (lsp-headerline-breadcrumb-mode 1)))
+	 ((c++-mode python-mode java-mode) . lsp))
   :custom
   (lsp-enable-indentation nil)
   (lsp-keep-workspace-alive nil)
   (lsp-enable-on-type-formatting nil)
+  (lsp-enable-file-watchers nil)
   (read-process-ouput-max (* 1024 1024))
   :init
   (setq lsp-keymap-prefix "C-c l"
@@ -3112,7 +3125,7 @@ rainbow-mode shows hex code colours in buffers.
   (with-eval-after-load 'projectile
     (add-to-list 'projectile-globally-ignored-directories ".clangd")))
 
-  #+end_src
+#+end_src
 
 *** lsp-ui
 #+begin_src emacs-lisp :tangle yes
@@ -3122,9 +3135,11 @@ rainbow-mode shows hex code colours in buffers.
   (lsp-ui-doc-enable nil)
   (lsp-ui-doc-position 'top)
   (lsp-ui-doc-delay 0)
-  (lsp-ui-peek-fontify 'always)
   (lsp-ui-doc-include-signature t)
   (lsp-eldoc-enable-hover nil) ; Disable eldoc displays in minibuffer
+
+  (lsp-ui-peek-fontify 'always)
+  (lsp-ui-peek-always-show t)
 
   (lsp-ui-sideline-enable nil)
   (lsp-ui-sideline-delay 0.5)
@@ -3135,16 +3150,16 @@ rainbow-mode shows hex code colours in buffers.
   (lsp-ui-sideline-ignore-duplicate t)
 
   (lsp-ui-imenu-enable nil))
-  #+end_src
+#+end_src
 
 *** lsp-treemacs
 
 #+begin_src emacs-lisp :tangle yes
 (use-package lsp-treemacs
-  :after lsp
+  :after (lsp-mode treemacs)
   :general
   (leader-key
-    ;; FIXME
+    :keymaps 'lsp-mode-map
     "cts" 'lsp-treemacs-symbols
     "cte" 'lsp-treemacs-errors-list))
 #+end_src
@@ -3153,6 +3168,12 @@ rainbow-mode shows hex code colours in buffers.
 #+begin_src emacs-lisp :tangle yes
 (use-package dap-mode
   :after lsp-mode
+  :hook
+  ((python-mode . (lambda () (require 'dap-python)))
+   (java-mode . (lambda () (require 'dap-java)))
+   (c++-mode . (lambda () (require 'dap-cpptools)))
+   ;;((c-mode c++-mode objc-mode swift-mode) . (lambda () (require 'dap-gdb-lldb)))
+   ((js-mode js2-mode) . (lambda () (require 'dap-chrome))))
   :general
   (leader-key
     "dd" 'dap-debug
@@ -3160,20 +3181,24 @@ rainbow-mode shows hex code colours in buffers.
     "dh" 'dap-hydra
     "dbt" 'dap-breakpoint-toggle
     "du" 'dap-ui-show-many-windows
-    "dU" 'dap-ui-hide-many-windows)
+    "dU" (lambda ()
+	   (interactive)
+	   (dap-ui-many-windows-mode -1)
+	   (dap-ui-hide-many-windows)))
+
+  (general-nmap
+    "<f6>" 'dap-continue
+    "<f7>" 'dap-next
+    "<f8>" 'dap-step-in
+    "<S-f8>" 'dap-step-out
+    "<f9>" 'dap-breakpoint-toggle)
 
   :config
-
   (dap-mode 1)
-  (dap-ui-mode 1)
-
-  (require 'dap-gdb-lldb)
-  (require 'dap-node)
-  (require 'dap-cpptools)
-  (require 'dap-python))
+  (dap-ui-mode 1))
 
 (use-feature dap-python
-  :after (dap-mode python)
+  :defer t ;; loaded by dap-mode
   :custom
   (dap-python-debugger 'debugpy)
   
@@ -3181,6 +3206,21 @@ rainbow-mode shows hex code colours in buffers.
   ;; Do not let dap ignore the virtual environment
   (defun dap-python--pyenv-executable-find (command)
     (executable-find "python")))
+
+(use-feature dap-java
+  :defer t ;; loaded by dap-mode
+  :general
+  (leader-key
+    :keymaps 'java-mode-map
+    "ct" (defhydra hydra-java-run ()
+	   "run"
+	   ("r" dap-java-debug "debug")
+	   ("dm" dap-java-debug-test-method "debug method")
+	   ("dc" dap-java-debug-test-class "debug class")
+	   ("m" dap-java-run-test-method "run method")
+	   ("c" dap-java-run-test-class "run class")
+	   ("q" nil "cancel" :color blue))))
+
 #+end_src
 *** C/C++
 To configure a new C program:
@@ -3214,6 +3254,18 @@ Where ~-BDebug~ specifies the build directory (Debug)
   :hook (cmake-mode . cmake-font-lock-activate))
 #+end_src
 
+**** lsp-clangd
+
+#+begin_src emacs-lisp :tangle yes
+(use-feature lsp-clangd
+  :custom
+  (lsp-clients-clangd-args '("-j=3"
+			     "--background-index"
+			     "--clang-tidy"
+			     "--completion-style=detailed"
+			     "--header-insertion=never")))
+
+#+end_src
 *** CSharp
 #+begin_src emacs-lisp :tangle yes
 (use-package csharp-mode
@@ -3244,7 +3296,7 @@ Arch packages:
 (use-feature python
   :mode ("/Pipfile\\'" . conf-mode)
   :custom
-
+  (python-indent-guess-indent-offset-verbose nil)
   ;; https://github.com/gregsexton/ob-ipython/issues/89
   (python-shell-prompt-detect-failure-warning nil))
 
@@ -3253,10 +3305,6 @@ Arch packages:
   :after (lsp-mode python)
   :custom
   (lsp-pyright-typechecking-mode "off"))
-
-(use-package direnv
-  :config
-  (direnv-mode))
 
 (use-package pyenv-mode
   :after python
@@ -3289,6 +3337,10 @@ Arch packages:
   :hook (python-mode . sphinx-doc-mode))
 
 (use-package python-pytest
+  :general
+  (leader-key
+    :keymaps 'python-mode-map
+    "ct" 'python-pytest-dispatch)
   :commands python-pytest-dispatch)
         #+end_src
 *** Lua

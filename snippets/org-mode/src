@@ -1,6 +1,6 @@
 # -*- mode: snippet -*-
 # name: Org source block
-# key: src
+# key: <s
 # --
 #+begin_src $1
 $0
