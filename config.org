@@ -3156,12 +3156,7 @@ rainbow-mode shows hex code colours in buffers.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package lsp-treemacs
-  :after (lsp-mode treemacs)
-  :general
-  (leader-key
-    :keymaps 'lsp-mode-map
-    "cts" 'lsp-treemacs-symbols
-    "cte" 'lsp-treemacs-errors-list))
+  :after (lsp-mode treemacs))
 #+end_src
 
 *** DAP
