@@ -685,7 +685,7 @@ The Hydra is vanquished once Hercules, any binding that isn't the Hydra's head, 
 
 Allows for traditional vim bindings inside of emacs
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes :noweb no-export
 ;; load evil
 (use-package evil
   :after undo-tree
@@ -710,7 +710,6 @@ Allows for traditional vim bindings inside of emacs
   (define-key evil-normal-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
   (define-key evil-motion-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
   (define-key evil-motion-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
-
 
   (defun my--evil-yank-pulse (orig-fn beg end &rest args)
     (pulse-momentary-highlight-region beg end)
@@ -769,6 +768,8 @@ Allows for traditional vim bindings inside of emacs
 
   (define-key evil-normal-state-map "go" 'my--evil-replace-with-kill-ring)
 
+  <<evil-line-movement>>
+
   (evil-mode 1))
 #+end_src
 
@@ -814,6 +815,26 @@ This code allows us to quit basically everything using ESC.
   (advice-add #'evil-force-normal-state :after #'my--evil-escape-also-quit))
 #+end_src
 
+*** Better line movement
+
+Especially when writing text, moving by visual lines instead of by numbered lines is the way to go. However, when using relative line numbers, this can make large relative jumps like 13k inaccurate. Here, we define j and k to only move by visual lines if there is no associated COUNT.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref evil-line-movement
+(evil-define-motion evil-next-visual-line-or-next-line (count)
+  "Move the cursor 1 visual lines down or COUNT numbered lines down."
+  :type exclusive
+    (let ((line-move-visual (if count nil t)))
+      (evil-line-move (or count 1))))
+
+(evil-define-motion evil-previous-visual-line-or-previous-line (count)
+  "Move the cursor 1 visual lines up or COUNT numbered lines up."
+  :type exclusive
+    (let ((line-move-visual (if count nil t)))
+      (evil-line-move (- (or count 1)))))
+
+  (define-key evil-normal-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line-or-next-line)
+  (define-key evil-normal-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line-or-previous-line)
+#+end_src
 *** evil-surround
 
 This package emulates surround.vim by Tim Pope.
