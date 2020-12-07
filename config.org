@@ -734,6 +734,12 @@ Allows for traditional vim bindings inside of emacs
 
   (define-key evil-normal-state-map "go" 'my--evil-replace-with-kill-ring)
 
+  ;; By default indenting moves the point to the beginning of the region. Quite
+  ;; honestly, this is evil.
+  (defadvice evil-indent (around evil-indent-advice activate)
+    (save-excursion
+      ad-do-it))
+
   <<custom text objects>>
   <<better line movement>>
 
