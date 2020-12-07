@@ -720,6 +720,8 @@ Allows for traditional vim bindings inside of emacs
   (evil-want-C-u-delete t)
   (evil-jumps-cross-buffers nil)
   (evil-cross-lines t)
+  (evil-emacs-state-cursor "#ff9999")
+  (evil-normal-state-cursor "#ffffff")
   :config
   ;; Make movement keys work like they should
   (define-key evil-normal-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
