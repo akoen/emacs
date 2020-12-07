@@ -486,26 +486,40 @@ Highlights keywords in comments
 
 #+begin_src emacs-lisp :tangle yes
 (use-package shackle
+  ;; FIXME When opening the Lab 6 ADC buffer (and only that buffer) some weird splits start to happen.
   :hook (after-init . shackle-mode)
   :custom
   (shackle-rules '(("*compilation*" :align t :size 0.2 :autoclose t)
-		   ("\\*pytest\\*.*" :regexp t :align t :size 0.2 :autoclose t)
-		   ("*Warnings*" :align t :size 0.2 :select t)
+		   ("\\*pytest\\*.*" :regexp t :align t :size 0.4 :autoclose t)
+		   ("*Warnings*" :align t :size 0.2 :autoclose t)
+
+		   ("*undo-tree*" :align t :size 0.4 :autoclose t)
+
+		   ("*Org-Babel Error Output*" :align t :size 0.2 :autoclose t)
+		   ;; Org prevents this from working
+		   ;; ("*Org Select*" :align 'above :size 0.4 :autoclose t)
+		   ;;("*Org Agenda*" :same t :autoclose t)
+		   ("*ob-ipython-traceback*" :autoclose t)
+		   ("*ob-ipython-out*" :autoclose t)
+
+		   ;; Dired
+		   ("*Async Shell Command*" :ignore t)
+
 
 		   ;; Dap mode
 		   (".*?cppdbg.*" :regexp t :align t :size 0.2 :select t)
 		   ("\\*.*?out\\*" :regexp t :align t :size 0.2 :select t) ;; FIXME does not work.
 
+
 		   ("\\`\\*helpful.*?\\*\\'" :regexp t :align t :size 0.4 :autoclose t)))
   :config
-
   ;; Adapted from https://github.com/seagle0128/.emacs.d/blob/master/lisp/init-window.el
   (defvar shackle--popup-window-list nil) ; all popup windows
   (defvar-local shackle--current-popup-window nil) ; current popup window
   (put 'shackle--current-popup-window 'permanent-local t)
 
   (defun shackle-last-popup-buffer ()
-    "View last popup buffer."
+    "View last closed popup buffer."
     (interactive)
     (ignore-errors
       (display-buffer shackle-last-buffer)))
@@ -543,11 +557,11 @@ Highlights keywords in comments
 
 	  (pop shackle--popup-window-list)))))
 
-(add-hook 'my--escape-hook #'shackle-close-popup-window-hack)
-(advice-add #'shackle-display-buffer :around #'shackle-display-buffer-hack)
+  (add-hook 'my--escape-hook #'shackle-close-popup-window-hack)
+  (advice-add #'shackle-display-buffer :around #'shackle-display-buffer-hack)
 
-;; HACK: compatibility issue with `org-switch-to-buffer-other-window'
-(advice-add #'org-switch-to-buffer-other-window :override #'switch-to-buffer-other-window))
+  ;; HACK: compatibility issue with `org-switch-to-buffer-other-window'
+  (advice-add #'org-switch-to-buffer-other-window :override #'switch-to-buffer-other-window))
 #+end_src
 
 * Keybindings
