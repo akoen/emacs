@@ -1254,6 +1254,21 @@ open and unsaved."
               (find-file filename)
               (call-interactively command))
             (dired-get-marked-files)))))
+
+
+(defun my--copy-file-to-clipboard (&rest @fnames)
+  "Copy buffer/dired selection in the linux clipboard as URIs.
+ALso accepts file-name strings as a paramater"
+  (interactive) 
+  (let* (($file-list (cond (@fnames @fnames)
+              ((string-equal major-mode "dired-mode") (dired-get-marked-files))
+              ((buffer-file-name) (list (buffer-file-name)))
+              (t (user-error "Nothing selected!"))))
+    (file-uri-list (cl-loop for file in $file-list collect (concat "file://" file)))
+        (process-connection-type nil)
+        (proc (start-process "xclip" nil "xclip" "-i" "-selection" "clipboard" "-t" "text/uri-list")))
+    (process-send-string proc (mapconcat 'identity file-uri-list "\n"))
+    (process-send-eof proc)))
 #+end_src
 *** Dired-x
 
