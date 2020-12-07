@@ -698,7 +698,7 @@ The Hydra is vanquished once Hercules, any binding that isn't the Hydra's head, 
 #+end_src
 
 ** EVIL
-
+*** Base configuration
 Allows for traditional vim bindings inside of emacs
 
 #+begin_src emacs-lisp :tangle yes :noweb no-export
@@ -723,58 +723,6 @@ Allows for traditional vim bindings inside of emacs
   (evil-emacs-state-cursor "#ff9999")
   (evil-normal-state-cursor "#ffffff")
   :config
-  ;; Make movement keys work like they should
-  (define-key evil-normal-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
-  (define-key evil-normal-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
-  (define-key evil-motion-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
-  (define-key evil-motion-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
-
-  (defun my--evil-yank-pulse (orig-fn beg end &rest args)
-    (pulse-momentary-highlight-region beg end)
-    (apply orig-fn beg end args))
-
-  (advice-add 'evil-yank :around 'my--evil-yank-pulse)
-
-  (defmacro define-and-bind-text-object (key start-regex end-regex)
-    (let ((inner-name (make-symbol "inner-name"))
-	  (outer-name (make-symbol "outer-name")))
-      `(progn
-	 (evil-define-text-object ,inner-name (count &optional beg end type)
-	   (evil-select-paren ,start-regex ,end-regex beg end type count nil))
-	 (evil-define-text-object ,outer-name (count &optional beg end type)
-	   (evil-select-paren ,start-regex ,end-regex beg end type count t))
-	 (define-key evil-inner-text-objects-map ,key (quote ,inner-name))
-	 (define-key evil-outer-text-objects-map ,key (quote ,outer-name)))))
-
-  ;; FIXME These do not work at beginning/end of region
-  ;; create "il"/"al" (inside/around) line text objects:
-  ;; (define-and-bind-text-object "l" "^\\s-*" "\\s-*$")
-  ;; create "ie"/"ae" (inside/around) entire buffer text objects:
-  (define-and-bind-text-object "e" "\\`\\s-*" "\\s-*\\'")
-  
-  ;; Inner/around line text object from https://github.com/emacsorphanage/evil-textobj-line
-  (defun evil-line-range (count beg end type &optional inclusive)
-    (if inclusive
-	(evil-range (line-beginning-position) (line-end-position))
-      (let ((start (save-excursion
-		     (back-to-indentation)
-		     (point)))
-	    (end (save-excursion
-		   (goto-char (line-end-position))
-		   (skip-syntax-backward " " (line-beginning-position))
-		   (point))))
-	(evil-range start end))))
-
-  (evil-define-text-object evil-a-line (count &optional beg end type)
-    "Select range between a character by which the command is followed."
-    (evil-line-range count beg end type t))
-  (evil-define-text-object evil-inner-line (count &optional beg end type)
-    "Select inner range between a character by which the command is followed."
-    (evil-line-range count beg end type))
-
-  (define-key evil-outer-text-objects-map "l" 'evil-a-line)
-  (define-key evil-inner-text-objects-map "l" 'evil-inner-line)
-
   (evil-define-operator my--evil-replace-with-kill-ring (beg end)
     "Replace text object with kill ring contents without replacing them."
     :move-point nil
@@ -786,11 +734,76 @@ Allows for traditional vim bindings inside of emacs
 
   (define-key evil-normal-state-map "go" 'my--evil-replace-with-kill-ring)
 
-  <<evil-line-movement>>
+  <<custom text objects>>
+  <<better line movement>>
 
   (evil-mode 1))
 #+end_src
 
+*** Better line movement
+
+Especially when writing text, moving by visual lines instead of by numbered lines is the way to go. However, when using relative line numbers, this can make large relative jumps like 13k inaccurate. Here, we define j and k to only move by visual lines if there is no associated COUNT.
+
+#+begin_src emacs-lisp :tangle no :noweb-ref better line movement
+(evil-define-motion evil-next-visual-line-or-next-line (count)
+  "Move the cursor 1 visual lines down or COUNT numbered lines down."
+  :type exclusive
+    (let ((line-move-visual (if count nil t)))
+      (evil-line-move (or count 1))))
+
+(evil-define-motion evil-previous-visual-line-or-previous-line (count)
+  "Move the cursor 1 visual lines up or COUNT numbered lines up."
+  :type exclusive
+    (let ((line-move-visual (if count nil t)))
+      (evil-line-move (- (or count 1)))))
+
+  (define-key evil-normal-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line-or-next-line)
+  (define-key evil-normal-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line-or-previous-line)
+  (define-key evil-motion-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line-or-next-line)
+  (define-key evil-motion-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line-or-previous-line)
+#+end_src
+*** Custom text objects
+#+begin_src emacs-lisp :tangle no :noweb-ref custom text objects
+(defmacro define-and-bind-text-object (key start-regex end-regex)
+  (let ((inner-name (make-symbol "inner-name"))
+	(outer-name (make-symbol "outer-name")))
+    `(progn
+       (evil-define-text-object ,inner-name (count &optional beg end type)
+	 (evil-select-paren ,start-regex ,end-regex beg end type count nil))
+       (evil-define-text-object ,outer-name (count &optional beg end type)
+	 (evil-select-paren ,start-regex ,end-regex beg end type count t))
+       (define-key evil-inner-text-objects-map ,key (quote ,inner-name))
+       (define-key evil-outer-text-objects-map ,key (quote ,outer-name)))))
+
+;; FIXME These do not work at beginning/end of region
+;; create "il"/"al" (inside/around) line text objects:
+;; (define-and-bind-text-object "l" "^\\s-*" "\\s-*$")
+;; create "ie"/"ae" (inside/around) entire buffer text objects:
+(define-and-bind-text-object "e" "\\`\\s-*" "\\s-*\\'")
+
+;; Inner/around line text object from https://github.com/emacsorphanage/evil-textobj-line
+(defun evil-line-range (count beg end type &optional inclusive)
+  (if inclusive
+      (evil-range (line-beginning-position) (line-end-position))
+    (let ((start (save-excursion
+		   (back-to-indentation)
+		   (point)))
+	  (end (save-excursion
+		 (goto-char (line-end-position))
+		 (skip-syntax-backward " " (line-beginning-position))
+		 (point))))
+      (evil-range start end))))
+
+(evil-define-text-object evil-a-line (count &optional beg end type)
+  "Select range between a character by which the command is followed."
+  (evil-line-range count beg end type t))
+(evil-define-text-object evil-inner-line (count &optional beg end type)
+  "Select inner range between a character by which the command is followed."
+  (evil-line-range count beg end type))
+
+(define-key evil-outer-text-objects-map "l" 'evil-a-line)
+(define-key evil-inner-text-objects-map "l" 'evil-inner-line)
+#+end_src
 *** EVIL-Collection
 #+begin_src emacs-lisp :tangle yes
 (use-package evil-collection
@@ -833,26 +846,6 @@ This code allows us to quit basically everything using ESC.
   (advice-add #'evil-force-normal-state :after #'my--evil-escape-also-quit))
 #+end_src
 
-*** Better line movement
-
-Especially when writing text, moving by visual lines instead of by numbered lines is the way to go. However, when using relative line numbers, this can make large relative jumps like 13k inaccurate. Here, we define j and k to only move by visual lines if there is no associated COUNT.
-
-#+begin_src emacs-lisp :tangle no :noweb-ref evil-line-movement
-(evil-define-motion evil-next-visual-line-or-next-line (count)
-  "Move the cursor 1 visual lines down or COUNT numbered lines down."
-  :type exclusive
-    (let ((line-move-visual (if count nil t)))
-      (evil-line-move (or count 1))))
-
-(evil-define-motion evil-previous-visual-line-or-previous-line (count)
-  "Move the cursor 1 visual lines up or COUNT numbered lines up."
-  :type exclusive
-    (let ((line-move-visual (if count nil t)))
-      (evil-line-move (- (or count 1)))))
-
-  (define-key evil-normal-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line-or-next-line)
-  (define-key evil-normal-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line-or-previous-line)
-#+end_src
 *** evil-surround
 
 This package emulates surround.vim by Tim Pope.
