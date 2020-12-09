@@ -859,14 +859,23 @@ This package emulates surround.vim by Tim Pope.
 #+begin_src emacs-lisp :tangle yes
 (use-package evil-surround
   :config
-  (global-evil-surround-mode 1))
+  (global-evil-surround-mode 1)
+  ;; Do not add spaces inside parens
+  (evil--add-to-alist
+   'evil-surround-pairs-alist
+   ?\( '("(" . ")")
+   ?\[ '("[" . "]")
+   ?\{ '("{" . "}")
+   ?\) '("( " . " )")
+   ?\] '("[ " . " ]")
+   ?\} '("{ " . " }")))
 #+end_src
 
 *** evil-nerd-commenter
 #+begin_src emacs-lisp :tangle yes
 (use-package evil-nerd-commenter
   :general
-  (general-nmap "gcc" 'evilnc-comment-or-uncomment-lines))
+  (general-nmap "gc" 'evilnc-comment-operator))
 #+end_src
 
 *** evil-numbers
