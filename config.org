@@ -2000,6 +2000,11 @@ counsel-org-agenda-headlines"
 #+begin_src emacs-lisp :tangle yes
 (use-package evil-org
   :after org
+  :custom
+  ;; Defines a bullet as the beginning of a sentence. Note that this regex
+  ;; removes some of the complexity of the original definition, and might cause
+  ;; problems.
+  (sentence-end "\\(^\s*?- \\)\\|\\.\s*")
   :config
   (add-hook 'org-mode-hook 'evil-org-mode)
   (add-hook 'evil-org-mode-hook
