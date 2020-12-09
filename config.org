@@ -929,6 +929,16 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   (aw-dispatch-always t)
   (aw-scope 'frame))
 #+end_src
+** Link-hint
+#+begin_src emacs-lisp :tangle yes
+(use-package link-hint
+  :general
+  (general-nmap
+    :keymaps '(helpful-mode-map info-mode-map mu4e-view-mode-map)
+    "o" 'link-hint-open-link)
+  (leader-key
+    "sl" 'link-hint-open-link))
+#+end_src
 * Completion
 ** Company
 
