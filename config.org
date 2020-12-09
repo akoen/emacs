@@ -1178,9 +1178,7 @@ An inteface to Git. The mascot of Emacs packages.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package magit
-  :defer t
-  :init
-  (setq transient-history-file (concat emacs-etc-dir "transient/history")))
+  :defer t)
 
 (use-package magit-todos
   :after magit hl-todo
@@ -1878,6 +1876,7 @@ We use a font that's easier on the eyes for long blocks of text
 #+end_src
 
 We do not run ~org-babel-do-load-languages~ because it eagerly loads packages. See https://blog.d46.us/advanced-emacs-startup/.
+
 #+begin_src emacs-lisp :tangle yes
 (use-package ob-ipython
   :commands (org-babel-execute:ipython org-edit-special)
@@ -1898,6 +1897,9 @@ We do not run ~org-babel-do-load-languages~ because it eagerly loads packages. S
 ;; See https://jordiinglada.net/wp/2015/03/25/scripting-in-c-2/
 (use-feature ob-C
   :commands (org-edit-special org-babel-execute:C++ org-babel-execute:C))
+
+(use-feature ob-java
+  :commands (org-babel-execute:java))
 #+end_src
 **** Circular Bullets
 Make bullets circular
@@ -2490,14 +2492,6 @@ Checks for signs of bad writing.
     "lw" 'writegood-mode))
 #+end_src
 
-*** typo
-
-Used to insert typographically correct symbols (like quotation marks) in text.
-
-#+begin_src emacs-lisp :tangle yes
-(use-package typo
-  :hook (mu4e-compose-mode . typo-mode))
-#+end_src
 *** Writing Function
 
 #+begin_src emacs-lisp :tangle yes
@@ -2540,9 +2534,7 @@ Used to insert typographically correct symbols (like quotation marks) in text.
 (use-package pdf-tools
   ;; REVIEW waiting on politza/pdf-tools#588
   :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
-  :init
-  ;; build automatically
-  (pdf-tools-install :no-query :skip-dependencies)
+  :magic ("%PDF" . pdf-view-mode)
   :config
 
   (setq pdf-view-display-size 'fit-page)
@@ -2568,6 +2560,18 @@ Used to insert typographically correct symbols (like quotation marks) in text.
   ;; HiDPI support
   (setq pdf-view-use-scaling t
 	pdf-view-use-imagemagick nil))
+#+end_src
+** (disabled) Math-preview
+
+This is a very promising package, but it is not yet polished.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package math-preview
+  :disabled t
+  :when (executable-find "math-preview")
+  :straight (math-preview :type git
+			  :host gitlab
+			  :repo "matsievskiysv/math-preview"))
 #+end_src
 * Email
 ** Reading Email
@@ -3325,6 +3329,7 @@ Where ~-BDebug~ specifies the build directory (Debug)
 
 #+begin_src emacs-lisp :tangle yes
 (use-feature lsp-clangd
+  :after lsp-mode
   :custom
   (lsp-clients-clangd-args '("-j=3"
 			     "--background-index"
