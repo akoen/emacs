@@ -2161,6 +2161,16 @@ Allows for external applications to trigger custom actions without external depe
      (mapcar #'(lambda (c) (if (equal c ?\[) ?\( (if (equal c ?\]) ?\) c))) string-to-transform))))
 #+end_src
 
+**** org-transclusion
+#+begin_src emacs-lisp :tangle yes
+(use-package org-transclusion
+  :straight (:host github :branch "main" :repo "nobiot/org-transclusion")
+  :hook (org-mode . org-transclusion-mode)
+  :custom
+  (org-transclusion-activate-persistent-message nil)
+  (org-transclusion-include-first-section t))
+#+end_src
+
 **** ox-hugo
 #+begin_src emacs-lisp :tangle yes
 (use-package ox-hugo
