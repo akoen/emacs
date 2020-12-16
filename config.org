@@ -1219,11 +1219,6 @@ An inteface to Git. The mascot of Emacs packages.
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(use-package evil-magit
-  :after magit)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
 (use-package forge
   :after magit)
 #+end_src
