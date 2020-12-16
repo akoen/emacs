@@ -351,7 +351,7 @@ The Modus themes are striking and are noticeably easier to read than alternative
 #+begin_src emacs-lisp :tangle yes
 
 (use-package doom-themes
-
+  :defer t
   :custom-face
   (font-lock-comment-face ((t (:slant italic))))
 
@@ -915,6 +915,16 @@ Allows for quick movement to 2-char sequences.
   :config
   (evil-snipe-mode +1)
   (evil-snipe-override-mode +1))
+#+end_src
+*** evil-goggles
+
+Gives a visual indication as to the region you just edited.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package evil-goggles
+  :config
+  (evil-goggles-mode)
+  (evil-goggles-use-diff-faces))
 #+end_src
 *** winner-mode
 
