@@ -222,6 +222,15 @@ Use spaces instead of tabs.
 
 
 #+end_src
+** Whitespace
+#+begin_src emacs-lisp :tangle yes
+(use-package ws-butler
+  :custom
+  (ws-butler-keep-whitespace-before-point nil)
+  :config
+  (ws-butler-global-mode 1))
+
+#+end_src
 ** Revert
 
 Automatically reload buffers on file change
