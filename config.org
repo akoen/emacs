@@ -211,6 +211,17 @@ By default, Emacs saves backups relative to the current directory. This is abhor
       auto-save-list-file-prefix (concat emacs-cache-dir "autosave/"))
 #+end_src
 
+** Tabs
+
+Use spaces instead of tabs.
+
+#+begin_src emacs-lisp :tangle yes
+(setq-default tab-width 2
+	      evil-shift-width tab-width
+	      indent-tabs-mode nil)
+
+
+#+end_src
 ** Revert
 
 Automatically reload buffers on file change
