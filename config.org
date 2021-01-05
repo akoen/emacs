@@ -179,13 +179,14 @@ Tangling this org file into config.el at every startup is slow. This code is bor
 ** Misc
 #+begin_src emacs-lisp :tangle yes
 (setq vc-follow-symlinks t           ; don't ask for confirmation when opening symlinked file
-      indent-tabs-mode nil           ; prefer spaces
-      tab-width	4                    ; set width for tabs
       ring-bell-function 'ignore     ; silent bell when you make a mistake
       x-select-enable-clipboard t    ; allow pasting selection outside of emacs
       kill-buffer-query-functions nil
       initial-major-mode 'fundamental-mode
       initial-scratch-message nil
+      save-interprogram-paste-before-kill t
+      compilation-scroll-output 'first-error
+      compilation-skip-threshold 2   ; don't stop on info or warnings
       delete-by-moving-to-trash t    ; move files to trash when deleting
       sentence-end-double-space nil) ; end sentences with a single space
 #+end_src
