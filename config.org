@@ -291,7 +291,6 @@ A small buffer which shows the list of commands you can execute next.
 #+end_src
 * Appearance
 ** Theme
-
 *** Modus-themes
 
 The Modus themes are striking and are noticeably easier to read than alternatives. The following code is taken from the theme's [[https://protesilaos.com/modus-themes/#h:69b92089-069c-4ba1-9d94-cc3415fc4f87][manual]].
@@ -316,9 +315,7 @@ The Modus themes are striking and are noticeably easier to read than alternative
            modus-%1$s-theme-diffs nil ; {nil,'desaturated,'fg-only}
            modus-%1$s-theme-org-blocks 'grayscale ; {nil,'grayscale,'rainbow}
            modus-%1$s-theme-headings  ; Read further below in the manual for this one
-           '((1 . section)
-             (2 . line)
-             (t . rainbow-line-no-bold))
+           '((t))
            modus-%1$s-theme-variable-pitch-headings nil
            modus-%1$s-theme-scale-headings t
            modus-%1$s-theme-scale-1 1.1
@@ -339,7 +336,7 @@ The Modus themes are striking and are noticeably easier to read than alternative
     (disable-theme 'modus-vivendi)
     (modus-operandi-theme-load)))
 
-(load-theme 'modus-vivendi t)
+(modus-vivendi-theme-load)
 #+end_src
 
 *** Doom-themes
@@ -356,12 +353,21 @@ The Modus themes are striking and are noticeably easier to read than alternative
   (doom-themes-org-config))
 #+end_src
 
+*** Nano
+#+begin_src emacs-lisp :tangle yes
+(use-package nano
+  :straight (:host github :repo "rougier/nano-emacs")
+  :defer t
+  :init
+  (require 'nano-faces)
+  (require 'nano-base-colors))
+#+end_src
 ** Text
 *** Font
 
 #+begin_src emacs-lisp :tangle yes
-(add-to-list 'default-frame-alist '(font . "JetBrains Mono-10" ))
-(set-face-attribute 'default nil :font "JetBrains Mono-10" :height 100)
+(add-to-list 'default-frame-alist '(font . "JetBrains Mono-14" ))
+(set-face-attribute 'default nil :font "JetBrains Mono-14")
 #+end_src
 
 ** Disable unecessary UI elements
@@ -661,10 +667,10 @@ Space is the best leader key.
 
     ;; Projects
     "SPC" 'projectile-find-file
+    "pd" 'projectile-find-dir
     "pp" 'counsel-projectile-switch-project
     "pi" 'projectile-invalidate-cache
     "pk" 'projectile-kill-buffers
-    "pd" 'my--projectile-find-file-in-project-dotfiles
     "pt" 'my--projectile-find-file-in-project-tasks
     "pc" 'my--projectile-find-file-in-project-config
 
@@ -1249,7 +1255,9 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
 (use-package vterm-toggle
   :commands vterm-toggle vterm-toggle-cd
   :bind
-  (("C-`" . vterm-toggle-cd)))
+  (("C-`" . vterm-toggle-cd))
+  :custom
+  (vterm-toggle-scope 'project))
 #+end_src
 ** Dired
 *** Dired
@@ -1366,6 +1374,7 @@ Adds additional functionality on top of dired.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package dired-single
+  :disabled t
   :after dired
   :config
   (define-key dired-mode-map [remap dired-find-file]
@@ -1390,6 +1399,11 @@ Adds additional functionality on top of dired.
   (general-nmap
     :keymaps 'dired-mode-map
     "/" 'dired-narrow))
+#+end_src
+*** Trashed
+#+begin_src emacs-lisp :tangle yes
+(use-package trashed
+  :commands trashed)
 #+end_src
 ** Recentf
 
@@ -1449,7 +1463,7 @@ Displays the folder tree
         org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id ; use unique ID's for links
         org-id-locations-file (concat org-dir ".orgids")
         org-clone-delete-id t
-	org-log-done 'time
+        org-log-done 'time
         org-catch-invisible-edits 'show
         org-confirm-babel-evaluate nil                                    ; do not ask for confirmation
         org-return-follows-link t
@@ -1457,18 +1471,21 @@ Displays the folder tree
         org-hide-emphasis-markers t                                       ; hide the markers for italics and bold
         org-pretty-entities t                                             ; show entities as UTF8 characters
         org-image-actual-width 800
-	org-startup-with-inline-images t
+        org-hidden-keywords '(title author date startup)
+        org-startup-with-inline-images t
         org-export-with-smart-quotes t)
 
 
-  :custom-face 
+  :custom-face
   (variable-pitch ((t (:family "Roboto Mono Light" :height 1.0)))) ; Alternatively, Office Code Pro is second best
-  (org-document-title ((t (:weight bold :height 1.5))))
+  (org-default ((t (:family "Roboto Mono Light" :height 1.0)))) ; Alternatively, Office Code Pro is second best
+  (org-document-title ((t (:family "Roboto Slab" :weight bold :height 2.0))))
+  (org-document-info ((t (:family "Roboto Slab"))))
   (org-done ((t (:strike-through t :weight bold))))
   (org-headline-done ((t (:strike-through t))))
-  (org-level-1 ((t (:height 1.1))))
-  (org-level-2 ((t (:height 1.1))))
-  (org-level-3 ((t (:height 1.1))))
+  (org-level-1 ((t (:family "Roboto" :height 1.2))))
+  (org-level-2 ((t (:family "Roboto" :height 1.1))))
+  (org-level-3 ((t (:family "Roboto" :height 1.1))))
   (org-link ((t (:underline t))))
   :config
 
@@ -1480,34 +1497,34 @@ Displays the folder tree
     (interactive)
     (when-let* ((link-region (org-in-regexp org-link-bracket-re 1)))
       (let ((org-inline-image-overlays-old org-inline-image-overlays))
-	(save-restriction
-	  (narrow-to-region (car link-region) (cdr link-region))
-	  (if (-intersection (overlays-at (point)) org-inline-image-overlays)
-	      (mapc (lambda (ov)
-		      (when (member ov org-inline-image-overlays)
-			(delete-overlay ov)
-			(setq org-inline-image-overlays (delete ov org-inline-image-overlays))))
-		    (overlays-at (point)))
-	    (org-display-inline-images 'include-linked 'refresh))
-	  )
-	(unless (equal org-inline-image-overlays org-inline-image-overlays-old) t)) ;; if overlays did not change, the link is not inline image
+        (save-restriction
+          (narrow-to-region (car link-region) (cdr link-region))
+          (if (-intersection (overlays-at (point)) org-inline-image-overlays)
+              (mapc (lambda (ov)
+                      (when (member ov org-inline-image-overlays)
+                        (delete-overlay ov)
+                        (setq org-inline-image-overlays (delete ov org-inline-image-overlays))))
+                    (overlays-at (point)))
+            (org-display-inline-images 'include-linked 'refresh))
+          )
+        (unless (equal org-inline-image-overlays org-inline-image-overlays-old) t)) ;; if overlays did not change, the link is not inline image
       ))
 
   (add-hook 'org-tab-first-hook #'org-toggle-inline-images-at-point)
   (add-hook 'org-ctrl-c-ctrl-c-hook #'org-toggle-inline-images-at-point)
-  
+
   ;; What's more, when using ipython etc. it is often hard to read
   ;; figure text since the background colour is dark.
   (defun create-image-with-background-color (args)
     "Specify background color of Org-mode inline image through modify `ARGS'."
     (let* ((file (car args))
-	   (type (cadr args))
-	   (data-p (caddr args))
-	   (props (cdddr args)))
+           (type (cadr args))
+           (data-p (caddr args))
+           (props (cdddr args)))
       ;; get this return result style from `create-image'
       (append (list file type data-p)
-	      (list :background "white")
-	      props)))
+	            (list :background "white")
+	            props)))
   (advice-add 'create-image :filter-args #'create-image-with-background-color))
 
 #+end_src
@@ -1562,9 +1579,6 @@ Replace underline with highlight
 **** Pretty-symbols
 #+begin_src emacs-lisp :tangle yes
 (add-hook 'org-mode-hook (lambda ()
-			   (push '("#+title: "        . "") prettify-symbols-alist)
-			   (push '("#+subtitle: "     . "") prettify-symbols-alist)
-			   (push '("#+author: "       . "- ") prettify-symbols-alist)
 			   (push '("#+begin_src"      . "λ") prettify-symbols-alist)
 			   (push '("#+end_src"        . "…") prettify-symbols-alist)
 			   (push '("#+results:"       . "→") prettify-symbols-alist)
@@ -1595,7 +1609,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 (setq org-capture-templates
       `(("t" "Todo" entry (file+headline ,(concat org-dir "refile.org") "Refile")
          "* TODO %?")
-        ("p" "Project" entry (file+headline ,(concat org-dir "inbox.org") "Projects") 
+        ("p" "Project" entry (file+headline ,(concat org-dir "tasks.org") "Projects")
          "* %?")
         ("n" "Next" entry (file+headline ,(concat org-dir "refile.org") "Refile") 
          "* NEXT %? \n:PROPERTIES:\n:TRIGGER: next-sibling todo!(\"NEXT\") chain!(\"TRIGGER\") deadline!(cp)\n:END:\n")
@@ -2088,8 +2102,8 @@ Automatically insert images via drag-and-drop
   :after org
   :config
   (defun my--org-download-annotate-function (link)
-    "Do note annotate link"
-    "#+DOWNLOADED: \n")
+    "Do not annotate link"
+    "\n")
 
   (setq org-download-annotate-function #'my--org-download-annotate-function)
   (setq org-download-screenshot-method "maim -u -s %s")
@@ -2250,7 +2264,15 @@ Allows for external applications to trigger custom actions without external depe
 ,#+title: ${title}
 
 - author ::
-- tags :: "
+- tags ::
+
+,* The Book in 3 Sentences
+
+,* Impressions
+
+,* How the Book Changed Me
+
+,* Top 3 Highlights"
 	   :unnarowed t)))
   (setq org-roam-capture-ref-templates
 	'(("r" "ref" plain (function org-roam--capture-get-point)
@@ -2431,9 +2453,6 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
 #+begin_src emacs-lisp :tangle yes
 (use-package latex
   :straight auctex
-  :bind
-  (:map TeX-mode-map
-        ("C-<return>" . my--triple-newline))
   :config
   (add-hook 'LaTeX-mode-hook
             (lambda ()
@@ -2451,16 +2470,7 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
   ;; Method for enabling forward and inverse search 
   (setq TeX-source-correlate-method 'synctex)
   ;; inhibit the question to start a server process
-  (setq TeX-source-correlate-start-server t)
-
-  ;; TODO Function to repeat newline?
-  (defun my--triple-newline ()
-    "Inserts three newlines. Useful for rephrasing"
-    (interactive)
-    (save-excursion
-      (newline)
-      (newline)
-      (newline))))
+  (setq TeX-source-correlate-start-server t))
 #+end_src
 
 *** CdLaTeX
@@ -3220,7 +3230,7 @@ rainbow-mode shows hex code colours in buffers.
   :hook ((lsp-mode . (lambda ()
 		       (lsp-enable-which-key-integration t)
 		       (lsp-headerline-breadcrumb-mode 1)))
-	 ((c++-mode python-mode java-mode) . lsp))
+	 ((c++-mode python-mode java-mode sh-mode scss-mode web-mode) . lsp))
   :custom
   (lsp-enable-indentation nil)
   (lsp-keep-workspace-alive nil)
