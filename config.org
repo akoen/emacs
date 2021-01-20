@@ -1,4 +1,4 @@
-#+TITLE: Alex Koen's Emacs configuration
+#+TITLE:Alex Koen's Emacs configuration
 
 I have now been using Emacs as my primary editor for almost two years. Most of the time, it feels like piloting an inter-galactic starship through the turbulence of spacetime, free from the sluggishness of earthbound life. The rest of time, I feel like printing out my config and lighting it on fire.
 
@@ -89,12 +89,20 @@ NAME and ARGS are as in `use-package'."
      ,@args))
 #+end_src
 
+Sometimes you mistakenly add advice to a function. This function removes all advice.
+#+begin_src emacs-lisp :tangle yes
+(defun advice-unadvice (sym)
+  "Remove all advices from symbol SYM."
+  (interactive "aFunction symbol: ")
+  (advice-mapc (lambda (advice _props) (advice-remove sym advice)) sym))
+#+end_src
+
 ** Native Comp
 
 #+begin_src emacs-lisp :tangle yes
 (use-feature comp
-:custom
-(warning-supress-log-types '((comp))))
+  :custom
+  (warning-suppress-log-types '((comp))))
 #+end_src
 ** Exec Path From Shell
 
