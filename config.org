@@ -3469,6 +3469,24 @@ Arch packages:
     "ct" 'python-pytest-dispatch)
   :commands python-pytest-dispatch)
         #+end_src
+*** MATLAB
+
+I used to dislike MATLAB, but the effort they put in to supporting Linux and Emacs earns my admiration.
+#+begin_src emacs-lisp :tangle yes
+(use-package matlab-mode
+  :mode ("\\.m\\'"
+         "\\.mat\\'"))
+#+end_src
+
+*** Julia
+
+#+begin_src emacs-lisp :tangle yes
+(use-package julia-mode)
+
+(use-package julia-repl)
+
+(use-package lsp-julia)
+#+end_src
 *** Lua
 #+begin_src emacs-lisp :tangle yes
 (use-package lua-mode
