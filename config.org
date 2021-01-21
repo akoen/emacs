@@ -248,10 +248,6 @@ Automatically reload buffers on file change
   (global-set-key [remap describe-key]      #'helpful-key)
   (global-set-key [remap describe-symbol]   #'helpful-symbol)
 
-  ;; Remap counsel keybinds to helpful commands
-  (with-eval-after-load 'counsel
-    (setq counsel-describe-function-function #'helpful-callable
-          counsel-describe-variable-function #'helpful-variable))
   :config
   ;; By default, evil shadows helpful keys
   (evil-define-key 'normal helpful-mode-map "q" 'quit-window)
@@ -297,47 +293,49 @@ A small buffer which shows the list of commands you can execute next.
 The Modus themes are striking and are noticeably easier to read than alternatives. The following code is taken from the theme's [[https://protesilaos.com/modus-themes/#h:69b92089-069c-4ba1-9d94-cc3415fc4f87][manual]].
 
 #+begin_src emacs-lisp :tangle yes
-(defmacro modus-themes-format-sexp (sexp &rest objects)
-  `(eval (read (format ,(format "%S" sexp) ,@objects))))(dolist (theme '("operandi" "vivendi"))
+(use-package modus-themes
+  :config
+  (defmacro modus-themes-format-sexp (sexp &rest objects)
+    `(eval (read (format ,(format "%S" sexp) ,@objects))))(dolist (theme '("operandi" "vivendi"))
 
-  (modus-themes-format-sexp
-   (defun modus-%1$s-theme-load ()
-     (setq modus-%1$s-theme-slanted-constructs t
-           modus-%1$s-theme-bold-constructs t
-           modus-%1$s-theme-fringes nil ; {nil,'subtle,'intense}
-           modus-%1$s-theme-mode-line '3d ; {nil,'3d,'moody}
-           modus-%1$s-theme-syntax 'alt-syntax ; {nil,faint,'yellow-comments,'green-strings,'yellow-comments-green-strings,'alt-syntax,'alt-syntax-yellow-comments}
-           modus-%1$s-theme-intense-hl-line nil
-           modus-%1$s-theme-intense-paren-match nil
-           modus-%1$s-theme-links 'faint ; {nil,'faint,'neutral-underline,'faint-neutral-underline,'no-underline}
-           modus-%1$s-theme-no-mixed-fonts nil
-           modus-%1$s-theme-prompts nil ; {nil,'subtle,'intense}
-           modus-%1$s-theme-completions 'moderate ; {nil,'moderate,'opinionated}
-           modus-%1$s-theme-diffs nil ; {nil,'desaturated,'fg-only}
-           modus-%1$s-theme-org-blocks 'grayscale ; {nil,'grayscale,'rainbow}
-           modus-%1$s-theme-headings  ; Read further below in the manual for this one
-           '((t))
-           modus-%1$s-theme-variable-pitch-headings nil
-           modus-%1$s-theme-scale-headings t
-           modus-%1$s-theme-scale-1 1.1
-           modus-%1$s-theme-scale-2 1.15
-           modus-%1$s-theme-scale-3 1.21
-           modus-%1$s-theme-scale-4 1.27
-           modus-%1$s-theme-scale-5 1.33)
-     (load-theme 'modus-%1$s t))
-   theme))
+    (modus-themes-format-sexp
+     (defun modus-%1$s-theme-load ()
+       (setq modus-%1$s-theme-slanted-constructs t
+             modus-%1$s-theme-bold-constructs t
+             modus-%1$s-theme-fringes nil ; {nil,'subtle,'intense}
+             modus-%1$s-theme-mode-line '3d ; {nil,'3d,'moody}
+             modus-%1$s-theme-syntax 'alt-syntax ; {nil,faint,'yellow-comments,'green-strings,'yellow-comments-green-strings,'alt-syntax,'alt-syntax-yellow-comments}
+             modus-%1$s-theme-intense-hl-line nil
+             modus-%1$s-theme-intense-paren-match nil
+             modus-%1$s-theme-links 'faint ; {nil,'faint,'neutral-underline,'faint-neutral-underline,'no-underline}
+             modus-%1$s-theme-no-mixed-fonts nil
+             modus-%1$s-theme-prompts nil ; {nil,'subtle,'intense}
+             modus-%1$s-theme-completions 'moderate ; {nil,'moderate,'opinionated}
+             modus-%1$s-theme-diffs nil ; {nil,'desaturated,'fg-only}
+             modus-%1$s-theme-org-blocks 'grayscale ; {nil,'grayscale,'rainbow}
+             modus-%1$s-theme-headings  ; Read further below in the manual for this one
+             '((t))
+             modus-%1$s-theme-variable-pitch-headings nil
+             modus-%1$s-theme-scale-headings t
+             modus-%1$s-theme-scale-1 1.1
+             modus-%1$s-theme-scale-2 1.15
+             modus-%1$s-theme-scale-3 1.21
+             modus-%1$s-theme-scale-4 1.27
+             modus-%1$s-theme-scale-5 1.33)
+       (load-theme 'modus-%1$s t))
+     theme))
 
-(defun modus-themes-toggle ()
-  "Toggle between `modus-operandi' and `modus-vivendi' themes."
-  (interactive)
-  (if (eq (car custom-enabled-themes) 'modus-operandi)
-      (progn
-        (disable-theme 'modus-operandi)
-        (modus-vivendi-theme-load))
-    (disable-theme 'modus-vivendi)
-    (modus-operandi-theme-load)))
+    (defun modus-themes-toggle ()
+      "Toggle between `modus-operandi' and `modus-vivendi' themes."
+      (interactive)
+      (if (eq (car custom-enabled-themes) 'modus-operandi)
+          (progn
+            (disable-theme 'modus-operandi)
+            (modus-vivendi-theme-load))
+        (disable-theme 'modus-vivendi)
+        (modus-operandi-theme-load)))
 
-(modus-vivendi-theme-load)
+    (modus-vivendi-theme-load))
 #+end_src
 
 *** Doom-themes
@@ -619,15 +617,8 @@ Space is the best leader key.
     "u" 'universal-argument
 
     ;; Buffer
-    "bb" 'switch-to-buffer
     "br" 'revert-buffer
     "`" 'evil-switch-to-windows-last-buffer
-
-    ;; Bookmarks
-    "BB" 'counsel-bookmark
-
-    ;; Code
-    "cc" 'counsel-compile
 
     ;; Eval
     "eb" 'eval-buffer
@@ -640,7 +631,6 @@ Space is the best leader key.
     ;; Files
     "." 'find-file
     "ff" 'dired-jump
-    "fr" 'counsel-recentf
     "fs" 'save-buffer
 
     ;; Magit
@@ -660,16 +650,9 @@ Space is the best leader key.
     "oje" 'org-journal-new-scheduled-entry
     "ojs" 'org-journal-search-forever
 
-    ;; Search
-    "so" 'my--ivy-org-jump-to-file-heading
-    "sO" 'my--ivy-org-jump-to-agenda-heading
-    "sb" 'swiper
-    "sp" 'counsel-projectile-rg
-
     ;; Projects
     "SPC" 'projectile-find-file
     "pd" 'projectile-find-dir
-    "pp" 'counsel-projectile-switch-project
     "pi" 'projectile-invalidate-cache
     "pk" 'projectile-kill-buffers
     "pt" 'my--projectile-find-file-in-project-tasks
@@ -973,6 +956,84 @@ Pressing Q restores the window configuration to the last state. Useful for killi
     "sl" 'link-hint-open-link))
 #+end_src
 * Completion
+** Selectrum & Co.
+#+begin_src emacs-lisp :tangle yes
+(use-package selectrum
+  :init
+  (selectrum-mode +1))
+
+(use-package orderless
+  :disabled t
+  :custom
+  (completion-styles '(orderless))
+  (selectrum-refine-candidates-function #'orderless-filter)
+  (selectrum-highlight-candidates-function #'orderless-highlight-matches))
+
+(use-package prescient
+  :after selectrum
+  :custom
+  (prescient-filter-method '(literal regexp initialism fuzzy))
+  :config
+  (prescient-persist-mode +1))
+
+(use-package selectrum-prescient
+  :after prescient
+  :config
+  (selectrum-prescient-mode +1))
+
+(use-package company-prescient
+  :after (prescient company)
+  :config
+  (company-prescient-mode +1))
+
+(use-package consult
+  :general
+  (leader-key
+    "bb" 'consult-buffer
+    "BB" 'consult-bookmark
+    "yp" 'consult-yank
+    "sp" 'consult-ripgrep
+    "so" 'consult-outline
+    "ss" 'consult-line)
+  :custom
+  (consult-narrow-key "<")
+  (consult-project-root-function #'projectile-project-root))
+
+
+(use-package consult-flycheck
+  :commands consult-flycheck
+  :general
+  (leader-key
+    "cf" 'consult-flycheck))
+
+(use-package marginalia
+  :custom
+  (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
+  :init
+  (marginalia-mode +1)
+
+  (advice-add #'marginalia-cycle :after
+              (lambda () (when (bound-and-true-p selectrum-mode) (selectrum-exhibit)))))
+
+(use-package embark
+  :general
+  (general-define-key
+   :keymaps 'minibuffer-local-map
+   "C-o" 'embark-act
+   "C-S-o" 'embark-act-noexit)
+  :custom
+  (embark-action-indicator
+   (lambda (map)
+     (which-key--show-keymap "Embark" map nil nil 'no-paging)
+     #'which-key--hide-popup-ignore-command)
+   embark-become-indicator embark-action-indicator))
+
+(use-package embark-consult
+  :after (embark consult)
+  :demand t
+  :hook
+  (embark-collect-mode . embark-consult-preview-minor-mode))
+#+end_src
 ** Company
 
 #+begin_src emacs-lisp :tangle yes
@@ -1044,113 +1105,6 @@ _r_eload    e_x_pand    _?_ list
   (yas-global-mode 1))
 #+END_SRC
 
-** Ivy
-
-#+begin_src emacs-lisp :tangle yes
-(use-package ivy
-  :defer 1 ;; wait one second before loading
-  :config
-  (setq ivy-height 15
-        ivy-wrap t
-        ;; don't use ^ as initial input
-        ivy-initial-inputs-alist nil
-        ;; highlight til EOL
-        ivy-format-function #'ivy-format-function-line
-        ;; don't show recent files in switch-buffer
-        ivy-use-virtual-buffers nil
-        ;; don't quit minibuffer on delete-error
-        ivy-on-del-error-function nil
-        ;; enable ability to select prompt
-        ivy-use-selectable-prompt t)
-
-  (ivy-mode 1))
-#+end_src
-** Ivy-Rich
-
-#+begin_src emacs-lisp :tangle yes
-(use-package ivy-rich
-  :after (ivy counsel)
-  :config
-  (ivy-rich-mode 1))
-#+end_src
-
-** FLX
-
-Sublime-text fuzzy matching for Emacs completions.
-
-#+begin_src emacs-lisp :tangle yes
-(use-package flx
-  :defer t  ; loaded by ivy
-  :init
-  (setq ivy-re-builders-alist
-        '((counsel-ag . ivy--regex-plus)
-          (counsel-rg . ivy--regex-plus)
-          (counsel-grep . ivy--regex-plus)
-          (swiper . ivy--regex-plus)
-          (swiper-isearch . ivy--regex-plus)
-          (t . ivy--regex-fuzzy))
-        ivy-initial-inputs-alist nil))
-#+end_src
-
-** Ivy-Prescient
-
-#+begin_src emacs-lisp :tangle yes
-(use-package ivy-prescient
-  :hook (ivy-mode . ivy-prescient-mode)
-  :hook (ivy-prescient-mode . prescient-persist-mode)
-  :custom
-  (prescient-filter-method '(literal regexp initialism fuzzy)))
-
-#+end_src
-** Counsel
-
-Ivy enhancements to commonly-used functions.
-
-#+begin_src emacs-lisp :tangle yes
-(use-package counsel
-  :demand
-  :diminish (ivy-mode . "")
-  :bind
-  (("C-x b" . ivy-switch-buffer)
-   ("C-x C-f" . counsel-find-file))
-  :config
-  (define-key ivy-minibuffer-map [escape] 'minibuffer-keyboard-quit)
-
-  ;; Search Debug folders for makefiles
-  (add-to-list 'counsel-compile-build-directories "Debug")
-
-  (ivy-add-actions
-   'counsel-find-file
-   `(("b" counsel-find-file-cd-bookmark-action "cd bookmark")
-     ("s" counsel-find-file-as-root "open as root")
-     ("m" counsel-find-file-mkdir-action "mkdir")
-     ("r" (lambda (path) (rename-file path (read-string "New name: "))) "rename")
-     ("f" find-file-other-window "other window")
-     ("F" find-file-other-frame "other frame")
-     ("p" (lambda (path) (with-ivy-window (insert (file-relative-name path default-directory)))) "insert relative path")
-     ("P" (lambda (path) (with-ivy-window (insert path))) "insert absolute path")
-     ("l" (lambda (path) "Insert org-link with relative path"
-            (with-ivy-window (insert (format "[[./%s]]" (file-relative-name path default-directory))))) "insert org-link (rel. path)")
-     ("L" (lambda (path) "Insert org-link with absolute path"
-            (with-ivy-window (insert (format "[[%s]]" path)))) "insert org-link (abs. path)")))
-  (counsel-mode 1))
-
-#+end_src
-
-*** Counsel-projectile
-
-#+begin_src emacs-lisp :tangle yes
-(use-package counsel-projectile
-  :after projectile
-  :config
-  (counsel-projectile-mode 1))
-#+end_src
-
-** Swiper
-#+begin_src emacs-lisp :tangle yes
-(use-package swiper
-  :bind (("M-s" . swiper)))
-#+end_src
 ** wgrep
 #+begin_src emacs-lisp :tangle yes
 (use-package wgrep)
@@ -1193,17 +1147,17 @@ Project management.
 (defun my--projectile-find-file-in-project-config ()
   (interactive)
   (let ((default-directory emacs-dir))
-    (counsel-projectile-find-file)))
+    (projectile-find-file)))
 
 (defun my--projectile-find-file-in-project-tasks ()
   (interactive)
   (let ((default-directory org-dir))
-    (counsel-projectile-find-file)))
+    (projectile-find-file)))
 
 (defun my--projectile-find-file-in-project-dotfiles ()
   (interactive)
   (let ((default-directory dotfiles-dir))
-    (counsel-projectile-find-file)))
+    (projectile-find-file)))
 #+end_src
 ** Magit
 
@@ -1974,62 +1928,6 @@ Make bullets circular
   (org-set-startup-visibility))
 
                                         ;(add-hook 'org-mode-hook #'my--org-buffer-sort-by-property)
-#+end_src
-**** Search headlines in agenda files
-
-Taken from https://github.com/jkitchin/scimax/blob/131f7f6f537c56f1d30396e79634a8b6cd6c887b/scimax-org.el#L693
-
-#+begin_src emacs-lisp :tangle yes
-
-(defun my--ivy-org-jump-to-heading (headlines)
-  "Jumpt to heading in current org file and place cursor at top of screen."
-  (ivy-read "Headline: "
-	    (reverse headlines)
-	    :action (lambda (candidate)
-		      (org-mark-ring-push)
-		      (find-file (plist-get (cdr candidate) :file))
-		      (goto-char (plist-get (cdr candidate) :position))
-		      (evil-scroll-line-to-top (line-number-at-pos (point)))
-		      (outline-show-entry)
-                      (let ((line (line-number-at-pos (point))))
-                        (goto-char (point-min))
-                        (forward-line (1- line)))
-                      (recenter (1- (max 1 scroll-margin))))))
-
-(defun my--ivy-org-jump-to-agenda-heading ()
-  "Jump to a heading in an agenda file. More visceral than
-counsel-org-agenda-headlines"
-  (interactive)
-  (let ((headlines '()))
-    (cl-loop for file in (org-agenda-files) do
-	     (with-current-buffer (find-file-noselect file)
-	       (save-excursion
-		 (goto-char (point-min))
-		 (while (re-search-forward org-heading-regexp nil t)
-		   (cl-pushnew (list
-				(format "%-80s (%s)"
-					(match-string 0)
-					(file-name-nondirectory file))
-				:file file
-				:position (match-beginning 0))
-			       headlines)))))
-    (my--ivy-org-jump-to-heading headlines)))
-
-(defun my--ivy-org-jump-to-file-heading ()
-  "Jump to org heading in current buffer."
-  (interactive)
-  (let ((headlines '()))
-    (save-excursion
-      (goto-char (point-min))
-      (while (re-search-forward org-heading-regexp nil t)
-	(cl-pushnew (list
-		     (format "%-80s (%s)"
-			     (match-string 0)
-			     (file-name-nondirectory buffer-file-name))
-		     :file buffer-file-name
-		     :position (match-beginning 0))
-		    headlines)))
-    (my--ivy-org-jump-to-heading headlines)))
 #+end_src
 *** Packages
 **** EVIL-Org
@@ -3029,11 +2927,6 @@ This means:
 (use-package org-mime
   :after (org notmuch)
   :config (setq org-mime-library 'mml))
-
-;; This package can be used to search emails, searching result displays as you type thanks to helm, though notmuch-search does the real search.
-(use-package counsel-notmuch
-  :commands counsel-notmuch
-  :after notmuch)
 #+end_src
 * Development
 ** Tools
