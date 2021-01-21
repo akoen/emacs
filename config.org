@@ -97,13 +97,6 @@ Sometimes you mistakenly add advice to a function. This function removes all adv
   (advice-mapc (lambda (advice _props) (advice-remove sym advice)) sym))
 #+end_src
 
-** Native Comp
-
-#+begin_src emacs-lisp :tangle yes
-(use-feature comp
-  :custom
-  (warning-suppress-log-types '((comp))))
-#+end_src
 ** Exec Path From Shell
 
 This sets the variable exec-path to the normal shell's PATH variable. This doesn't normally get set in daemon mode.

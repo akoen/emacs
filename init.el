@@ -40,7 +40,7 @@
 ;; straight.el. There is undoubtedly a simple way to solve this issue,
 ;; but I do not have the energy to discover it.
 (straight-use-package
- '(org :host github :repo "emacs-straight/org-mode" :local-repo "org" :no-byte-compile t))
+ '(org :host github :repo "emacs-straight/org-mode" :local-repo "org"))
 (use-package use-package-ensure-system-package)
 
 (if (file-exists-p (expand-file-name "config.el" user-emacs-directory))
