@@ -31,8 +31,8 @@ The following blocks may be tangled to debug certain features:
 
 *** Package Loading
 
-#+begin_src emacs-lisp :tangle no
-(setq use-package-verbose t)
+#+begin_src emacs-lisp :tangle yes
+(setq use-package-verbose nil)
 #+end_src
 
 To see what's loading a package:
@@ -351,22 +351,12 @@ The Modus themes are striking and are noticeably easier to read than alternative
   ;; (load-theme 'doom-spacegrey t)
   (doom-themes-org-config))
 #+end_src
-
-*** Nano
-#+begin_src emacs-lisp :tangle yes
-(use-package nano
-  :straight (:host github :repo "rougier/nano-emacs")
-  :defer t
-  :init
-  (require 'nano-faces)
-  (require 'nano-base-colors))
-#+end_src
 ** Text
 *** Font
 
 #+begin_src emacs-lisp :tangle yes
-(add-to-list 'default-frame-alist '(font . "JetBrains Mono-14" ))
-(set-face-attribute 'default nil :font "JetBrains Mono-14")
+(add-to-list 'default-frame-alist '(font . "JetBrains Mono-13"))
+(set-face-attribute 'default nil :font "JetBrains Mono-13")
 #+end_src
 
 ** Disable unecessary UI elements
@@ -400,6 +390,7 @@ Make yes or no prompts be y or n prompts
 (global-hl-line-mode +1)
 (setq display-line-numbers-type 'relative
       display-line-numbers-grow-only t)
+
 ;; Prevent lines from being shifted when order of magnitude increases.
 (setq display-line-numbers-width-start t)
 
@@ -476,6 +467,11 @@ A fancy and fast mode-line inspired by minimalistic design
   :init (doom-modeline-mode 1))
 #+end_src
 
+** Hide modeline
+#+begin_src emacs-lisp :tangle yes
+(use-package hide-mode-line
+  :commands hide-mode-line-mode)
+#+end_src
 ** hl-todo
 
 Highlights keywords in comments
@@ -650,14 +646,6 @@ Space is the best leader key.
     "oje" 'org-journal-new-scheduled-entry
     "ojs" 'org-journal-search-forever
 
-    ;; Projects
-    "SPC" 'projectile-find-file
-    "pd" 'projectile-find-dir
-    "pi" 'projectile-invalidate-cache
-    "pk" 'projectile-kill-buffers
-    "pt" 'my--projectile-find-file-in-project-tasks
-    "pc" 'my--projectile-find-file-in-project-config
-
     ;; Terminal
     "tn" 'vterm-other-window
     ))
@@ -778,12 +766,12 @@ Especially when writing text, moving by visual lines instead of by numbered line
 #+begin_src emacs-lisp :tangle no :noweb-ref custom text objects
 (defmacro define-and-bind-text-object (key start-regex end-regex)
   (let ((inner-name (make-symbol "inner-name"))
-	(outer-name (make-symbol "outer-name")))
+        (outer-name (make-symbol "outer-name")))
     `(progn
        (evil-define-text-object ,inner-name (count &optional beg end type)
-	 (evil-select-paren ,start-regex ,end-regex beg end type count nil))
+         (evil-select-paren ,start-regex ,end-regex beg end type count nil))
        (evil-define-text-object ,outer-name (count &optional beg end type)
-	 (evil-select-paren ,start-regex ,end-regex beg end type count t))
+         (evil-select-paren ,start-regex ,end-regex beg end type count t))
        (define-key evil-inner-text-objects-map ,key (quote ,inner-name))
        (define-key evil-outer-text-objects-map ,key (quote ,outer-name)))))
 
@@ -791,19 +779,26 @@ Especially when writing text, moving by visual lines instead of by numbered line
 ;; create "il"/"al" (inside/around) line text objects:
 ;; (define-and-bind-text-object "l" "^\\s-*" "\\s-*$")
 ;; create "ie"/"ae" (inside/around) entire buffer text objects:
+
+;; See https://github.com/emacs-evil/evil-surround#add-new-surround-pairs-through-creation-of-evil-objects
 (define-and-bind-text-object "e" "\\`\\s-*" "\\s-*\\'")
+(define-and-bind-text-object "/" "/" "/")
+(define-and-bind-text-object "*" "*" "*")
+(define-and-bind-text-object "~" "\\~" "\\~")
+(define-and-bind-text-object "=" "=" "=")
+(define-and-bind-text-object "$" "\\$" "\\$")
 
 ;; Inner/around line text object from https://github.com/emacsorphanage/evil-textobj-line
 (defun evil-line-range (count beg end type &optional inclusive)
   (if inclusive
       (evil-range (line-beginning-position) (line-end-position))
     (let ((start (save-excursion
-		   (back-to-indentation)
-		   (point)))
-	  (end (save-excursion
-		 (goto-char (line-end-position))
-		 (skip-syntax-backward " " (line-beginning-position))
-		 (point))))
+                   (back-to-indentation)
+                   (point)))
+          (end (save-excursion
+                 (goto-char (line-end-position))
+                 (skip-syntax-backward " " (line-beginning-position))
+                 (point))))
       (evil-range start end))))
 
 (evil-define-text-object evil-a-line (count &optional beg end type)
@@ -831,6 +826,8 @@ Especially when writing text, moving by visual lines instead of by numbered line
 This code allows us to quit basically everything using ESC.
 
 #+begin_src emacs-lisp :tangle yes
+(setq evil-intercept-esc nil) ;; May need to be set to t
+
 (defvar my--escape-hook nil
   "A hook run when esc is pressed")
 
@@ -839,15 +836,16 @@ This code allows us to quit basically everything using ESC.
   (interactive)
   (cond ((minibuffer-window-active-p (minibuffer-window))
 	 ;; quit the minibuffer if open.
-	 (abort-recursive-edit))
+         (abort-recursive-edit))
 	;; Run all escape hooks. If any returns non-nil, then stop there.
 	((run-hook-with-args-until-success 'my--escape-hook))
 	;; don't abort macros
 	((or defining-kbd-macro executing-kbd-macro) nil)
-	;; Back to the default
-	((keyboard-quit))))
+  ;; Back to the default
+  ((keyboard-quit))))
 
 (global-set-key [remap keyboard-quit] #'escape-quit)
+(define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
 
 (with-eval-after-load 'evil
   ;; Taken from doom emacs.
@@ -941,7 +939,7 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   :general
   (general-nmap "C-w" 'ace-window)
   :custom
-  (aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+  (aw-keys '(?h ?j ?k ?l ?a ?s ?d ?f))
   (aw-dispatch-always t)
   (aw-scope 'frame))
 #+end_src
@@ -989,6 +987,7 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 (use-package consult
   :general
   (leader-key
+    "fr" 'consult-recent-file
     "bb" 'consult-buffer
     "BB" 'consult-bookmark
     "yp" 'consult-yank
@@ -1126,6 +1125,20 @@ Project management.
 #+begin_src emacs-lisp :tangle yes
 (use-package projectile
   :defer 1
+  :general
+  (leader-key
+    ;; Projects
+    "SPC" 'projectile-find-file
+    "pd" 'projectile-find-dir
+    "pp" 'projectile-switch-project
+    "pi" 'projectile-invalidate-cache
+    "pk" 'projectile-kill-buffers
+    "pt" 'my--projectile-find-file-in-project-tasks
+    "pc" 'my--projectile-find-file-in-project-config
+
+    "cc" 'projectile-compile-project
+    )
+
   :init
   (setq projectile-enable-caching nil
         projectile-require-project-root 'prompt
@@ -1210,7 +1223,7 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
 (use-package vterm-toggle
   :commands vterm-toggle vterm-toggle-cd
   :bind
-  (("C-`" . vterm-toggle-cd))
+  (("C-`" . vterm-toggle))
   :custom
   (vterm-toggle-scope 'project))
 #+end_src
@@ -1888,6 +1901,9 @@ We do not run ~org-babel-do-load-languages~ because it eagerly loads packages. S
 (use-feature ob-C
   :commands (org-edit-special org-babel-execute:C++ org-babel-execute:C))
 
+(use-feature ob-matlab
+  :commands (org-babel-execute:matlab))
+
 (use-feature ob-java
   :commands (org-babel-execute:java))
 #+end_src
@@ -2098,6 +2114,7 @@ Allows for external applications to trigger custom actions without external depe
 **** org-transclusion
 #+begin_src emacs-lisp :tangle yes
 (use-package org-transclusion
+  :disabled t
   :straight (:host github :branch "main" :repo "nobiot/org-transclusion")
   :hook (org-mode . org-transclusion-mode)
   :custom
@@ -2589,15 +2606,9 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
 	'(( :name  "Unread messages"
 	    :query "flag:unread AND NOT flag:trashed"
 	    :key ?u)
-	  ( :name "Today's messages"
-	    :query "date:today..now"
-	    :key ?t)
 	  ( :name "All in inbox"
 	    :query "maildir:/Inbox OR maildir:/Inbox/*"
 	    :key ?i)
-	  ( :name "Last 7 days"
-	    :query "date:7d..now"
-	    :key ?w)
 	  ( :name "Messages with images"
 	    :query "mime:image/*"
 	    :key ?p)))
@@ -3339,7 +3350,8 @@ Arch packages:
 
 (use-package blacken
   :commands blacken-mode
-  :hook (python-mode . blacken-mode))
+  ;; :hook (python-mode . blacken-mode)
+  )
 
 (use-package importmagic
   :hook (python-mode . importmagic-mode))
@@ -3347,6 +3359,9 @@ Arch packages:
 (use-package sphinx-doc
   :after python
   :hook (python-mode . sphinx-doc-mode))
+
+(use-package python-docstring
+  :hook ((python-mode . python-docstring-mode)))
 
 (use-package python-pytest
   :general
