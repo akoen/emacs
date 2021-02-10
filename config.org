@@ -1224,6 +1224,19 @@ An inteface to Git. The mascot of Emacs packages.
 
 #+end_src
 
+** Comint
+#+begin_src emacs-lisp :tangle yes
+(use-feature comint
+  :preface
+  (defun comint-clear-buffer ()
+    (interactive)
+    (let ((comint-buffer-maximum-size 0))
+      (comint-truncate-buffer)))
+  :general
+  (general-define-key
+   :keymaps 'comint-mode-map
+   "C-l" 'comint-clear-buffer))
+#+end_src
 ** Vterm
 
 A fantastic terminal emulator for Emacs. Currently, there is no good way to use evil, and since I'm used to Emacs keybindings in other terminals anyways, we just set the default mode to evil.
