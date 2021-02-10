@@ -499,12 +499,33 @@ Highlights keywords in comments
           ;; For things that just gotta go and will soon be gone.
           ("DEPRECATED" font-lock-doc-face bold))))
 #+end_src
+** Doom-Popup
+
+#+begin_src emacs-lisp :tangle yes
+(use-package doom-popup
+  :straight (:host github :repo "akoen/doom-popup")
+  :after general
+  :config
+  (+popup-mode +1)
+  ;; General keyword doesn't seem to work with :straight
+  (general-define-key :states '(normal insert motion)
+                      :keymaps 'override
+                      "C-<tab>"   #'+popup/toggle
+                      ;; "C-~"   #'+popup/raise
+                      "C-x p" #'+popup/other)
+
+  (set-popup-rules!
+    '(("^\\*MATLAB\\*$"
+       :vslot -11 :size 0.35 :select nil :quit nil))))
+#+end_src
+
 ** Shackle
 
 #+begin_src emacs-lisp :tangle yes
 (use-package shackle
   ;; FIXME When opening the Lab 6 ADC buffer (and only that buffer) some weird splits start to happen.
   :hook (after-init . shackle-mode)
+  :disabled t
   :custom
   (shackle-rules '(("*compilation*" :align t :size 0.2 :autoclose t)
 		   ("\\*pytest\\*.*" :regexp t :align t :size 0.4 :autoclose t)
@@ -1645,12 +1666,13 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 #+begin_src emacs-lisp :tangle yes
 (use-feature org-agenda
   :after org
+  :hook (org-agenda-mode . org-agenda-entry-text-mode)
   :config
   (setq org-deadline-warning-days 7)
   (setq org-agenda-dim-blocked-tasks nil)
-
-  ;; Remove uneccesary whitespace
-  (setq org-agenda-compact-blocks t)
+  ;; (setq org-agenda-compact-blocks t)
+  (setq org-agenda-block-separator nil)
+  (setq org-agenda-entry-text-maxlines 1)
 
   ;; Use current window for agenda buffer
   (setq org-agenda-window-setup 'only-window)
