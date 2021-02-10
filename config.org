@@ -1415,14 +1415,6 @@ Displays the folder tree
   ;; FIXME Does not work at startup
   :custom-face
   (org-block-end-line ((t (:inherit org-block-begin-line))))
-  :custom
-  ;; calendar ical export
-  (org-icalendar-include-todo nil)
-  (org-icalendar-store-UID nil)
-  (org-icalendar-timezone nil)
-  (org-icalendar-use-deadline '(event-if-todo-not-done))
-  (org-icalendar-use-scheduled '(event-if-todo-not-done))
-  (org-icalendar-combined-agenda-file (concat org-dir "calendar.ics"))
   :init
   (setq org-directory org-dir
         org-archive-location (concat archive-dir "Tasks/archive_" (format-time-string "%Y") ".org::datetree/")
