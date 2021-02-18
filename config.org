@@ -601,21 +601,53 @@ The Hydra is vanquished once Hercules, any binding that isn't the Hydra's head, 
 
 #+begin_src emacs-lisp :tangle yes
 (use-package hydra
-  :bind ("C-x C-=" . hydra-zoom/body))
+  :general
+  ("C-x C-=" 'hydra-zoom/body)
+  (general-nmap "C-w" 'hydra-window/body)
+
+  :config
+  (defhydra hydra-window ()
+    "Window"
+
+    ("C-w" ace-select-window "select" :exit t)
+    ("d" delete-window "delete" :exit t)
+
+    ("h" evil-window-left "left" :exit t :column "Move")
+    ("j" evil-window-down "down" :exit t)
+    ("k" evil-window-up "up" :exit t)
+    ("l" evil-window-right "right" :exit t)
+
+    ("H" evil-window-left "left" :column "Move Stay")
+    ("J" evil-window-down "down")
+    ("K" evil-window-up "up")
+    ("L" evil-window-right "right")
+
+    ("C-h" shrink-window-horizontally "←" :column "Resize")
+    ("C-j" enlarge-window "↓")
+    ("C-k" shrink-window "↑")
+    ("C-l" enlarge-window-horizontally "→")
+
+    ("x" ace-delete-window "delete" :exit t :column "Operate")
+    ("m" ace-delete-other-windows "maximize" :exit t)
+    ("s" ace-swap-window "swap" :exit t)
+    ("b" balance-windows "balance")
+
+    ("r" evil-window-split "horizontally" :column "Split" :exit t)
+    ("v" evil-window-vsplit "vertically" :exit t)
+
+    ("q" quit-window "quit" :color blue))
+
+  (defhydra hydra-zoom ()
+    "zoom"
+    ("+" text-scale-increase "in")
+    ("=" text-scale-increase "in")
+    ("-" text-scale-decrease "out")
+    ("_" text-scale-decrease "out")
+    ("0" (text-scale-adjust 0) "reset")
+    ("q" nil "quit" :color blue))
+  )
 #+end_src
 
-*** Zooming
-
-#+begin_src emacs-lisp :tangle yes
-(defhydra hydra-zoom ()
-  "zoom"
-  ("+" text-scale-increase "in")
-  ("=" text-scale-increase "in")
-  ("-" text-scale-decrease "out")
-  ("_" text-scale-decrease "out")
-  ("0" (text-scale-adjust 0) "reset")
-  ("q" nil "quit" :color blue))
-#+end_src
 
 ** Undo
 
@@ -874,8 +906,6 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 
 #+begin_src emacs-lisp :tangle yes
 (use-package ace-window
-  :general
-  (general-nmap "C-w" 'ace-window)
   :custom
   (aw-keys '(?h ?j ?k ?l ?a ?s ?d ?f))
   (aw-dispatch-always t)
