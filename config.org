@@ -3264,6 +3264,8 @@ rainbow-mode shows hex code colours in buffers.
   (lsp-ui-sideline-show-hover t)
   (lsp-ui-sideline-ignore-duplicate t)
 
+  (lsp-headerline-breadcrumb-enable nil)
+
   (lsp-ui-imenu-enable nil))
 #+end_src
 
@@ -3463,9 +3465,32 @@ Arch packages:
 I used to dislike MATLAB, but the effort they put in to supporting Linux and Emacs earns my admiration.
 #+begin_src emacs-lisp :tangle yes
 (use-package matlab-mode
-  :mode ("\\.m\\'"
-         "\\.mat\\'"))
-#+end_src
+  :mode "\\.m\\'"
+  :general
+  (:states 'normal :keymaps 'matlab-mode-map "gz" 'matlab-shell)
+  :hook ((matlab-mode) . (lambda () (company-mode) (flycheck-mode)))
+  :init
+  (setq-default mlint-show-warnings t)
+  (with-eval-after-load 'flycheck
+    (flycheck-define-checker matlab
+      "Checker for matlab"
+      ;; FIXME This should REALLY be a variable
+      ;; :command ((eval mlint-program))
+      :command ("/usr/local/MATLAB/R2020b/bin/glnxa64/mlint" source)
+      :error-patterns
+      ((warning line-start "L " line " (C " (1+ digit)  "): " (message) line-end))
+      ;; ((warning line-start "L " line " (C " column "-" column "): " (id (* alnum)) ":" (message))
+      ;; (warning line-start "L " line " (C " column "): " (id (* alnum)) ":" (message)))
+      :modes matlab-mode)
+    (push 'matlab flycheck-checkers))
+
+  (set-popup-rules! '(("\\*MATLAB\\*" :ttl nil)
+                      (".*?MATLAB Help.*")))
+
+  :config
+  (matlab-cedet-setup))
+
+  #+end_src
 
 *** Julia
 
