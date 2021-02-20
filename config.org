@@ -1686,14 +1686,8 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
     :keymaps 'org-agenda-mode-map
     "p" 'my--org-agenda-process-inbox-item)
 
-  ;; Label items with children using an arrow
-  (defun my/org-has-children ()
-    (if (save-excursion (org-goto-first-child)) "▶" " "))
-  (add-to-list 'org-agenda-prefix-format '(agenda  . "%i%-3:(my/org-has-children) %-12:c%?-12t% s "))
-
-
   (defun my--check-sync-conflicts ()
-    (when (directory-files org-dir nil "sync-conflict")
+    (when (directory-files org-dir nil "conflict")
       (message "Warning: Sync conflicts")))
 
   (add-hook 'org-agenda-finalize-hook #'my--check-sync-conflicts)
@@ -1710,53 +1704,82 @@ A package which allows for much greater customization of the org agenda.
   :after org-agenda
   :config
   (setq org-agenda-custom-commands
-	'(("a" "All"
-	   ((agenda ""
-		    ((org-agenda-span 'day)
-		     (org-super-agenda-groups
-		      '((:discard (:tag "refile"))
-			(:name "Agenda"
-			       :time-grid t)
-			(:name "Personal"
-			       ;; :time-grid t
-			       :tag "personal")
-			(:auto-property "Class")
-			(:name "School Other"
-			       :file-path "school")
-			(:auto-property "Goal")))))
-	    (alltodo ""
-		     ((org-super-agenda-groups
-		       '((:auto-property "Project")
-			 (:name "Refile"
-				:and (:scheduled nil :deadline nil :todo "TODO")
-				:tag "refile")
-			 (:discard (:anything))
-			 ))))
-	    ;; TODO This is not useful as it is
-	    ;; (alltodo ""
-	    ;; 	     ((org-agenda-overriding-header "Stuck Projects")
-	    ;; 	      (org-agenda-skip-function 'my--skip-non-stuck-projects)))
-	    (todo "NEXT"
-		  ((org-agenda-overriding-header "Next Tasks")))
-	    (todo "WAITING"
-		  ((org-agenda-overriding-header "Waiting For Others")))
-	    (todo "SOMEDAY"
-		  ((org-agenda-overriding-header "Someday")))))
-	  ("t" "Today"
-	   ((agenda ""
-		    ((org-agenda-span 'day)
-		     (org-deadline-warning-days 0)
-		     (org-super-agenda-groups
-		      '((:name "Agenda"
-			       :time-grid t)
-			(:name "Must do"
-			       :priority "A")
-			(:name "Good to do"
-			       :priority "B")
-			(:name "Time-permitting"
-			       :priority "C")
-			(:name "Unsorted"
-			       :anything)))))))))
+        '(("a" "All"
+           ((agenda ""
+                    ((org-agenda-span 'day)
+                     (org-super-agenda-groups
+                      '((:discard (:tag "refile"))
+                        (:name "Agenda"
+                               :time-grid t)
+                        (:name "Personal"
+                               ;; :time-grid t
+                               :tag "personal")
+                        (:auto-property "Class")
+                        (:name "School Other"
+                               :file-path "school")
+                        (:auto-property "Goal")))))
+            (alltodo ""
+                     ((org-super-agenda-groups
+                       '((:auto-property "Project")
+                         (:name "Refile"
+                                :and (:scheduled nil :deadline nil :todo "TODO")
+                                :tag "refile")
+                         (:discard (:anything))
+                         ))))
+            ;; TODO This is not useful as it is
+            ;; (alltodo ""
+            ;; 	     ((org-agenda-overriding-header "Stuck Projects")
+            ;; 	      (org-agenda-skip-function 'my--skip-non-stuck-projects)))
+            (todo "NEXT"
+                  ((org-agenda-overriding-header "Next Tasks")))
+            (todo "WAITING"
+                  ((org-agenda-overriding-header "Waiting For Others")))
+            (todo "SOMEDAY"
+                  ((org-agenda-overriding-header "Someday")))))
+          ("t" "Today"
+           ((agenda ""
+                    ((org-agenda-span 'day)
+                     (org-deadline-warning-days 0)
+                     (org-super-agenda-groups
+                      '((:name "Agenda"
+                               :time-grid t)
+                        (:name "Must do"
+                               :priority "A")
+                        (:name "Good to do"
+                               :priority "B")
+                        (:name "Time-permitting"
+                               :priority "C")
+                        (:name "Unsorted"
+                               :anything)))))))
+
+          ("g" "Get Things Done (GTD)"
+           ((agenda nil
+                    ((org-agenda-span 'day)
+                     (org-agenda-skip-function
+                      '(org-agenda-skip-entry-if 'deadline))
+                     (org-deadline-warning-days 0)))
+            (todo "NEXT"
+                  ((org-agenda-skip-function
+                    '(org-agenda-skip-entry-if 'deadline))
+                   (org-agenda-prefix-format "  %i %-12:c [%e] ")
+                   (org-agenda-overriding-header "Tasks")))
+            (agenda nil
+                    ((org-agenda-span 'day)
+                    (org-agenda-overriding-header "Deadlines")
+                    (org-agenda-entry-types '(:deadline))
+                    ;; (org-agenda-format-date "")
+                    (org-deadline-warning-days 7)))
+            ;; (tags "+DEADLINE>=\"<today>\"&DEADLINE<=\"<+7d>\""
+            ;;       ((org-agenda-overriding-header "Deadlines2")
+            ;;        ))
+            (tags-todo "refile"
+                       ((org-agenda-prefix-format "  %?-12t% s")
+                        (org-agenda-overriding-header "Refile")))
+            (alltodo ""
+                     ((org-agenda-overriding-header "Stuck Projects")
+                      (org-agenda-skip-function 'my--skip-non-stuck-projects)))
+            (tags "CLOSED>=\"<today>\""
+                  ((org-agenda-overriding-header "Completed today")))))))
 
   (setq org-super-agenda-header-map (make-sparse-keymap)) ;; org-super-agenda does not copy keymap late enough
   (org-super-agenda-mode))
@@ -1768,6 +1791,8 @@ A package which allows for much greater customization of the org agenda.
 (use-feature org-agenda
   :after org
   :config
+  ;; From http://doc.norang.ca/org-mode.html#GTD
+
   (defun my--is-project-p ()
     "Any task with a todo keyword subtask."
     (save-restriction
@@ -1860,12 +1885,21 @@ We use a font that's easier on the eyes for long blocks of text
     :map org-mode-map
     "o=" 'my--org-indent-src-block)
 
-  :config
-  (setq org-src-tab-acts-natively t
-	org-edit-src-content-indentation 0
-        org-src-preserve-indentation t) ; use native major-mode indentation
+  :custom
+  (org-src-tab-acts-natively t)
+  (org-edit-src-content-indentation 0)
+  (org-src-preserve-indentation t)
+  (org-src-window-setup 'current-window)
 
-  (setq org-src-window-setup 'current-window)
+  ;; See https://org-babel.readthedocs.io/en/latest/header-args/
+  (org-babel-default-header-args '((:session . "none")
+                                   (:results . "replace")
+                                   (:exports . "both")
+                                   (:cache . "no")
+                                   (:noweb . "no")
+                                   (:hlines . "no")
+                                   (:tangle . "no")))
+  :config
 
   ;; Indents an src block without having to enter it
   (defun my--org-indent-src-block ()
@@ -1899,7 +1933,9 @@ We do not run ~org-babel-do-load-languages~ because it eagerly loads packages. S
   :commands (org-edit-special org-babel-execute:C++ org-babel-execute:C))
 
 (use-feature ob-matlab
-  :commands (org-babel-execute:matlab))
+  ;; :commands (org-babel-execute:matlab)
+  :custom
+  (org-babel-default-header-args:matlab '((:session . "*MATLAB*"))))
 
 (use-feature ob-java
   :commands (org-babel-execute:java))
@@ -2412,6 +2448,12 @@ Allow RefTeX to plug into AUCTeX
   (reftex-use-external-file-handlers t))
 #+end_src
 
+*** evil-tex
+#+begin_src emacs-lisp :tangle yes
+(use-package evil-tex
+  :hook (LaTeX-mode . evil-tex-mode))
+#+end_src
+
 ** Writing
 *** olivetti
 
@@ -2479,6 +2521,8 @@ Checks for signs of bad writing.
 ;; find aspell and hunspell automatically
 (use-package flyspell
   :hook ((org-mode markdown-mode TeX-mode rst-mode mu4e-compose-mode notmuch-message-mode git-commit-mode) . flyspell-mode)
+  :custom
+  (flyspell-prog-text-faces '(font-lock-comment-face font-lock-doc-face))
   :config
   (setq ispell-program-name "aspell"
         ispell-dictionary "canadian"
