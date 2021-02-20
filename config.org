@@ -629,11 +629,10 @@ The Hydra is vanquished once Hercules, any binding that isn't the Hydra's head, 
 
     ("x" ace-delete-window "delete" :exit t :column "Operate")
     ("m" ace-delete-other-windows "maximize" :exit t)
-    ("s" ace-swap-window "swap" :exit t)
     ("b" balance-windows "balance")
 
-    ("r" evil-window-split "horizontally" :column "Split" :exit t)
-    ("v" evil-window-vsplit "vertically" :exit t)
+    ("sh" evil-window-split "horizontally" :column "Split" :exit t)
+    ("sv" evil-window-vsplit "vertically" :exit t)
 
     ("q" quit-window "quit" :color blue))
 
