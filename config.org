@@ -855,6 +855,23 @@ This package emulates surround.vim by Tim Pope.
     "g=" 'evil-numbers/inc-at-pt
     "g-" 'evil-numbers/dec-at-pt))
 #+end_src
+
+*** evil-args
+#+begin_src emacs-lisp :tangle yes
+(use-package evil-args
+  :commands evil-inner-arg evil-outer-arg
+  :init
+  (define-key evil-inner-text-objects-map "a" 'evil-inner-arg)
+  (define-key evil-outer-text-objects-map "a" 'evil-outer-arg))
+#+end_src
+
+*** evil-matchit
+#+begin_src emacs-lisp :tangle yes
+(use-package evil-matchit
+  :config
+  (global-evil-matchit-mode 1))
+#+end_src
+
 *** evil-snipe
 
 Allows for quick movement to 2-char sequences.
