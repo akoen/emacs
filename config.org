@@ -918,6 +918,8 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 
 #+begin_src emacs-lisp :tangle yes
 (use-package ace-window
+  :custom-face
+  (aw-leading-char-face ((t (:inherit font-lock-keyword-face :bold t :height 3.0))))
   :custom
   (aw-keys '(?h ?j ?k ?l ?a ?s ?d ?f))
   (aw-dispatch-always t)
