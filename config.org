@@ -3495,11 +3495,26 @@ I used to dislike MATLAB, but the effort they put in to supporting Linux and Ema
 *** Julia
 
 #+begin_src emacs-lisp :tangle yes
-(use-package julia-mode)
+(use-package julia-mode
+  :mode "\\.jl\\'"
+  :general
+  (general-nmap :keymaps 'julia-mode-map
+    "gz" 'julia-repl
+    "C-<return>" 'julia-repl-send-region-or-line
+    "C-S-<return>" 'julia-repl-send-buffer)
 
-(use-package julia-repl)
+  :config
+  (use-package julia-repl)
+  (set-popup-rule! "\\*julia\\*" :ttl nil))
 
-(use-package lsp-julia)
+
+(use-package lsp-julia
+  :after julia-mode
+  :hook (julia-mode . lsp)
+  :custom
+  (lsp-julia-default-environment
+   (car (last (file-expand-wildcards
+               (expand-file-name "~/.julia/environments/v*"))))))
 #+end_src
 *** Lua
 #+begin_src emacs-lisp :tangle yes
