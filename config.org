@@ -1025,12 +1025,19 @@ Pressing Q restores the window configuration to the last state. Useful for killi
             "<tab>" nil
             "TAB" nil
             "C-n" 'company-select-next-or-abort
-            "C-p" 'company-select-previous-or-abort
-
-            :predicate '(company-explicit-action-p)
+            "C-p" 'company-select-previous-or-abort)
+  (:keymaps 'company-active-map
+            :predicate 'company-explicit-action-p
             "<return>"  'company-complete-selection
             "RET"  'company-complete-selection)
-  ("TAB" (general-predicate-dispatch nil
+  (general-imap "TAB" (general-predicate-dispatch nil
+           (and (bound-and-true-p yas-minor-mode)
+                (yas-maybe-expand-abbrev-key-filter 'yas-expand))
+           #'yas-expand
+           (>= company-candidates-length 1)
+           #'company-complete-selection))
+
+  (general-imap "<tab>" (general-predicate-dispatch nil
            (and (bound-and-true-p yas-minor-mode)
                 (yas-maybe-expand-abbrev-key-filter 'yas-expand))
            #'yas-expand
@@ -1253,7 +1260,6 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
 
   (add-hook 'dired-after-readin-hook #'show-folder-description)
 
-  ;; The standard ls details are extraneous
   (add-hook 'dired-mode-hook #'dired-hide-details-mode)
 
   (defun my--dired-do-command (command)
