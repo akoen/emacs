@@ -3087,7 +3087,28 @@ rainbow-mode shows hex code colours in buffers.
   ;; (org-babel-jupyter-override-src-block "julia")
   (set-popup-rule! "\\*jupyter-repl"))
 #+end_src
+
 ** Lang
+*** Elisp
+#+begin_src emacs-lisp :tangle yes
+(use-feature elisp
+  :general
+  (leader-key
+    "eb" 'eval-buffer
+    "ef" 'load-file
+    "er" 'eval-region
+    "el" 'load-library
+    )
+  :hook (emacs-lisp-mode . company-mode))
+
+(use-feature ielm
+  :hook (inferior-emacs-lisp-mode . company-mode)
+  :general
+  (leader-key
+    "ee" 'ielm)
+  :init
+  (set-popup-rule! "\\*ielm\\*" :ttl nil))
+#+end_src
 *** Web
 **** web mode
 #+begin_src emacs-lisp :tangle yes
