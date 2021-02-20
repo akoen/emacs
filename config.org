@@ -3061,6 +3061,25 @@ rainbow-mode shows hex code colours in buffers.
 #+begin_src emacs-lisp :tangle yes
 (use-package rainbow-mode)
 #+end_src
+*** Jupyter
+#+begin_src emacs-lisp :tangle yes
+(use-package jupyter
+  :custom
+  (org-babel-jupyter-resource-directory "/tmp/.ob-jupyter")
+  (jupyter-repl-input-prompt-format "[%d] ")
+  (jupyter-repl-output-prompt-format "")
+  (jupyter-repl-busy-prompt "[*] ")
+  (org-babel-default-header-args:jupyter-julia '((:async . "yes")
+                                                 (:session . "jl")
+                                                 (:kernel . "julia-1.5")))
+  (org-babel-default-header-args:jupyter-python '((:async . "yes")
+                                                  (:session . "py")
+                                                  (:kernel . "python3")))
+  :config
+  ;; (org-babel-jupyter-override-src-block "ipython")
+  ;; (org-babel-jupyter-override-src-block "julia")
+  (set-popup-rule! "\\*jupyter-repl"))
+#+end_src
 ** Lang
 *** Web
 **** web mode
