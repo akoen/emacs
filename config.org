@@ -1996,7 +1996,14 @@ Make bullets circular
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
 #+end_src
+**** Iscroll
+Smooth scrolling over images
 
+#+begin_src emacs-lisp :tangle yes
+(use-package iscroll
+  :hook (org-mode . iscroll-mode)
+  :straight (:host github :repo "casouri/iscroll"))
+#+end_src
 **** org-Bullets
 Make the header bullets look prettier
 #+begin_src emacs-lisp :tangle yes
