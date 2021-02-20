@@ -183,9 +183,11 @@ Tangling this org file into config.el at every startup is slow. This code is bor
       ring-bell-function 'ignore     ; silent bell when you make a mistake
       x-select-enable-clipboard t    ; allow pasting selection outside of emacs
       kill-buffer-query-functions nil
-      initial-major-mode 'fundamental-mode
+      initial-major-mode 'emacs-lisp-mode
       initial-scratch-message nil
+      debug-on-error nil
       save-interprogram-paste-before-kill t
+      default-input-method 'TeX
       compilation-scroll-output 'first-error
       compilation-skip-threshold 2   ; don't stop on info or warnings
       delete-by-moving-to-trash t    ; move files to trash when deleting
@@ -397,7 +399,8 @@ Make yes or no prompts be y or n prompts
 ;; Disable line numbers for some modes
 (dolist (mode '(term-mode-hook
                 shell-mode-hook
-		vterm-mode-hook
+                vterm-mode-hook
+                jupyter-repl-mode-hook
                 treemacs-mode-hook
                 olivetti-mode-hook
                 eshell-mode-hook))
@@ -515,7 +518,7 @@ Highlights keywords in comments
                       "C-x p" #'+popup/other)
 
   (set-popup-rules!
-    '(("\\*Async Shell Command\\*")
+    '(("\\*Async Shell Command\\*" :ttl nil)
 )))
 #+end_src
 
@@ -553,14 +556,6 @@ Space is the best leader key.
     ;; Buffer
     "br" 'revert-buffer
     "`" 'evil-switch-to-windows-last-buffer
-
-    ;; Eval
-    "eb" 'eval-buffer
-    "ed" 'eval-defun
-    "ee" 'eval-last-sexp
-    "ef" 'load-file
-    "er" 'eval-region
-    "el" 'load-library
 
     ;; Files
     "." 'find-file
@@ -612,20 +607,20 @@ The Hydra is vanquished once Hercules, any binding that isn't the Hydra's head, 
     ("C-w" ace-select-window "select" :exit t)
     ("d" delete-window "delete" :exit t)
 
-    ("h" evil-window-left "left" :exit t :column "Move")
-    ("j" evil-window-down "down" :exit t)
-    ("k" evil-window-up "up" :exit t)
-    ("l" evil-window-right "right" :exit t)
+    ("C-h" evil-window-left "left" :exit t :column "Move")
+    ("C-j" evil-window-down "down" :exit t)
+    ("C-k" evil-window-up "up" :exit t)
+    ("C-l" evil-window-right "right" :exit t)
 
-    ("H" evil-window-left "left" :column "Move Stay")
-    ("J" evil-window-down "down")
-    ("K" evil-window-up "up")
-    ("L" evil-window-right "right")
+    ("h" evil-window-left "left" :column "Move Stay")
+    ("j" evil-window-down "down")
+    ("k" evil-window-up "up")
+    ("l" evil-window-right "right")
 
-    ("C-h" shrink-window-horizontally "←" :column "Resize")
-    ("C-j" enlarge-window "↓")
-    ("C-k" shrink-window "↑")
-    ("C-l" enlarge-window-horizontally "→")
+    ("H" shrink-window-horizontally "←" :column "Resize")
+    ("J" enlarge-window "↓")
+    ("K" shrink-window "↑")
+    ("L" enlarge-window-horizontally "→")
 
     ("x" ace-delete-window "delete" :exit t :column "Operate")
     ("m" ace-delete-other-windows "maximize" :exit t)
@@ -756,6 +751,7 @@ Especially when writing text, moving by visual lines instead of by numbered line
 (define-and-bind-text-object "~" "\\~" "\\~")
 (define-and-bind-text-object "=" "=" "=")
 (define-and-bind-text-object "$" "\\$" "\\$")
+(define-and-bind-text-object "," "," ",")
 
 ;; Inner/around line text object from https://github.com/emacsorphanage/evil-textobj-line
 (defun evil-line-range (count beg end type &optional inclusive)
