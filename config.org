@@ -1237,6 +1237,9 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
 #+begin_src emacs-lisp :tangle yes
 (use-feature dired
   :commands dired-jump
+  :general
+  (general-nmap :keymaps 'dired-mode-map
+    "=" 'my--diff-files)
   :config
   (setq dired-auto-revert-buffer t  ; don't prompt to revert; just do it
         dired-dwim-target t  ; suggest a target for moving/copying intelligently
@@ -1261,6 +1264,22 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
   (add-hook 'dired-after-readin-hook #'show-folder-description)
 
   (add-hook 'dired-mode-hook #'dired-hide-details-mode)
+
+  (defun my--diff-files ()
+    (interactive)
+    (let ((files (dired-get-marked-files))
+          (wnd (current-window-configuration)))
+      (if (<= (length files) 2)
+          (let ((file1 (car files))
+                (file2 (if (cdr files)
+                           (cadr files)
+                         (read-file-name
+                          "File: "
+                          (dired-dwim-target-directory)))))
+            (if (file-newer-than-file-p file1 file2)
+                (diff file2 file1)
+              (diff file1 file2)))
+        (error "Cannot diff more thatn 2 files"))))
 
   (defun my--dired-do-command (command)
     "Run COMMAND on marked files. Any files not already open will be opened.
