@@ -1704,55 +1704,7 @@ A package which allows for much greater customization of the org agenda.
   :after org-agenda
   :config
   (setq org-agenda-custom-commands
-        '(("a" "All"
-           ((agenda ""
-                    ((org-agenda-span 'day)
-                     (org-super-agenda-groups
-                      '((:discard (:tag "refile"))
-                        (:name "Agenda"
-                               :time-grid t)
-                        (:name "Personal"
-                               ;; :time-grid t
-                               :tag "personal")
-                        (:auto-property "Class")
-                        (:name "School Other"
-                               :file-path "school")
-                        (:auto-property "Goal")))))
-            (alltodo ""
-                     ((org-super-agenda-groups
-                       '((:auto-property "Project")
-                         (:name "Refile"
-                                :and (:scheduled nil :deadline nil :todo "TODO")
-                                :tag "refile")
-                         (:discard (:anything))
-                         ))))
-            ;; TODO This is not useful as it is
-            ;; (alltodo ""
-            ;; 	     ((org-agenda-overriding-header "Stuck Projects")
-            ;; 	      (org-agenda-skip-function 'my--skip-non-stuck-projects)))
-            (todo "NEXT"
-                  ((org-agenda-overriding-header "Next Tasks")))
-            (todo "WAITING"
-                  ((org-agenda-overriding-header "Waiting For Others")))
-            (todo "SOMEDAY"
-                  ((org-agenda-overriding-header "Someday")))))
-          ("t" "Today"
-           ((agenda ""
-                    ((org-agenda-span 'day)
-                     (org-deadline-warning-days 0)
-                     (org-super-agenda-groups
-                      '((:name "Agenda"
-                               :time-grid t)
-                        (:name "Must do"
-                               :priority "A")
-                        (:name "Good to do"
-                               :priority "B")
-                        (:name "Time-permitting"
-                               :priority "C")
-                        (:name "Unsorted"
-                               :anything)))))))
-
-          ("g" "Get Things Done (GTD)"
+        '(("g" "Get Things Done (GTD)"
            ((agenda nil
                     ((org-agenda-span 'day)
                      (org-agenda-skip-function
