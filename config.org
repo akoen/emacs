@@ -2159,35 +2159,39 @@ Allows for external applications to trigger custom actions without external depe
 **** org-roam
 #+begin_src emacs-lisp :tangle yes
 (use-package org-roam
-  :ensure-system-package sqlite3
-  :hook
-  (org-mode . org-roam-mode)
+  :straight (:host github :repo "org-roam/org-roam" :branch "v2")
+  :after org
+  :commands
+  (org-roam-buffer
+   org-roam-setup
+   org-roam-capture
+   org-roam-node-find)
   :general
   (leader-key
-    "or" 'org-roam
-    "oi" 'org-roam-insert
-    "of" 'org-roam-find-file)
+    "or" 'org-roam-buffer-toggle
+    "oi" 'org-roam-node-insert
+    "of" 'org-roam-node-find)
   :custom
   (org-roam-verbose nil)
-  (org-roam-directory brain-dir)
-  (org-roam-db-location "~/org-roam.db")
+  (org-roam-directory "~/tmp/org")
   (org-roam-tag-sources '(prop last-directory))
-  (org-roam-graph-exclude-matcher '("journal"))
-  (org-roam-link-title-format "§%s")
+  (org-roam-mode-sections
+   (list #'org-roam-backlinks-section
+         #'org-roam-reflinks-section
+         #'org-roam-unlinked-references-section))
 
-  :config
-  (require 'org-roam-protocol)
-  (setq org-roam-capture-templates
-	'(("d" "default" plain (function org-roam--capture-get-point)
-	   "%?"
-	   :file-name "${slug}"
-	   :head "#+setupfile: ../hugo_setup.org
-,#+title: ${title}\n"
-	   :unnarowed t)
-	  ("b" "book" plain (function org-roam--capture-get-point)
-	   "%?"
-	   :file-name "books/${slug}"
-	   :head "#+setupfile: ../../hugo_setup.org
+  (org-roam-capture-templates
+   '(("d" "default" plain
+      "%?"
+      :if-new (file+head "${slug}.org"
+                         "#+setupfile: ../hugo_setup.org
+,#+title: ${title}\n")
+      :immediate-finish t
+      :unnarowed t)
+     ("b" "book" plain
+      "%?"
+      :if-new (file+head "books/${slug}.org"
+                         "#+setupfile: ../../hugo_setup.org
 ,#+title: ${title}
 
 - author ::
