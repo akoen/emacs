@@ -316,7 +316,11 @@ The Modus themes are striking and are noticeably easier to read than alternative
 (set-face-attribute 'default nil :font "JetBrains Mono-13")
 #+end_src
 
-** Disable unecessary UI elements
+** Frame
+*** Parameters
+#+begin_src emacs-lisp :tangle yes
+(add-to-list 'default-frame-alist '(internal-border-width . 16))
+#+end_src
 *** Tool Bar
 
 #+begin_src emacs-lisp :tangle yes
