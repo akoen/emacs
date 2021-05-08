@@ -22,8 +22,8 @@ The following blocks may be tangled to debug certain features:
 
 *** Package Loading
 
-#+begin_src emacs-lisp :tangle yes
-(setq use-package-verbose nil)
+#+begin_src emacs-lisp :tangle no
+(setq use-package-verbose t)
 #+end_src
 
 To see what's loading a package:
@@ -138,6 +138,13 @@ Move files are folders to appropriate locations:
       tramp-persistency-file-name (concat emacs-cache-dir "tramp-persistency.el"))
 #+end_src
 
+** Native comp
+#+begin_src emacs-lisp :tangle yes
+(use-feature comp
+  :if (eql emacs-major-version 28)
+  :custom
+  (warning-suppress-log-types '((comp))))
+#+end_src
 ** Secrets
 #+begin_src emacs-lisp :tangle yes
 (load-file (concat emacs-dir "secrets.el"))
@@ -146,7 +153,7 @@ Move files are folders to appropriate locations:
 * Better Defaults
 ** Asynchronously tangle literate config
 
-Tangling this org file into config.el at every startup is slow. This code is borrowed from https://github.com/rememberYou/.emacs.d/blob/master/config.org
+Tangling this org file on save. This code is borrowed from https://github.com/rememberYou/.emacs.d/blob/master/config.org
 
 #+begin_src emacs-lisp :tangle yes
 (use-package async)
@@ -209,16 +216,13 @@ Use spaces instead of tabs.
 (setq-default tab-width 2
 	      evil-shift-width tab-width
 	      indent-tabs-mode nil)
-
-
 #+end_src
 ** Whitespace
 #+begin_src emacs-lisp :tangle yes
 (use-package ws-butler
+  :hook (prog-mode . ws-butler-mode)
   :custom
-  (ws-butler-keep-whitespace-before-point nil)
-  :config
-  (ws-butler-global-mode 1))
+  (ws-butler-keep-whitespace-before-point nil))
 
 #+end_src
 ** Revert
@@ -288,47 +292,7 @@ The Modus themes are striking and are noticeably easier to read than alternative
 #+begin_src emacs-lisp :tangle yes
 (use-package modus-themes
   :config
-  (defmacro modus-themes-format-sexp (sexp &rest objects)
-    `(eval (read (format ,(format "%S" sexp) ,@objects))))(dolist (theme '("operandi" "vivendi"))
-
-    (modus-themes-format-sexp
-     (defun modus-%1$s-theme-load ()
-       (setq modus-%1$s-theme-slanted-constructs t
-             modus-%1$s-theme-bold-constructs t
-             modus-%1$s-theme-fringes nil ; {nil,'subtle,'intense}
-             modus-%1$s-theme-mode-line '3d ; {nil,'3d,'moody}
-             modus-%1$s-theme-syntax 'alt-syntax ; {nil,faint,'yellow-comments,'green-strings,'yellow-comments-green-strings,'alt-syntax,'alt-syntax-yellow-comments}
-             modus-%1$s-theme-intense-hl-line nil
-             modus-%1$s-theme-intense-paren-match nil
-             modus-%1$s-theme-links 'faint ; {nil,'faint,'neutral-underline,'faint-neutral-underline,'no-underline}
-             modus-%1$s-theme-no-mixed-fonts nil
-             modus-%1$s-theme-prompts nil ; {nil,'subtle,'intense}
-             modus-%1$s-theme-completions 'moderate ; {nil,'moderate,'opinionated}
-             modus-%1$s-theme-diffs nil ; {nil,'desaturated,'fg-only}
-             modus-%1$s-theme-org-blocks 'grayscale ; {nil,'grayscale,'rainbow}
-             modus-%1$s-theme-headings  ; Read further below in the manual for this one
-             '((t))
-             modus-%1$s-theme-variable-pitch-headings nil
-             modus-%1$s-theme-scale-headings t
-             modus-%1$s-theme-scale-1 1.1
-             modus-%1$s-theme-scale-2 1.15
-             modus-%1$s-theme-scale-3 1.21
-             modus-%1$s-theme-scale-4 1.27
-             modus-%1$s-theme-scale-5 1.33)
-       (load-theme 'modus-%1$s t))
-     theme))
-
-    (defun modus-themes-toggle ()
-      "Toggle between `modus-operandi' and `modus-vivendi' themes."
-      (interactive)
-      (if (eq (car custom-enabled-themes) 'modus-operandi)
-          (progn
-            (disable-theme 'modus-operandi)
-            (modus-vivendi-theme-load))
-        (disable-theme 'modus-vivendi)
-        (modus-operandi-theme-load)))
-
-    (modus-vivendi-theme-load))
+  (load-theme 'modus-operandi t))
 #+end_src
 
 *** Doom-themes
