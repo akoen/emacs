@@ -312,8 +312,20 @@ The Modus themes are striking and are noticeably easier to read than alternative
 *** Font
 
 #+begin_src emacs-lisp :tangle yes
-(add-to-list 'default-frame-alist '(font . "JetBrains Mono-13"))
-(set-face-attribute 'default nil :font "JetBrains Mono-13")
+(add-to-list 'default-frame-alist '(font . "Fira Code-12"))
+(set-face-attribute 'default nil
+                    :font "Fira Code"
+                    :height 120)
+
+;; FIXME Does not seem to work on server
+(set-face-attribute 'fixed-pitch nil
+                    :font "Fira Code"
+                    :inherit 'default)
+
+(set-face-attribute 'variable-pitch nil
+                    :font "Roboto Mono"
+                    :weight 'light
+                    :height 120)
 #+end_src
 
 ** Frame
