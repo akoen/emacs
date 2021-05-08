@@ -371,6 +371,7 @@ Make yes or no prompts be y or n prompts
 (dolist (mode '(term-mode-hook
                 shell-mode-hook
                 vterm-mode-hook
+                org-agenda-mode-hook
                 jupyter-repl-mode-hook
                 treemacs-mode-hook
                 olivetti-mode-hook
@@ -391,6 +392,7 @@ Copied from Doom Emacs
 
 #+begin_src emacs-lisp :tangle yes
 (setq hscroll-margin 2
+      fast-but-imprecise-scrolling t
       hscroll-step 1
       ;; Emacs spends too much effort recentering the screen if you scroll the
       ;; cursor more than N lines past window edges (where N is the settings of
@@ -547,7 +549,7 @@ Space is the best leader key.
     "oa" 'org-agenda
     "oc" 'org-capture
     "ojj" 'org-journal-new-entry
-    "oje" 'org-journal-new-scheduled-entry
+    "oje" 'org-journal-new-date-entry
     "ojs" 'org-journal-search-forever
 
     ;; Terminal
@@ -1067,10 +1069,6 @@ _r_eload    e_x_pand    _?_ list
   (yas-global-mode 1))
 #+END_SRC
 
-** wgrep
-#+begin_src emacs-lisp :tangle yes
-(use-package wgrep)
-#+end_src
 ** Hippie
 #+begin_src emacs-lisp :tangle yes
 (use-feature hipie-exp
@@ -1211,6 +1209,8 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
   :general
   (general-nmap :keymaps 'dired-mode-map
     "=" 'my--diff-files)
+  (:keymaps 'dired-mode-map
+            "C-c C-p" 'wdired-change-to-wdired-mode)
   :config
   (setq dired-auto-revert-buffer t  ; don't prompt to revert; just do it
         dired-dwim-target t  ; suggest a target for moving/copying intelligently
@@ -1226,11 +1226,11 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
   (defun show-folder-description ()
     (interactive)
     (if (file-exists-p "./.desc")
-	(let ((description
-	       (with-temp-buffer
-		 (insert-file-contents "./.desc")
-		 (buffer-string))))
-	  (message description))))
+        (let ((description
+               (with-temp-buffer
+                 (insert-file-contents "./.desc")
+                 (buffer-string))))
+          (message description))))
 
   (add-hook 'dired-after-readin-hook #'show-folder-description)
 
@@ -1238,8 +1238,7 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
 
   (defun my--diff-files ()
     (interactive)
-    (let ((files (dired-get-marked-files))
-          (wnd (current-window-configuration)))
+    (let ((files (dired-get-marked-files)))
       (if (<= (length files) 2)
           (let ((file1 (car files))
                 (file2 (if (cdr files)
@@ -1267,14 +1266,14 @@ open and unsaved."
 (defun my--copy-file-to-clipboard (&rest @fnames)
   "Copy buffer/dired selection in the linux clipboard as URIs.
 ALso accepts file-name strings as a paramater"
-  (interactive) 
+  (interactive)
   (let* (($file-list (cond (@fnames @fnames)
-              ((string-equal major-mode "dired-mode") (dired-get-marked-files))
-              ((buffer-file-name) (list (buffer-file-name)))
-              (t (user-error "Nothing selected!"))))
-    (file-uri-list (cl-loop for file in $file-list collect (concat "file://" file)))
-        (process-connection-type nil)
-        (proc (start-process "xclip" nil "xclip" "-i" "-selection" "clipboard" "-t" "text/uri-list")))
+                           ((string-equal major-mode "dired-mode") (dired-get-marked-files))
+                           ((buffer-file-name) (list (buffer-file-name)))
+                           (t (user-error "Nothing selected!"))))
+         (file-uri-list (cl-loop for file in $file-list collect (concat "file://" file)))
+         (process-connection-type nil)
+         (proc (start-process "xclip" nil "xclip" "-i" "-selection" "clipboard" "-t" "text/uri-list")))
     (process-send-string proc (mapconcat 'identity file-uri-list "\n"))
     (process-send-eof proc)))
 #+end_src
