@@ -39,8 +39,9 @@
 ;; HACK The built-in version of org causes all sorts of issues with
 ;; straight.el. There is undoubtedly a simple way to solve this issue,
 ;; but I do not have the energy to discover it.
+(defvaralias 'comp-deferred-compilation-deny-list 'comp-deferred-compilation-black-list)
 (straight-use-package
- '(org :host github :repo "emacs-straight/org-mode" :local-repo "org"))
+ '(org :host github :repo "emacs-straight/org-mode" :local-repo "org" :no-byte-compile t))
 (use-package use-package-ensure-system-package)
 
 (if (file-exists-p (expand-file-name "config.el" user-emacs-directory))
