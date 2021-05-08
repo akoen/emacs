@@ -1443,7 +1443,7 @@ Displays the folder tree
   :config
 
   ;; Scrolling of inline images in org is a terrible experience, so we
-  ;; allow them to be toggled individually. Alternatively,
+  ;; allow them to be toggled individually with tab and C-c C-c. Alternatively,
   ;; https://github.com/casouri/lunarymacs/blob/master/site-lisp/iscroll.el
   ;; is a promising attempt to fix scrolling itself
   (defun org-toggle-inline-images-at-point ()
@@ -1504,7 +1504,7 @@ Replace underline with highlight
 (setq org-emphasis-alist
       (quote (("*" bold)
               ("/" italic)
-              ("_" (:background "#595959"))
+              ("_" (:background "#fffbc2"))
               ("=" org-verbatim verbatim)
               ("~" org-code verbatim)
               ("+"
@@ -1532,6 +1532,8 @@ Replace underline with highlight
 **** Pretty-symbols
 #+begin_src emacs-lisp :tangle yes
 (add-hook 'org-mode-hook (lambda ()
+			   (push '("#+title: "        . "" ) prettify-symbols-alist)
+			   (push '("#+author: "       . "" ) prettify-symbols-alist)
 			   (push '("#+begin_src"      . "λ") prettify-symbols-alist)
 			   (push '("#+end_src"        . "…") prettify-symbols-alist)
 			   (push '("#+results:"       . "→") prettify-symbols-alist)
@@ -1558,7 +1560,6 @@ Replace underline with highlight
 Set up capture templates. The backquoted list allows me to selectively evaluate parts of the list with a , (in this case the concat statement).
 
 #+begin_src emacs-lisp :tangle yes
-;; TODO use directory variables
 (setq org-capture-templates
       `(("t" "Todo" entry (file+headline ,(concat org-dir "refile.org") "Refile")
          "* TODO %?")
@@ -1638,7 +1639,9 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 #+begin_src emacs-lisp :tangle yes
 (use-feature org-agenda
   :after org
-  :hook (org-agenda-mode . org-agenda-entry-text-mode)
+  :hook (org-agenda-mode . (lambda ()
+                                  (org-agenda-entry-text-mode)
+                                  (hide-mode-line-mode)))
   :config
   (setq org-deadline-warning-days 7)
   (setq org-agenda-dim-blocked-tasks nil)
@@ -1659,6 +1662,10 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   ;; align tags to right side
   (setq org-agenda-tags-column -100)
 
+  ;; Performance
+  ;; https://orgmode.org/org.html#Speeding-Up-Your-Agendas
+  (setq org-agenda-inhibit-startup t)
+  (setq org-agenda-skip-unavailable-files t)
 
   (defun my--org-agenda-process-inbox-item ()
     "Process a single item in the org-agenda."
@@ -1691,6 +1698,11 @@ A package which allows for much greater customization of the org agenda.
 #+begin_src emacs-lisp :tangle yes
 (use-package org-super-agenda
   :after org-agenda
+  :custom
+  (org-agenda-remove-tags t)
+  (org-agenda-breadcrumbs-separator " ❯ ")
+  (org-agenda-format-date "")
+  (org-habit-graph-column 90)
   :config
   (setq org-agenda-custom-commands
         '(("g" "Get Things Done (GTD)"
@@ -1698,29 +1710,31 @@ A package which allows for much greater customization of the org agenda.
                     ((org-agenda-span 'day)
                      (org-agenda-skip-function
                       '(org-agenda-skip-entry-if 'deadline))
+                     (org-agenda-todo-keyword-format "")
+                     (org-agenda-prefix-format "   %-30b%-6t")
+                     (org-agenda-time-grid (quote ((today require-timed) (0900 2100) "  " "----------------")))
+                     (org-agenda-overriding-header "TODAY:")
                      (org-deadline-warning-days 0)))
             (todo "NEXT"
                   ((org-agenda-skip-function
                     '(org-agenda-skip-entry-if 'deadline))
-                   (org-agenda-prefix-format "  %i %-12:c [%e] ")
-                   (org-agenda-overriding-header "Tasks")))
+                   (org-agenda-prefix-format "   %-35(org-format-outline-path (last (org-get-outline-path)) 28 nil org-agenda-breadcrumbs-separator) %t %s")
+                   (org-agenda-overriding-header "\nPROJECTS:\n")))
             (agenda nil
                     ((org-agenda-span 'day)
-                    (org-agenda-overriding-header "Deadlines")
+                    (org-agenda-overriding-header "\nDEADLINES:")
+                     (org-agenda-prefix-format "   %-37s")
                     (org-agenda-entry-types '(:deadline))
-                    ;; (org-agenda-format-date "")
+                    (org-agenda-deadline-leaders '("Today: " "%d days: " "%d days (overdue): "))
                     (org-deadline-warning-days 7)))
-            ;; (tags "+DEADLINE>=\"<today>\"&DEADLINE<=\"<+7d>\""
-            ;;       ((org-agenda-overriding-header "Deadlines2")
-            ;;        ))
             (tags-todo "refile"
                        ((org-agenda-prefix-format "  %?-12t% s")
-                        (org-agenda-overriding-header "Refile")))
+                        (org-agenda-overriding-header "\nREFILE:\n")))
             (alltodo ""
-                     ((org-agenda-overriding-header "Stuck Projects")
+                     ((org-agenda-overriding-header "\nSTUCK:\n")
                       (org-agenda-skip-function 'my--skip-non-stuck-projects)))
             (tags "CLOSED>=\"<today>\""
-                  ((org-agenda-overriding-header "Completed today")))))))
+                  ((org-agenda-overriding-header "\nDONE:\n")))))))
 
   (setq org-super-agenda-header-map (make-sparse-keymap)) ;; org-super-agenda does not copy keymap late enough
   (org-super-agenda-mode))
