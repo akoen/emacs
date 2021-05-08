@@ -1,16 +1,7 @@
 #+TITLE:Alex Koen's Emacs configuration
 
-I have now been using Emacs as my primary editor for almost two years. Most of the time, it feels like piloting an inter-galactic starship through the turbulence of spacetime, free from the sluggishness of earthbound life. The rest of time, I feel like printing out my config and lighting it on fire.
+I have now been using Emacs as my primary editor for almost three years. Most of the time, it feels like piloting an inter-galactic starship through the turbulence of spacetime, free from the sluggishness of earthbound life. The rest of time, I feel like printing out my config and lighting it on fire. Regardless, it is tremendous fun and a worthy distraction from my homework.
 
-Regardless, Emacs is tremendous fun. I have made every possible effort to write clean, well-document code but there are bound to be bugs and inconsistencies.
-
-If you are looking for inspiration, here are the configurations from which I draw inspiration.
-| [[https://github.com/hlissner/doom-emacs]]                            |
-| [[https://github.com/rememberYou/.emacs.d]]                           |
-| https://github.com/raxod502/radian/blob/develop/emacs/radian.el   |
-| https://github.com/CSRaghunandan/.emacs.d/tree/master/setup-files |
-
-#+end_src
 Alright, let's do this:
 * Usage
 ** Use-package
