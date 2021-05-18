@@ -912,17 +912,20 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 ** Selectrum & Co.
 #+begin_src emacs-lisp :tangle yes
 (use-package selectrum
+  :custom
+  (selectrum-fix-minibuffer-height t)
   :init
   (selectrum-mode +1))
 
 (use-package orderless
-  :disabled t
   :custom
   (completion-styles '(orderless))
   (selectrum-refine-candidates-function #'orderless-filter)
-  (selectrum-highlight-candidates-function #'orderless-highlight-matches))
+  (selectrum-highlight-candidates-function #'orderless-highlight-matches)
+  (completion-category-overrides '((file (styles . (partial-completion))))))
 
 (use-package prescient
+  :disabled
   :after selectrum
   :custom
   (prescient-filter-method '(literal regexp initialism fuzzy))
@@ -930,11 +933,13 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   (prescient-persist-mode +1))
 
 (use-package selectrum-prescient
+  :disabled
   :after prescient
   :config
   (selectrum-prescient-mode +1))
 
 (use-package company-prescient
+  :disabled
   :after (prescient company)
   :config
   (company-prescient-mode +1))
