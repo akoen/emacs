@@ -926,6 +926,12 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   :config
   (vertico-mode 1))
 
+(use-feature savehist
+  :custom
+  (history-length 25)
+  :config
+  (savehist-mode 1))
+
 (use-package orderless
   :custom
   (completion-styles '(orderless))
