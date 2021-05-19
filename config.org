@@ -1380,10 +1380,70 @@ Keeps a list of recently opened files.
 ** NeoTree
 Displays the folder tree
 #+begin_src emacs-lisp :tangle yes
-;; TODO Use this or remove this
 (use-package neotree
+  :general
+  (leader-key
+    "ft" 'neotree)
   :init
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
+#+end_src
+
+** Run-command
+#+begin_src emacs-lisp :tangle yes
+(use-package run-command
+  :commands run-command
+  :custom (run-command-recipes '(run-command-recipe-local))
+  :config
+  (defun run-command-recipe-local ()
+    (list
+     (list :command-name "say-hello"
+           :command-line "echo Hello, World!")
+
+     (list :command-name "serve-http-dir"
+           :command-line "python3 -m http.server 8000")
+
+     (when (equal (buffer-name) "README.md")
+       (list :command-name "preview-github-readme"
+             ;; uses https://github.com/joeyespo/grip
+             :command-line "grip --browser --norefresh"))
+
+     (when-let ((word (thing-at-point 'word t)))
+       (list :command-name "wordnet-synonyms"
+             ;; uses https://wordnet.princeton.edu/documentation/wn1wn
+             :command-line (format "wn '%s' -synsn -synsv -synsa -synsr" word)
+             :display (format "Look up '%s' synonyms in wordnet" word)))))
+
+  (defun run-command-recipe-hugo ()
+    (let* ((dotenv-snippet (concat "set -a; test -f .env && source .env; set +a;"))
+           (project-dir (locate-dominating-file default-directory
+                                                "archetypes")))
+      (when project-dir
+        (let ((project-name (file-name-nondirectory
+                             (directory-file-name project-dir))))
+          (list
+           ;; Next two commands have the same `:command-name' and thus are mutually
+           ;; exclusive — running one will ask to stop the other first.
+           (list :command-name "hugo-server"
+                 ;; Read from `.env' if available (e.g. for HUGO_MODULE_REPLACEMENTS)
+                 :command-line (concat dotenv-snippet "hugo server")
+                 :display "Start local preview server"
+                 :working-dir project-dir)
+           (list :command-name "hugo-server"
+                 :command-line (concat
+                                dotenv-snippet
+                                "hugo server --disableFastRender -D --navigateToChanged")
+                 :display "Start local preview server (drafts+fastRender)"
+                 :working-dir project-dir)
+           (list :command-name "build"
+                 :command-line "hugo"
+                 :display "Build"
+                 :working-dir project-dir)
+           (list :command-name "post:new"
+                 :command-line "hugo new posts/unnamed.md"
+                 :display "New post"
+                 :working-dir project-dir))))))
+
+  )
 #+end_src
 
 * Text & Organization
@@ -1391,85 +1451,90 @@ Displays the folder tree
 *** Configuration
 **** Base
 #+begin_src emacs-lisp :tangle yes
-(use-package org
-  :defer 1
-  :hook
-  (org-mode . visual-line-mode)
-  ;; FIXME Does not work at startup
-  :custom-face
-  (org-block-end-line ((t (:inherit org-block-begin-line))))
-  :init
-  (setq org-directory org-dir
-        org-archive-location (concat archive-dir "Tasks/archive_" (format-time-string "%Y") ".org::datetree/")
-        org-use-fast-todo-selection t                                     ; allow changing to any todo state from a menu
-        org-enforce-todo-dependencies t                                   ; block setting task to DONE if there are incomplete subtasks
-        org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id ; use unique ID's for links
-        org-id-locations-file (concat org-dir ".orgids")
-        org-clone-delete-id t
-        org-log-done 'time
-        org-catch-invisible-edits 'show
-        org-confirm-babel-evaluate nil                                    ; do not ask for confirmation
-        org-return-follows-link t
-        org-startup-indented t                                            ; indent each level of heading
-        org-hide-emphasis-markers t                                       ; hide the markers for italics and bold
-        org-pretty-entities t                                             ; show entities as UTF8 characters
-        org-image-actual-width 800
-        org-hidden-keywords '(title author date startup)
-        org-startup-with-inline-images t
-        org-export-with-smart-quotes t)
+  (use-package org
+    :defer 1
+    :hook
+    (org-mode . (lambda ()
+                  (visual-line-mode)
+                  (setq paragraph-start "\\|[  ]*$"
+                        paragraph-separate "[  ]*$")))
+    
+    (org-babel-after-execute . org-redisplay-inline-images)
+    ;; FIXME Does not work at startup
+    :custom-face
+    (org-block-end-line ((t (:inherit org-block-begin-line))))
+    :init
+    (setq org-directory org-dir
+          org-archive-location (concat archive-dir "Tasks/archive_" (format-time-string "%Y") ".org::datetree/")
+          org-use-fast-todo-selection t                                     ; allow changing to any todo state from a menu
+          org-enforce-todo-dependencies t                                   ; block setting task to DONE if there are incomplete subtasks
+          org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id ; use unique ID's for links
+          org-id-locations-file (concat org-dir ".orgids")
+          org-clone-delete-id t
+          org-log-done 'time
+          org-catch-invisible-edits 'show
+          org-confirm-babel-evaluate nil                                    ; do not ask for confirmation
+          org-return-follows-link t
+          org-startup-indented t                                            ; indent each level of heading
+          org-hide-emphasis-markers t                                       ; hide the markers for italics and bold
+          org-pretty-entities t                                             ; show entities as UTF8 characters
+          org-image-actual-width 600
+          org-startup-with-inline-images t
+          org-export-with-smart-quotes t)
 
+    :custom-face
+    (variable-pitch ((t (:family "Roboto Mono Light" :height 1.0)))) ; Alternatively, Office Code Pro is second best
+    (org-default ((t (:family "Roboto Mono Light" :height 1.0)))) ; Alternatively, Office Code Pro is second best
+    (org-document-title ((t (:family "Roboto Slab" :weight bold :height 2.0))))
+    (org-document-info ((t (:family "Roboto Slab"))))
+    (org-done ((t (:strike-through t :weight bold))))
+    (org-table-header ((t (:weight bold))))
+    (org-headline-done ((t (:strike-through t))))
+    (org-level-1 ((t (:family "Roboto" :height 1.2))))
+    (org-level-2 ((t (:family "Roboto" :height 1.1))))
+    (org-level-3 ((t (:family "Roboto" :height 1.1))))
+    (org-link ((t (:underline t))))
+    :config
 
-  :custom-face
-  (variable-pitch ((t (:family "Roboto Mono Light" :height 1.0)))) ; Alternatively, Office Code Pro is second best
-  (org-default ((t (:family "Roboto Mono Light" :height 1.0)))) ; Alternatively, Office Code Pro is second best
-  (org-document-title ((t (:family "Roboto Slab" :weight bold :height 2.0))))
-  (org-document-info ((t (:family "Roboto Slab"))))
-  (org-done ((t (:strike-through t :weight bold))))
-  (org-headline-done ((t (:strike-through t))))
-  (org-level-1 ((t (:family "Roboto" :height 1.2))))
-  (org-level-2 ((t (:family "Roboto" :height 1.1))))
-  (org-level-3 ((t (:family "Roboto" :height 1.1))))
-  (org-link ((t (:underline t))))
-  :config
+    ;; Scrolling of inline images in org is a terrible experience, so we
+    ;; allow them to be toggled individually with tab and C-c C-c. Alternatively,
+    ;; https://github.com/casouri/lunarymacs/blob/master/site-lisp/iscroll.el
+    ;; is a promising attempt to fix scrolling itself
+    (defun org-toggle-inline-images-at-point ()
+      (interactive)
+      (when-let* ((link-region (org-in-regexp org-link-bracket-re 1)))
+        (let ((org-inline-image-overlays-old org-inline-image-overlays))
+          (save-restriction
+            (narrow-to-region (car link-region) (cdr link-region))
+            (if (-intersection (overlays-at (point)) org-inline-image-overlays)
+                (mapc (lambda (ov)
+                        (when (member ov org-inline-image-overlays)
+                          (delete-overlay ov)
+                          (setq org-inline-image-overlays (delete ov org-inline-image-overlays))))
+                      (overlays-at (point)))
+              (org-display-inline-images 'include-linked 'refresh))
+            )
+          (unless (equal org-inline-image-overlays org-inline-image-overlays-old) t)) ;; if overlays did not change, the link is not inline image
+        ))
 
-  ;; Scrolling of inline images in org is a terrible experience, so we
-  ;; allow them to be toggled individually with tab and C-c C-c. Alternatively,
-  ;; https://github.com/casouri/lunarymacs/blob/master/site-lisp/iscroll.el
-  ;; is a promising attempt to fix scrolling itself
-  (defun org-toggle-inline-images-at-point ()
-    (interactive)
-    (when-let* ((link-region (org-in-regexp org-link-bracket-re 1)))
-      (let ((org-inline-image-overlays-old org-inline-image-overlays))
-        (save-restriction
-          (narrow-to-region (car link-region) (cdr link-region))
-          (if (-intersection (overlays-at (point)) org-inline-image-overlays)
-              (mapc (lambda (ov)
-                      (when (member ov org-inline-image-overlays)
-                        (delete-overlay ov)
-                        (setq org-inline-image-overlays (delete ov org-inline-image-overlays))))
-                    (overlays-at (point)))
-            (org-display-inline-images 'include-linked 'refresh))
-          )
-        (unless (equal org-inline-image-overlays org-inline-image-overlays-old) t)) ;; if overlays did not change, the link is not inline image
-      ))
+    (add-hook 'org-tab-first-hook #'org-toggle-inline-images-at-point)
+    (add-hook 'org-ctrl-c-ctrl-c-hook #'org-toggle-inline-images-at-point)
 
-  (add-hook 'org-tab-first-hook #'org-toggle-inline-images-at-point)
-  (add-hook 'org-ctrl-c-ctrl-c-hook #'org-toggle-inline-images-at-point)
-
-  ;; What's more, when using ipython etc. it is often hard to read
-  ;; figure text since the background colour is dark.
-  (defun create-image-with-background-color (args)
-    "Specify background color of Org-mode inline image through modify `ARGS'."
-    (let* ((file (car args))
-           (type (cadr args))
-           (data-p (caddr args))
-           (props (cdddr args)))
-      ;; get this return result style from `create-image'
-      (append (list file type data-p)
-	            (list :background "white")
-	            props)))
-  (advice-add 'create-image :filter-args #'create-image-with-background-color))
-
+    ;; What's more, when using ipython etc. it is often hard to read
+    ;; figure text since the background colour is dark.
+    (defun create-image-with-background-color (args)
+      "Specify background color of Org-mode inline image through modify `ARGS'."
+      (if (eq major-mode 'org-mode)
+        (let* ((file (car args))
+               (type (cadr args))
+               (data-p (caddr args))
+               (props (cdddr args)))
+          ;; get this return result style from `create-image'
+          (append (list file type data-p)
+                  (list :background "white")
+                  props))
+        args))
+    (advice-add 'create-image :filter-args #'create-image-with-background-color))
 #+end_src
 
 **** Todo keywords
