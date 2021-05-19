@@ -915,40 +915,22 @@ Pressing Q restores the window configuration to the last state. Useful for killi
     "sl" 'link-hint-open-link))
 #+end_src
 * Completion
-** Selectrum & Co.
+** Minibuffer Completion
 #+begin_src emacs-lisp :tangle yes
-(use-package selectrum
+(use-package vertico
+  :straight '(vertico :host github
+                      :repo "minad/vertico"
+                      :branch "main")
   :custom
-  (selectrum-fix-minibuffer-height t)
-  :init
-  (selectrum-mode +1))
+  (vertico-cycle t)
+  :config
+  (vertico-mode 1))
 
 (use-package orderless
   :custom
   (completion-styles '(orderless))
-  (selectrum-refine-candidates-function #'orderless-filter)
-  (selectrum-highlight-candidates-function #'orderless-highlight-matches)
+  (completion-category-defaults nil)
   (completion-category-overrides '((file (styles . (partial-completion))))))
-
-(use-package prescient
-  :disabled
-  :after selectrum
-  :custom
-  (prescient-filter-method '(literal regexp initialism fuzzy))
-  :config
-  (prescient-persist-mode +1))
-
-(use-package selectrum-prescient
-  :disabled
-  :after prescient
-  :config
-  (selectrum-prescient-mode +1))
-
-(use-package company-prescient
-  :disabled
-  :after (prescient company)
-  :config
-  (company-prescient-mode +1))
 
 (use-package consult
   :general
@@ -964,7 +946,6 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   (consult-narrow-key "<")
   (consult-project-root-function #'projectile-project-root))
 
-
 (use-package consult-flycheck
   :commands consult-flycheck
   :general
@@ -974,11 +955,8 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 (use-package marginalia
   :custom
   (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
-  :init
-  (marginalia-mode +1)
-
-  (advice-add #'marginalia-cycle :after
-              (lambda () (when (bound-and-true-p selectrum-mode) (selectrum-exhibit)))))
+  :config
+  (marginalia-mode +1))
 
 (use-package embark
   :general
@@ -1002,6 +980,7 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 ** Company
 
 #+begin_src emacs-lisp :tangle yes
+;; REVIEW Consider replacing with https://github.com/minad/corfu
 (use-package company
   :defer 0.5
   :general
