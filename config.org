@@ -2414,13 +2414,11 @@ Better alternative to pixel-scroll-mode. Makes scrolling over images in org mode
 **** org-Bullets
 Make the header bullets look prettier
 #+begin_src emacs-lisp :tangle yes
-(use-package org-bullets
-  :after org
-  :init
-  (setq org-bullets-face-name "Inconsolata-12")
-  (setq org-bullets-bullet-list
-        '("◉" "◎" "⚫" "○" "►" "◇"))
-  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+(use-package org-superstar
+  :hook (org-mode . org-superstar-mode)
+  :custom
+  (org-superstar-headline-bullets-list '("◉" "◎" "⚫" "○" "►" "◇"))
+  (org-ellipsis " ↴ "))
 #+end_src
 **** org-calfw
 #+begin_src emacs-lisp :tangle yes
