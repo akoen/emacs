@@ -88,7 +88,7 @@ NAME and ARGS are as in `use-package'."
 
 Sometimes you mistakenly add advice to a function. This function removes all advice.
 #+begin_src emacs-lisp :tangle yes
-(defun advice-unadvice (sym)
+(defun my--advice-unadvice (sym)
   "Remove all advices from symbol SYM."
   (interactive "aFunction symbol: ")
   (advice-mapc (lambda (advice _props) (advice-remove sym advice)) sym))
@@ -196,6 +196,8 @@ Tangling this org file on save. This code is borrowed from https://github.com/re
       compilation-skip-threshold 2   ; don't stop on info or warnings
       delete-by-moving-to-trash t    ; move files to trash when deleting
       sentence-end-double-space nil) ; end sentences with a single space
+
+(setq-default truncate-lines t)
 #+end_src
 
 ** Backups
@@ -220,8 +222,8 @@ Use spaces instead of tabs.
 
 #+begin_src emacs-lisp :tangle yes
 (setq-default tab-width 2
-	      evil-shift-width tab-width
-	      indent-tabs-mode nil)
+              evil-shift-width tab-width
+              indent-tabs-mode nil)
 #+end_src
 ** Whitespace
 #+begin_src emacs-lisp :tangle yes
@@ -272,6 +274,14 @@ A small buffer which shows the list of commands you can execute next.
   :config
   (which-key-mode 1))
 #+end_src
+** Custom
+#+begin_src emacs-lisp :tangle yes
+;; FIXME General must be loaded first
+;; (use-feature custom
+;;   :general
+;;   (general-mmap :keymaps 'custom-mode-map
+;;     "<mouse-down-1>" 'widget-button-click))
+#+end_src
 
 ** No littering
 
@@ -298,7 +308,7 @@ The Modus themes are striking and are noticeably easier to read than alternative
 #+begin_src emacs-lisp :tangle yes
 (use-package modus-themes
   :config
-  (load-theme 'modus-operandi t))
+  (load-theme 'modus-vivendi t))
 #+end_src
 
 *** Doom-themes
@@ -540,18 +550,23 @@ Space is the best leader key.
     "." 'find-file
     "ff" 'dired-jump
     "fs" 'save-buffer
+    "fR" '((lambda (new-path)
+             (interactive (list (read-file-name "Move file to: ") current-prefix-arg))
+             (rename-file (buffer-file-name) (expand-file-name new-path)))
+           :wk "move/rename")
 
     ;; Magit
+    "g" '(:wk "git")
     "gg" 'magit-status
     "gfh" 'magit-log-buffer-file
 
     ;; Language
-    "le" 'english-mode
     "lg" 'writing-mode
     "ls" 'flyspell-mode
     "lb" 'ispell-buffer
 
     ;; Org mode
+    "o" '(:wk "org")
     "oa" 'org-agenda
     "oc" 'org-capture
     "ojj" 'org-journal-new-entry
@@ -559,6 +574,7 @@ Space is the best leader key.
     "ojs" 'org-journal-search-forever
 
     ;; Terminal
+    "t" '(:wk "term")
     "tn" 'vterm-other-window
     ))
 #+end_src
@@ -960,7 +976,8 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 
 (use-package marginalia
   :custom
-  (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
+  ;; REVIEW Deprecated
+  ;; (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
   :config
   (marginalia-mode +1))
 
@@ -1628,15 +1645,16 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
          "* %?")
         ("n" "Next" entry (file+headline ,(concat org-dir "refile.org") "Refile") 
          "* NEXT %? \n:PROPERTIES:\n:TRIGGER: next-sibling todo!(\"NEXT\") chain!(\"TRIGGER\") deadline!(cp)\n:END:\n")
-	("m" "mail" entry (file+olp ,(concat org-dir "refile.org") "Refile")
-	 "* TODO %? Link: %a")
+        ("m" "mail" entry (file+olp ,(concat org-dir "refile.org") "Refile")
+         "* TODO %? Link: %a")
 
-	("l" "Protocol" entry (file+headline ,(concat org-dir "refile.org") "Refile")
+        ("l" "Protocol" entry (file+headline ,(concat org-dir "refile.org") "Refile")
          "* TODO %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE")	
         ("L" "Protocol Link" entry (file+headline ,(concat org-dir "refile.org") "Refile")
          "* TODO %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n")))
 
 ;; Allow system-wide org-capture shortcut. Adapted from https://www.reddit.com/r/emacs/comments/74gkeq/system_wide_org_capture/
+
 (defadvice org-switch-to-buffer-other-window
     (after supress-window-splitting activate)
   "Delete the extra window if we're in a capture frame"
@@ -1660,14 +1678,14 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   "run org-capture in capture frame"
   (select-frame-by-name "capture")
   (switch-to-buffer (get-buffer-create "*scratch*"))
-  (org-capture)
+  (org-capture))
 
-  ;; System-wide org-agenda
-  (defadvice org-agenda-quit
-      (after delete-capture-frame activate)
-    "Advise capture-finalize to close the frame"
-    (when (equal "agenda" (frame-parameter nil 'name))
-      (delete-frame))))
+;; System-wide org-agenda
+(defadvice org-agenda-quit
+    (after delete-capture-frame activate)
+  "Advise capture-finalize to close the frame"
+  (when (equal "agenda" (frame-parameter nil 'name))
+    (delete-frame)))
 #+end_src
 
 **** Refile configuration
@@ -1697,107 +1715,107 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 ***** Settings
 
 #+begin_src emacs-lisp :tangle yes
-(use-feature org-agenda
-  :after org
-  :hook (org-agenda-mode . (lambda ()
-                             (org-agenda-entry-text-mode)
-                             (hide-mode-line-mode)))
-  :custom
-  (org-agenda-remove-tags t)
-  (org-agenda-breadcrumbs-separator " ❯ ")
-  (org-agenda-format-date "")
-  (org-habit-graph-column 90)
-  :config
-  (setq org-deadline-warning-days 7)
-  (setq org-agenda-dim-blocked-tasks nil)
-  ;; (setq org-agenda-compact-blocks t)
-  (setq org-agenda-block-separator nil)
-  (setq org-agenda-entry-text-maxlines 1)
+  (use-feature org-agenda
+    :after org
+    :hook (org-agenda-mode . (lambda ()
+                               ;; (org-agenda-entry-text-mode)
+                               (hide-mode-line-mode)))
+    :custom
+    (org-agenda-remove-tags t)
+    (org-agenda-breadcrumbs-separator " ❯ ")
+    (org-agenda-format-date "")
+    (org-habit-graph-column 90)
+    :config
+    (setq org-deadline-warning-days 7)
+    (setq org-agenda-dim-blocked-tasks nil)
+    ;; (setq org-agenda-compact-blocks t)
+    (setq org-agenda-block-separator nil)
+    (setq org-agenda-entry-text-maxlines 1)
 
-  ;; Use current window for agenda buffer
-  (setq org-agenda-window-setup 'only-window)
+    ;; Use current window for agenda buffer
+    (setq org-agenda-window-setup 'only-window)
 
-  ;; Use all org files in org-dir
-  (setq org-agenda-files (list org-dir))
-  (setq org-agenda-skip-unavailable-files t)
+    ;; Use all org files in org-dir
+    (setq org-agenda-files (list org-dir))
+    (setq org-agenda-skip-unavailable-files t)
 
-  (setq org-agenda-skip-scheduled-if-done t)
-  (setq org-agenda-skip-deadline-if-done t)
+    (setq org-agenda-skip-scheduled-if-done t)
+    (setq org-agenda-skip-deadline-if-done t)
 
-  ;; align tags to right side
-  (setq org-agenda-tags-column -100)
+    ;; align tags to right side
+    (setq org-agenda-tags-column -100)
 
-  ;; Performance
-  ;; https://orgmode.org/org.html#Speeding-Up-Your-Agendas
-  (setq org-agenda-inhibit-startup t)
-  (setq org-agenda-skip-unavailable-files t)
+    ;; Performance
+    ;; https://orgmode.org/org.html#Speeding-Up-Your-Agendas
+    (setq org-agenda-inhibit-startup t)
+    (setq org-agenda-skip-unavailable-files t)
 
-  (use-package org-ql)
-  (setq org-agenda-custom-commands
-        '(("g" "Get Things Done (GTD)"
-           ((agenda nil
-                    ((org-agenda-span 'day)
-                     (org-agenda-skip-function
-                      '(org-agenda-skip-entry-if 'deadline))
-                     (org-agenda-todo-keyword-format "")
-                     (org-agenda-prefix-format "   %-30b%-6t")
-                     (org-agenda-time-grid (quote ((today require-timed) (0900 2100) "  " "----------------")))
-                     (org-agenda-overriding-header "TODAY:")
-                     (org-deadline-warning-days 0)))
-            (+agenda-projects-block)
-            (agenda nil
-                    ((org-agenda-span 'day)
-                     (org-agenda-overriding-header "\nDEADLINES:")
-                     (org-agenda-prefix-format "   %-37s")
-                     (org-agenda-entry-types '(:deadline))
-                     (org-agenda-deadline-leaders '("Today: " "%d days: " "%d days (overdue): "))
-                     (org-deadline-warning-days 7)))
-            ;; (tags-todo "refile"
-            ;;            ((org-agenda-prefix-format "  %?-12t% s")
-            ;;             (org-agenda-overriding-header "\nREFILE:\n")))
-            (org-ql-block
-             '(and (todo "TODO")
-                   (or (tags "refile")
-                       (and (not (or (scheduled) (deadline)))
-                            (and (not (ancestors (todo)))
-                                 (not (descendants (todo)))))))
-             ((org-ql-block-header "\nREFILE:\n")))
+    (use-package org-ql)
+    (setq org-agenda-custom-commands
+          '(("g" "Get Things Done (GTD)"
+             ((agenda nil
+                      ((org-agenda-span 'day)
+                       (org-agenda-skip-function
+                        '(org-agenda-skip-entry-if 'deadline))
+                       (org-agenda-todo-keyword-format "")
+                       (org-agenda-prefix-format "   %-30b%-6t")
+                       (org-agenda-time-grid (quote ((today require-timed) (0900 2100) "  " "----------------")))
+                       (org-agenda-overriding-header "TODAY:")
+                       (org-deadline-warning-days 0)))
+              (+agenda-projects-block)
+              (agenda nil
+                      ((org-agenda-span 'day)
+                       (org-agenda-overriding-header "\nDEADLINES:")
+                       (org-agenda-prefix-format "   %-37s")
+                       (org-agenda-entry-types '(:deadline))
+                       (org-agenda-deadline-leaders '("Today: " "%d days: " "%d days (overdue): "))
+                       (org-deadline-warning-days 7)))
+              ;; (tags-todo "refile"
+              ;;            ((org-agenda-prefix-format "  %?-12t% s")
+              ;;             (org-agenda-overriding-header "\nREFILE:\n")))
+              (org-ql-block
+               '(and (todo "TODO")
+                     (or (tags "refile")
+                         (and (not (or (scheduled) (deadline)))
+                              (and (not (ancestors (todo)))
+                                   (not (descendants (todo)))))))
+               ((org-ql-block-header "\nREFILE:\n")))
 
-            (org-ql-block
-             '(and (todo)
-                   (descendants)
-                   (not (descendants (todo "NEXT"))))
-             ((org-ql-block-header "\nSTUCK:\n")))
+              (org-ql-block
+               '(and (todo)
+                     (descendants)
+                     (not (descendants (todo "NEXT"))))
+               ((org-ql-block-header "\nSTUCK:\n")))
 
-            ;; (alltodo ""
-            ;;          ((org-agenda-overriding-header "\nSTUCK:\n")
-            ;;           (org-agenda-skip-function 'my--skip-non-stuck-projects)))
-            (tags "CLOSED>=\"<today>\""
-                  ((org-agenda-overriding-header "\nDONE:\n")))))))
+              ;; (alltodo ""
+              ;;          ((org-agenda-overriding-header "\nSTUCK:\n")
+              ;;           (org-agenda-skip-function 'my--skip-non-stuck-projects)))
+              (tags "CLOSED>=\"<today>\""
+                    ((org-agenda-overriding-header "\nDONE:\n")))))))
 
-  (defun my--org-agenda-process-inbox-item ()
-    "Process a single item in the org-agenda."
-    (interactive)
-    (org-with-wide-buffer
-     ;; (org-agenda-schedule)
-     ;; (org-agenda-deadline)
-     ;; (org-agenda-set-tags)
-     (org-agenda-priority)
-     ;; (call-interactively 'my-org-agenda-set-effort)
-     (org-agenda-refile nil nil t)))
+    (defun my--org-agenda-process-inbox-item ()
+      "Process a single item in the org-agenda."
+      (interactive)
+      (org-with-wide-buffer
+       ;; (org-agenda-schedule)
+       ;; (org-agenda-deadline)
+       ;; (org-agenda-set-tags)
+       (org-agenda-priority)
+       ;; (call-interactively 'my-org-agenda-set-effort)
+       (org-agenda-refile nil nil t)))
 
-  (general-mmap
-    :keymaps 'org-agenda-mode-map
-    "p" 'my--org-agenda-process-inbox-item)
+    (general-mmap
+      :keymaps 'org-agenda-mode-map
+      "p" 'my--org-agenda-process-inbox-item)
 
-  (defun my--check-sync-conflicts ()
-    (when (directory-files org-dir nil "conflict")
-      (message "Warning: Sync conflicts")))
+    (defun my--check-sync-conflicts ()
+      (when (directory-files org-dir nil "conflict")
+        (message "Warning: Sync conflicts")))
 
-  (add-hook 'org-agenda-finalize-hook #'my--check-sync-conflicts)
+    (add-hook 'org-agenda-finalize-hook #'my--check-sync-conflicts)
 
-  ;; Save all org buffers before exiting agenda
-  (advice-add 'org-agenda-quit :before 'org-save-all-org-buffers))
+    ;; Save all org buffers before exiting agenda
+    (advice-add 'org-agenda-quit :before 'org-save-all-org-buffers))
 #+end_src
 ***** Custom agenda printer
 
@@ -1836,8 +1854,8 @@ A much better display of the org-agenda, adapted from [[https://github.com/weird
                      'org-complex-heading-regexp org-complex-heading-regexp
                      'org-highest-priority org-highest-priority
                      'org-lowest-priority org-lowest-priority
-	                 'tags (mapcar 'org-downcase-keep-props (+agenda-entry-tags entry))
-	                 'format `(() ,prefix)))
+                     'tags (+agenda-entry-tags entry)
+                     'format `(() ,prefix)))
         (text
          (concat prefix
                  (if (+agenda-entry-todo entry)
@@ -1851,7 +1869,7 @@ A much better display of the org-agenda, adapted from [[https://github.com/weird
                      (concat " :" (mapconcat #'identity (+agenda-entry-tags entry) ":") ":")
                    ""))))
 
-	(add-text-properties (length prefix) (length text) '(org-heading t) text)
+    (add-text-properties (length prefix) (length text) '(org-heading t) text)
     (setq text (concat (org-add-props text props) "\n"))
     (org-agenda-highlight-todo text)))
 
@@ -1869,7 +1887,7 @@ A much better display of the org-agenda, adapted from [[https://github.com/weird
           (setq prefix (concat (if tip
                                    (+agenda-tip-for-effort (if cont "├⮞ " "╰⮞ ") low-effort)
                                  (if cont "│  " "   "))
-                        prefix)
+                               prefix)
                 tip nil))
 
       (dolist (cont parent-continuations)
@@ -1930,12 +1948,12 @@ A much better display of the org-agenda, adapted from [[https://github.com/weird
 
 (defun +agenda-separator ()
   (unless (or (bobp) org-agenda-compact-blocks
-			  (not org-agenda-block-separator))
-	(insert "\n"
+              (not org-agenda-block-separator))
+    (insert "\n"
             (if (stringp org-agenda-block-separator)
                 org-agenda-block-separator
-			  (make-string (window-width) org-agenda-block-separator))
-		    "\n")))
+              (make-string (window-width) org-agenda-block-separator))
+            "\n")))
 
 (defun +agenda-render-block (data title &optional printer)
   (when data
@@ -1974,7 +1992,7 @@ A much better display of the org-agenda, adapted from [[https://github.com/weird
                          +agenda-inbox)))))
 
       (let ((inhibit-read-only t))
-	    (goto-char (point-max))
+        (goto-char (point-max))
         (+agenda-render-block +agenda-inbox "Coisas a arrumar")))))
 
 (defvar +agenda-level)
@@ -2299,19 +2317,6 @@ We use a font that's easier on the eyes for long blocks of text
 We do not run ~org-babel-do-load-languages~ because it eagerly loads packages. See https://blog.d46.us/advanced-emacs-startup/.
 
 #+begin_src emacs-lisp :tangle yes
-(use-package ob-ipython
-  :commands (org-babel-execute:ipython org-edit-special)
-  :custom
-  (org-babel-default-header-args:ipython
-   '((:results . "raw drawer")
-     (:session . "ipython")
-     (:exports . "both")
-     (:cache .   "no")
-     (:noweb . "no")
-     (:hlines . "no")
-     (:tangle . "no")
-     (:eval . "never-export"))))
-
 (use-feature ob-python
   :commands (org-babel-execute:python))
 
@@ -2383,13 +2388,13 @@ Make bullets circular
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
 #+end_src
-**** Iscroll
-Smooth scrolling over images
+**** Good-scroll
+Better alternative to pixel-scroll-mode. Makes scrolling over images in org mode tolerable. Another promising alternative is [[https://github.com/casouri/iscroll]].
 
 #+begin_src emacs-lisp :tangle yes
-(use-package iscroll
-  :hook (org-mode . iscroll-mode)
-  :straight (:host github :repo "casouri/iscroll"))
+(use-package good-scroll
+  :disabled t
+  :hook (org-mode . good-scroll-mode))
 #+end_src
 **** org-Bullets
 Make the header bullets look prettier
@@ -2589,9 +2594,9 @@ Allows for external applications to trigger custom actions without external depe
     "of" 'org-roam-node-find)
   :custom
   (org-roam-verbose nil)
-  (org-roam-directory "~/tmp/org")
+  (org-roam-directory brain-dir)
   (org-roam-tag-sources '(prop last-directory))
-  (org-roam-mode-sections
+  (org-roam-mode-section-functions
    (list #'org-roam-backlinks-section
          #'org-roam-reflinks-section
          #'org-roam-unlinked-references-section))
@@ -2619,26 +2624,27 @@ Allows for external applications to trigger custom actions without external depe
 
 ,* How the Book Changed Me
 
-,* Top 3 Highlights"
-	   :unnarowed t)))
-  (setq org-roam-capture-ref-templates
-	'(("r" "ref" plain (function org-roam--capture-get-point)
-	   "%?"
-	   :file-name "websites/${slug}"
-	   :head "#+setupfile: ../hugo_setup.org
-	   ,#+roam_key: ${ref}
-,#+title: ${title}
-
--  source :: ${ref}"
-	   :unnarrowed t))))
+,* Top 3 Highlights")
+      :immediate-finish t
+      :unnarowed t)))
+  (org-roam-capture-ref-templates
+   '(("r" "ref" plain
+      "%?"
+      :if-new (file+head "${slug}.org"
+                         "#+title: ${title}\n")
+      :unnarrowed t)))
+  :config
+  (org-roam-setup)
+  (set-popup-rule! "\\*org-roam\\*" :ttl nil :side 'right))
 #+end_src
-
 **** org-roam-server
 
 Visualize the Zettelkasten.
 
 #+begin_src emacs-lisp :tangle yes
+;; REVIEW Wait for update to V2
 (use-package org-roam-server
+  :disabled t
   :after org-roam
   :general
   ;; This is annoyingly verbose, but I have not found a better way.
@@ -3251,6 +3257,15 @@ rainbow-mode shows hex code colours in buffers.
   :init
   (set-popup-rule! "\\*ielm\\*" :ttl nil))
 #+end_src
+*** Haskell
+#+begin_src emacs-lisp :tangle yes
+(use-package haskell-mode
+  :mode "\\.hs\\'")
+  ;; :hook (haskell-mode . lsp-deferred))
+
+(use-package lsp-haskell
+  :after haskell-mode)
+#+end_src
 *** Web
 **** web mode
 #+begin_src emacs-lisp :tangle yes
@@ -3273,6 +3288,9 @@ rainbow-mode shows hex code colours in buffers.
         web-mode-css-indent-offset 2)
   (add-to-list 'web-mode-content-types-alist
                '("jsx" . "\\.js[x]?\\'"))
+
+  (setq web-mode-engines-alist
+        '(("go" . "layouts/.+\\.html$")))
 
   ;; Fix comments in javascript mode
   (let ((types '("javascript" "jsx")))
@@ -3363,19 +3381,18 @@ rainbow-mode shows hex code colours in buffers.
     "cpl" 'lsp-ui-peek-find-references
     "cpi" 'lsp-ui-peek-find-implementation)
   :hook ((lsp-mode . (lambda ()
-		       (lsp-enable-which-key-integration t)
-		       (lsp-headerline-breadcrumb-mode 1)))
+		       (lsp-enable-which-key-integration t)))
 	 ((c++-mode python-mode java-mode sh-mode scss-mode web-mode) . lsp))
   :custom
   (lsp-enable-indentation nil)
   (lsp-keep-workspace-alive nil)
   (lsp-enable-on-type-formatting nil)
+  (lsp-enable-snippet nil) ;; Clashes with company
   (lsp-enable-file-watchers nil)
   (read-process-ouput-max (* 1024 1024))
   :init
   (setq lsp-keymap-prefix "C-c l"
 	lsp-before-save-edits nil ;; Do not autoformat buffer
-	lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols)
 	lsp-file-watch-threshold 1500)
 
   ;; Ignore specific directories in projectile
@@ -3422,6 +3439,7 @@ rainbow-mode shows hex code colours in buffers.
 #+begin_src emacs-lisp :tangle yes
 (use-package dap-mode
   :after lsp-mode
+  :commands dap-debug
   :hook
   ((python-mode . (lambda () (require 'dap-python)))
    (java-mode . (lambda () (require 'dap-java)))
@@ -3437,8 +3455,8 @@ rainbow-mode shows hex code colours in buffers.
     "du" 'dap-ui-show-many-windows
     "dU" (lambda ()
 	   (interactive)
-	   (dap-ui-many-windows-mode -1)
-	   (dap-ui-hide-many-windows)))
+     (dap-ui-many-windows-mode -1)
+     (dap-ui-hide-many-windows)))
 
   (general-nmap
     "<f6>" 'dap-continue
@@ -3522,10 +3540,29 @@ Where ~-BDebug~ specifies the build directory (Debug)
 
 #+end_src
 *** CSharp
+
+
 #+begin_src emacs-lisp :tangle yes
 (use-package csharp-mode
-:mode "\\.cs\\'")
+  :mode "\\.cs\\'"
+  :hook (csharp-mode . lsp-deferred))
+
+(use-package shader-mode
+  :mode ("\\.shader\\'"
+          "\\.compute\\'")
+  :hook
+  (shader-mode . company-mode))
 #+end_src
+
+**** Using omnisharp with Unity
+
+For some reason, the OmniSharp language server uses a bundled version of mono instead of the global one. In VSCode, you can change this by setting the option =useGlobaMono= to true. In Emacs, edit the =run= shell script as shown here:
+
+#+begin_src sh tangle: no
+# mono_cmd=${bin_dir}/mono
+mono_cmd=mono
+#+end_src
+
 *** GLSL
 For OpenGl shader programming.
 
@@ -3670,6 +3707,11 @@ I used to dislike MATLAB, but the effort they put in to supporting Linux and Ema
 #+begin_src emacs-lisp :tangle yes
 (use-package json-mode
   :mode "\\.json\\'")
+#+end_src
+*** Yaml
+#+begin_src emacs-lisp :tangle yes
+(use-package yaml-mode
+  :mode "\\.yml\\'")
 #+end_src
 ** Functions
 *** Align Comments in Region
