@@ -50,7 +50,7 @@ The garbage collector eats up a lot of time during startup, so turn up its memor
       gc-cons-percentage 0.6)
 #+end_src
 
-** Startup Benchmarking
+** Benchmarking
 
 https://github.com/jschaf/esup
 
@@ -59,6 +59,12 @@ https://github.com/jschaf/esup
   :commands esup
   :custom
   (esup-depth 2))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package explain-pause-mode
+  :config
+  (explain-pause-mode))
 #+end_src
 ** Personal Information
 
