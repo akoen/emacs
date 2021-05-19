@@ -374,6 +374,19 @@ Make yes or no prompts be y or n prompts
 (fset 'yes-or-no-p 'y-or-n-p)
 #+end_src
 
+** Dashboard
+#+begin_src emacs-lisp :tangle yes
+(use-package dashboard
+  :custom
+  (dashboard-startup-banner (concat emacs-dir "splash.png"))
+  (dashboard-set-heading-icons t)
+  (dashboard-set-file-icons t)
+  (dashboard-center-content t)
+  (dashboard-items nil)
+  (dashboard-page-separator "\n")
+  :config
+  (dashboard-setup-startup-hook))
+#+end_src
 ** Relative line numbers
 
 #+begin_src emacs-lisp :tangle yes
