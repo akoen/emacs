@@ -330,20 +330,26 @@ The Modus themes are striking and are noticeably easier to read than alternative
 *** Font
 
 #+begin_src emacs-lisp :tangle yes
-(add-to-list 'default-frame-alist '(font . "Fira Code-12"))
-(set-face-attribute 'default nil
-                    :font "Fira Code"
-                    :height 120)
+(defun my--configure-fonts (_)
+  (set-face-attribute 'default nil
+                      :font "Pragmata Pro"
+                      :height 120)
 
-;; FIXME Does not seem to work on server
-(set-face-attribute 'fixed-pitch nil
-                    :font "Fira Code"
-                    :inherit 'default)
+  (set-face-attribute 'fixed-pitch nil
+                      :font "Pragmata Pro"
+                      :height 120)
 
-(set-face-attribute 'variable-pitch nil
-                    :font "Roboto Mono"
-                    :weight 'light
-                    :height 120)
+  (set-face-attribute 'variable-pitch nil
+                      :font "Source Serif Pro"
+                      :weight 'normal
+                      :height 140)
+
+ (remove-hook 'after-make-frame-functions #'my-configure-fonts))
+
+;; In daemon mode, fonts must be set after frame creation.
+(if (daemonp)
+    (add-hook 'after-make-frame-functions #'my--configure-fonts)
+  (my--configure-fonts t))
 #+end_src
 
 ** Frame
