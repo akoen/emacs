@@ -982,7 +982,6 @@ Pressing Q restores the window configuration to the last state. Useful for killi
     "bb" 'consult-buffer
     "BB" 'consult-bookmark
     "yp" 'consult-yank
-    "sp" 'consult-ripgrep
     "so" 'consult-outline
     "ss" 'consult-line)
   :custom
@@ -1166,6 +1165,25 @@ Project management.
   (interactive)
   (let ((default-directory dotfiles-dir))
     (projectile-find-file)))
+#+end_src
+** Affe
+Find and grep fuzzy searching, inspired by fzf.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package affe
+  :straight (:host github :repo "minad/affe")
+  :general
+  (leader-key
+    "sp" 'affe-grep
+    ;; We handle file searching with projectile
+    ;; "fz" 'affe-find
+    )
+  :custom
+  (affe-regexp-function #'orderless-pattern-compiler)
+  (affe-highlight-function #'orderless-highlight-matches)
+  :config
+  ;; Keybind to preview the current match in context
+  (setf (alist-get #'affe-grep consult-config) `(:preview-key ,(kbd "M-."))))
 #+end_src
 ** Magit
 
