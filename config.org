@@ -3177,6 +3177,21 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
 *** Folding
 #+begin_src emacs-lisp :tangle yes
 ;; Adapted from doom emacs
+(defun increase-selective-display ()
+  (interactive)
+  (if (eq selective-display nil)
+      (set-selective-display tab-width)
+      (set-selective-display (+ selective-display tab-width))))
+
+(defun decrease-selective-display ()
+  (interactive)
+  (cond ((eq selective-display tab-width) (set-selective-display nil))
+         ((eq selective-display nil))
+         (t (set-selective-display (- selective-display tab-width)))))
+
+(general-nmap "C->" 'increase-selective-display)
+(general-nmap "C-<" 'decrease-selective-display)
+
 (use-feature hideshow
   :hook (prog-mode . hs-minor-mode)
   :config
