@@ -742,6 +742,10 @@ Especially when writing text, moving by visual lines instead of by numbered line
   (define-key evil-motion-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line-or-next-line)
   (define-key evil-motion-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line-or-previous-line)
 #+end_src
+*** CamelCase word movement
+#+begin_src emacs-lisp :tangle yes
+(global-subword-mode +1)
+#+end_src
 *** Custom text objects
 #+begin_src emacs-lisp :tangle no :noweb-ref custom text objects
 (defmacro define-and-bind-text-object (key start-regex end-regex)
