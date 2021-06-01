@@ -2729,11 +2729,7 @@ Visualize the Zettelkasten.
 **** ivy-bibtex
 
 #+begin_src emacs-lisp :tangle yes
-(use-package ivy-bibtex
-  :after org-roam
-  :general
-  (leader-key
-    "ob" 'ivy-bibtex)
+(use-package bibtex-completion
   :config
   (setq bibtex-completion-notes-path brain-dir
         bibtex-completion-bibliography "~/Documents/zotero-bib.bib"
@@ -2754,6 +2750,15 @@ Visualize the Zettelkasten.
          ":URL: ${url}\n"
          ":END:\n\n")))
 
+
+(use-package bibtex-actions
+  :after embark
+  :general
+  (leader-key
+    "ob" 'bibtex-actions-open)
+  :config
+  ;; Make the 'bibtex-actions' bindings available from `embark-act'.
+  (add-to-list 'embark-keymap-alist '(bibtex . bibtex-actions-map)))
 #+end_src
 **** org-ref
 #+begin_src emacs-lisp :tangle yes
