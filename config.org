@@ -2899,6 +2899,14 @@ Allow RefTeX to plug into AUCTeX
   :hook (LaTeX-mode . evil-tex-mode))
 #+end_src
 
+** Markdown
+#+begin_src emacs-lisp :tangle yes
+(use-package markdown-mode
+  :init
+  (setq-default markdown-hide-urls t)
+  :custom
+  (markdown-url-compose-char "…"))
+#+end_src
 ** Writing
 *** olivetti
 
