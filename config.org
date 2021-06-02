@@ -64,9 +64,7 @@ https://github.com/jschaf/esup
 #+begin_src emacs-lisp :tangle yes
 (use-package explain-pause-mode
   :custom
-  (explain-pause-alert-style 'silent)
-  :config
-  (explain-pause-mode))
+  (explain-pause-alert-style 'silent))
 #+end_src
 ** Personal Information
 
