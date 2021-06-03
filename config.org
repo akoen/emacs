@@ -2593,6 +2593,12 @@ Allows for external applications to trigger custom actions without external depe
   (org-transclusion-include-first-section t))
 #+end_src
 
+**** org-appear
+
+#+begin_src emacs-lisp :tangle yes
+(use-package org-appear
+  :hook (org-mode . org-appear-mode))
+#+end_src
 **** ox-hugo
 #+begin_src emacs-lisp :tangle yes
 (use-package ox-hugo
