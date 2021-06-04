@@ -3310,23 +3310,43 @@ rainbow-mode shows hex code colours in buffers.
 #+end_src
 
 ** Lang
+*** Clojure
+#+begin_src emacs-lisp :tangle yes
+(use-package clojure-mode
+  :hook (clojure-mode . lsp))
+
+(use-package cider
+  :general
+  (leader-key :keymaps 'cider-mode-map
+    "'" 'cider-jack-in-clj
+
+    "eb" 'cider-load-buffer
+    "ed" 'cider-eval-defun-at-point
+    "er" 'cider-eval-region
+    "ee" 'cider-eval-last-sexp)
+  :hook (clojure-mode . cider-mode)
+  :init
+  (set-popup-rules!
+    '(("^\\*cider-error*")
+      ("^\\*cider-repl" :ttl nil)
+      ("^\\*cider-repl-history" :vslot 2 :ttl nil)))
+  :custom
+  (cider-repl-result-prefix ";; => ")
+  (cider-repl-pop-to-buffer-on-connect 'display-only))
+#+end_src
 *** Elisp
 #+begin_src emacs-lisp :tangle yes
 (use-feature elisp
   :general
-  (leader-key
+  (leader-key :keymaps 'emacs-lisp-mode-map
     "eb" 'eval-buffer
     "ef" 'load-file
     "er" 'eval-region
     "el" 'load-library
-    )
-  :hook (emacs-lisp-mode . company-mode))
+    "ee" 'pp-eval-last-sexp))
 
 (use-feature ielm
   :hook (inferior-emacs-lisp-mode . company-mode)
-  :general
-  (leader-key
-    "ee" 'ielm)
   :init
   (set-popup-rule! "\\*ielm\\*" :ttl nil))
 #+end_src
