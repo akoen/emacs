@@ -2443,7 +2443,15 @@ Make the header bullets look prettier
 (use-package org-superstar
   :hook (org-mode . org-superstar-mode)
   :custom
+  ;; superstar hides leading stars itself
+  (org-hide-leading-stars nil)
+  (org-indent-mode-turns-on-hiding stars)
+
+  (org-superstar-leading-bullet ?\s)
   (org-superstar-headline-bullets-list '("◉" "◎" "⚫" "○" "►" "◇"))
+  (org-superstar-item-bullet-alist '((?- . ?•)
+                                     (?* . ?*)
+                                     (?+ . ?+)))
   (org-ellipsis " ↴ "))
 #+end_src
 **** org-calfw
