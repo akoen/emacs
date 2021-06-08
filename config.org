@@ -463,11 +463,37 @@ Copied from Doom Emacs
         sp-highlight-wrap-overlay nil
         sp-highlight-wrap-tag-overlay nil)
   :config
-  ;; automatically add newline between braces
+  ;; NOTE: Following config mostly stolen from Doom
+
+  ;; Expand {|} => SPC => { | }
+  ;; Expand {|} => RET => {
+  ;;   |
+  ;; }
   (dolist (brace '("(" "{" "["))
-    (sp-pair brace nil :post-handlers '(:add ("||\n[i]" "RET"))))
+    (sp-pair brace nil
+             :post-handlers '(("||\n[i]" "RET") ("| " "SPC"))
+             ;; Don't autopair opening braces if before a word character or
+             ;; other opening brace. The rationale: it interferes with manual
+             ;; balancing of braces, and is odd form to have s-exps with no
+             ;; whitespace in between, e.g. ()()(). Insert whitespace if
+             ;; genuinely want to start a new form in the middle of a word.
+             :unless '(sp-point-before-word-p sp-point-before-same-p)))
+
+  ;; Autopair quotes more conservatively; if I'm next to a word/before another
+  ;; quote, I don't want to open a new pair or it would unbalance them.
+  (let ((unless-list '(sp-point-before-word-p
+                       sp-point-after-word-p
+                       sp-point-before-same-p)))
+    (sp-pair "'"  nil :unless unless-list)
+    (sp-pair "\"" nil :unless unless-list))
+
+  ;; In lisps ( should open a new form if before another parenthesis
+  (sp-local-pair sp-lisp-modes "(" ")" :unless '(:rem sp-point-before-same-p))
+  (sp-local-pair sp-lisp-modes "'" nil :actions :rem)
+
   (smartparens-global-mode 1))
 #+end_src
+
 
 ** All the icons
 #+begin_src emacs-lisp :tangle yes
