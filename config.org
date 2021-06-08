@@ -1,4 +1,4 @@
-#+TITLE:Alex Koen's Emacs configuration
+#+title: Alex Koen's Emacs configuration
 
 I have now been using Emacs as my primary editor for almost three years. Most of the time, it feels like piloting an inter-galactic starship through the turbulence of spacetime, free from the sluggishness of earthbound life. The rest of time, I feel like printing out my config and lighting it on fire. Regardless, it is tremendous fun and a worthy distraction from my homework.
 
@@ -10,7 +10,7 @@ Usage of :preface, :init, :config
 #+begin_src emacs-lisp :tangle no
 (use-package example
   ;; Note that errors are never trapped in the preface, since doing so would hide definitions from the byte-compiler.
-  :preface (message "I'm here at byte-compile and load time.")
+  :preface (message "I'm here at byte-compile and load time")
   :init (message "I'm always here at startup")
   :config
   (message "I'm always here after the package is loaded"))
@@ -23,12 +23,13 @@ The following blocks may be tangled to debug certain features:
 *** Package Loading
 
 #+begin_src emacs-lisp :tangle no
-(setq use-package-verbose t)
+(setq use-package-verbose t
+      use-package-compute-statistics t)
 #+end_src
 
 To see what's loading a package:
 #+begin_src emacs-lisp :tangle no
-(with-eval-after-load 'package (debug))
+(with-eval-after-load 'ob (debug))
 #+end_src
 
 * Initialization
@@ -123,7 +124,7 @@ Note that system directories are set in init.el
 (defconst archive-dir (concat docs-dir "Archive/")
   "Archive directory")
 
-(defconst org-dir "~/Org/"
+(defconst org-dir "~/Nextcloud/Org/"
   "Org directory")
 
 (defconst journal-dir "~/Journal/"
@@ -279,7 +280,7 @@ A small buffer which shows the list of commands you can execute next.
 ;; FIXME General must be loaded first
 ;; (use-feature custom
 ;;   :general
-;;   (general-mmap :keymaps 'custom-mode-map
+;;   (general-nmap :keymaps 'custom-mode-map
 ;;     "<mouse-down-1>" 'widget-button-click))
 #+end_src
 
@@ -324,6 +325,7 @@ The Modus themes are striking and are noticeably easier to read than alternative
   ;; (load-theme 'doom-spacegrey t)
   (doom-themes-org-config))
 #+end_src
+
 ** Text
 *** Font
 
@@ -395,7 +397,6 @@ Make yes or no prompts be y or n prompts
 
 #+begin_src emacs-lisp :tangle yes
 (global-display-line-numbers-mode t)
-(global-hl-line-mode +1)
 (setq display-line-numbers-type 'relative
       display-line-numbers-grow-only t)
 
@@ -414,6 +415,11 @@ Make yes or no prompts be y or n prompts
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 #+end_src
 
+** Highlight current line
+#+begin_src emacs-lisp :tangle yes
+(use-feature hl-line
+  :hook (prog-mode . hl-line-mode))
+#+end_src
 ** Show matching parentheses
 
 #+begin_src emacs-lisp :tangle yes
