@@ -2634,7 +2634,8 @@ Allows for external applications to trigger custom actions without external depe
    org-roam-node-find)
   :general
   (leader-key
-    "or" 'org-roam-buffer-toggle
+    ;; TODO Replace with org-roam-buffer-toggle once it works
+    "or" 'org-roam-buffer
     "oi" 'org-roam-node-insert
     "of" 'org-roam-node-find)
   :custom
@@ -2680,6 +2681,8 @@ Allows for external applications to trigger custom actions without external depe
       :unnarrowed t)))
   :config
   (org-roam-setup)
+  ;; TODO Remove once org-roam-buffer-toggle works
+  (set-popup-rule! "\\org-roam":side 'right)
   (set-popup-rule! "\\*org-roam\\*" :ttl nil :side 'right))
 #+end_src
 **** org-roam-server
