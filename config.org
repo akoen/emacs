@@ -479,18 +479,6 @@ Copied from Doom Emacs
              ;; genuinely want to start a new form in the middle of a word.
              :unless '(sp-point-before-word-p sp-point-before-same-p)))
 
-  ;; Autopair quotes more conservatively; if I'm next to a word/before another
-  ;; quote, I don't want to open a new pair or it would unbalance them.
-  (let ((unless-list '(sp-point-before-word-p
-                       sp-point-after-word-p
-                       sp-point-before-same-p)))
-    (sp-pair "'"  nil :unless unless-list)
-    (sp-pair "\"" nil :unless unless-list))
-
-  ;; In lisps ( should open a new form if before another parenthesis
-  (sp-local-pair sp-lisp-modes "(" ")" :unless '(:rem sp-point-before-same-p))
-  (sp-local-pair sp-lisp-modes "'" nil :actions :rem)
-
   (smartparens-global-mode 1))
 #+end_src
 
