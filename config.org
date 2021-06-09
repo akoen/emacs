@@ -463,6 +463,8 @@ Copied from Doom Emacs
         sp-highlight-wrap-overlay nil
         sp-highlight-wrap-tag-overlay nil)
   :config
+  (require 'smartparens-config)
+
   ;; NOTE: Following config mostly stolen from Doom
 
   ;; Expand {|} => SPC => { | }
