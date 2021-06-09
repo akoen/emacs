@@ -3393,6 +3393,34 @@ rainbow-mode shows hex code colours in buffers.
   :init
   (set-popup-rule! "\\*ielm\\*" :ttl nil))
 #+end_src
+*** Common Lisp
+
+#+begin_src emacs-lisp :tangle yes
+(use-package sly
+  :hook (sly-mrepl-mode . company-mode)
+  :general
+  (leader-key
+    :keymaps 'lisp-mode-map
+    "'"  'sly
+    "cc" 'sly-compile-file
+    "cC" 'sly-compile-and-load-file
+    "cf" 'sly-compile-defun
+    "cl" 'sly-load-file
+    "cn" 'sly-remove-notes
+    "cr" 'sly-compile-region)
+  :custom
+  (inferior-lisp-program "sbcl")
+  :init
+  (set-popup-rules!
+    '(("^\\*sly-mrepl"       :vslot 2 :select t :size 0.4 :ttl nil)
+      ("^\\*sly-compilation" :vslot 3 :ttl nil)
+      ("^\\*sly-traces"      :vslot 4 :ttl nil)
+      ("^\\*sly-description" :vslot 5 :size 0.3 :ttl 0)
+      ;; Do not display debugger or inspector buffers in a popup window. These
+      ;; buffers are meant to be displayed with sufficient vertical space.
+      ("^\\*sly-\\(?:db\\|inspector\\)" :ignore t))))
+#+end_src
+
 *** Haskell
 #+begin_src emacs-lisp :tangle yes
 (use-package haskell-mode
