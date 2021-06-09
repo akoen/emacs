@@ -3359,6 +3359,7 @@ rainbow-mode shows hex code colours in buffers.
   :hook (clojure-mode . lsp))
 
 (use-package cider
+  :hook (cider-repl-mode . company-mode)
   :general
   (leader-key :keymaps 'cider-mode-map
     "'" 'cider-jack-in-clj
@@ -3366,16 +3367,17 @@ rainbow-mode shows hex code colours in buffers.
     "eb" 'cider-load-buffer
     "ed" 'cider-eval-defun-at-point
     "er" 'cider-eval-region
-    "ee" 'cider-eval-last-sexp)
+    "ee" 'cider-eval-last-sexp
+
+    "rn" 'cider-repl-set-ns)
   :hook (clojure-mode . cider-mode)
   :init
   (set-popup-rules!
-    '(("^\\*cider-error*")
-      ("^\\*cider-repl" :ttl nil)
+    '(("^\\*cider-error*" :select t)
+      ("^\\*cider-repl" :select t :ttl nil :size 0.4)
       ("^\\*cider-repl-history" :vslot 2 :ttl nil)))
   :custom
-  (cider-repl-result-prefix ";; => ")
-  (cider-repl-pop-to-buffer-on-connect 'display-only))
+  (cider-repl-result-prefix ";; => "))
 #+end_src
 *** Elisp
 #+begin_src emacs-lisp :tangle yes
