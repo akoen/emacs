@@ -3363,11 +3363,21 @@ rainbow-mode shows hex code colours in buffers.
   :hook (clojure-mode . cider-mode)
   :init
   (set-popup-rules!
-    '(("^\\*cider-error*" :select t)
-      ("^\\*cider-repl" :select t :ttl nil :size 0.4)
-      ("^\\*cider-repl-history" :vslot 2 :ttl nil)))
+    '(("^\\*cider-repl"         :vslot 2 :select t :ttl nil :size 0.4)
+      ("^\\*cider-error*"       :vslot 3 :select t)
+      ("^\\*cider-repl-history" :vslot 4 :ttl nil)))
   :custom
-  (cider-repl-result-prefix ";; => "))
+  (cider-repl-result-prefix ";; => ")
+  (cider-repl-display-help-banner nil)
+  :config
+
+  ;; Evil collection does not support certain functionality in cider-debug, so
+  ;; we disable it and use the standard bindings.
+  (add-hook 'cider--debug-mode-hook
+            (defun my--clojure--cider-setup-debug ()
+              "Setup cider debug to override evil keys cleanly."
+              (evil-make-overriding-map cider--debug-mode-map 'normal)
+              (evil-normalize-keymaps))))
 #+end_src
 *** Elisp
 #+begin_src emacs-lisp :tangle yes
