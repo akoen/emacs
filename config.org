@@ -2667,16 +2667,12 @@ Allows for external applications to trigger custom actions without external depe
     ;; TODO Replace with org-roam-buffer-toggle once it works
     "or" 'org-roam-buffer
     "oi" 'org-roam-node-insert
+    "og" 'org-roam-graph
     "of" 'org-roam-node-find)
   :custom
-  (org-roam-verbose nil)
+  ;; (org-roam-verbose nil)
   (org-roam-directory brain-dir)
-  (org-roam-tag-sources '(prop last-directory))
-  (org-roam-mode-section-functions
-   (list #'org-roam-backlinks-section
-         #'org-roam-reflinks-section
-         #'org-roam-unlinked-references-section))
-
+  ;; (org-roam-tag-sources '(prop last-directory))
   (org-roam-capture-templates
    '(("d" "default" plain
       "%?"
@@ -2687,8 +2683,9 @@ Allows for external applications to trigger custom actions without external depe
       :unnarowed t)
      ("b" "book" plain
       "%?"
-      :if-new (file+head "books/${slug}.org"
+      :if-new (file+head "${slug}.org"
                          "#+setupfile: ../../hugo_setup.org
+,#+filetags: books
 ,#+title: ${title}
 
 - author ::
@@ -2712,8 +2709,7 @@ Allows for external applications to trigger custom actions without external depe
   :config
   (org-roam-setup)
   ;; TODO Remove once org-roam-buffer-toggle works
-  (set-popup-rule! "\\org-roam":side 'right)
-  (set-popup-rule! "\\*org-roam\\*" :ttl nil :side 'right))
+  (set-popup-rule! "\\org-roam" :side 'right))
 #+end_src
 **** org-roam-server
 
