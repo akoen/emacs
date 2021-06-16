@@ -2636,7 +2636,6 @@ Allows for external applications to trigger custom actions without external depe
   :after ox org
   :init
   (setq org-hugo-set-lastmod t
-        org-hugo-default-section-directory "notes"))
 #+end_src
 **** ox-Pandoc
 #+begin_src emacs-lisp :tangle yes
