@@ -187,6 +187,7 @@ Tangling this org file on save. This code is borrowed from https://github.com/re
 (setq vc-follow-symlinks t           ; don't ask for confirmation when opening symlinked file
       ring-bell-function 'ignore     ; silent bell when you make a mistake
       x-select-enable-clipboard t    ; allow pasting selection outside of emacs
+      suggest-key-bindings nil
       kill-buffer-query-functions nil
       initial-major-mode 'emacs-lisp-mode
       initial-scratch-message nil
