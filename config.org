@@ -2940,6 +2940,11 @@ Allow RefTeX to plug into AUCTeX
 ** Markdown
 #+begin_src emacs-lisp :tangle yes
 (use-package markdown-mode
+  :general
+  (general-nmap
+    :keymaps 'markdown-mode-map
+    :predicate '(markdown-link-p)
+    "RET" 'markdown-follow-link-at-point)
   :init
   (setq-default markdown-hide-urls t)
   :custom
