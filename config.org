@@ -2984,6 +2984,13 @@ Checks for signs of bad writing.
     "lw" 'writegood-mode))
 #+end_src
 
+*** Focus
+#+begin_src emacs-lisp :tangle yes
+(use-package focus
+  :custom
+  (focus-mode-to-thing '((prog-mode . defun) (text-mode . paragraph))))
+#+end_src
+
 *** Writing Function
 
 #+begin_src emacs-lisp :tangle yes
@@ -2997,10 +3004,12 @@ Checks for signs of bad writing.
     (olivetti-mode t)
     (variable-pitch-mode 1) ;; All fonts with variable pitch.
     (text-scale-increase 0.5)
+    (focus-mode 1)
     (setq-local writemode 2))
    ((= writemode 2)
     ;;(focus-mode -1)
     (olivetti-mode -1)
+    (focus-mode 0)
     (variable-pitch-mode 0) ;; All fonts with variable pitch.
     (text-scale-decrease 0)
     (setq-local display-line-numbers 'relative)
