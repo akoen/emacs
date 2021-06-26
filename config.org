@@ -3198,7 +3198,7 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
 
 #+end_src
 
-** Receiving Mail
+** Sending Mail
 
 
 Create ~/.authinfo.gpg
@@ -3208,18 +3208,28 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(use-feature message
-  :init
-  (setq message-send-mail-function 'smtpmail-send-it
-	message-signature "Alex Koen\nhttps://alexkoen.com"
-	message-kill-buffer-on-exit t)) ; close after sending
+(use-feature epa
+  :custom
+  (epa-pinentry-mode 'loopback)
+  :config
+  (epa-file-enable)
+  (auth-source-forget-all-cached))
 
-(use-feature smtpmail
-  :init
-  (setq smtpmail-smtp-server "smtp.mailbox.org"
-	smtpmail-smtp-service 587
-	smtpmail-smtp-user "alex@koen.ca"
-	smtpmail-stream-type 'starttls))
+(use-feature sendmail
+  :custom
+  (send-mail-function 'sendmail-send-it)
+  (sendmail-program (executable-find "msmtp"))
+  :config
+  (set-popup-rule! "sendmail errors"))
+
+(use-feature message
+  :custom
+  (message-sendmail-envelope-from 'header)
+  (message-send-mail-function 'sendmail-send-it)
+  (message-signature "Alex Koen\nhttps://alexkoen.com")
+  (message-kill-buffer-on-exit t)) ; close after sending)
+#+end_src
+
 #+end_src
 * Development
 ** Tools
