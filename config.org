@@ -3025,7 +3025,8 @@ Checks for signs of bad writing.
 #+begin_src emacs-lisp :tangle yes
 ;; find aspell and hunspell automatically
 (use-package flyspell
-  :hook ((org-mode markdown-mode TeX-mode rst-mode mu4e-compose-mode notmuch-message-mode git-commit-mode) . flyspell-mode)
+  :hook (((org-mode markdown-mode TeX-mode rst-mode mu4e-compose-mode notmuch-message-mode git-commit-mode) . flyspell-mode)
+         (prog-mode . flyspell-mode))
   :custom
   (flyspell-prog-text-faces '(font-lock-comment-face font-lock-doc-face))
   :config
