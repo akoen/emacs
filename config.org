@@ -3656,6 +3656,9 @@ rainbow-mode shows hex code colours in buffers.
   (dap-mode 1)
   (dap-ui-mode 1))
 
+;; NOTE: Make sure that debugpy is available in the current environment.
+;; Otherwise will get error:
+;; Debug session process exited with status: exited abnormally with code 1
 (use-feature dap-python
   :defer t ;; loaded by dap-mode
   :custom
