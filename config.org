@@ -822,7 +822,6 @@ Especially when writing text, moving by visual lines instead of by numbered line
 (use-package evil-collection
   :after evil
   :config
-  (setq evil-collection-mode-list (delete 'vterm evil-collection-mode-list)) ;; Otherwise throws error
   (setq evil-collection-company-use-tng nil)
   (evil-collection-init))
 #+end_src
@@ -1269,7 +1268,6 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
   :custom
   (vterm-kill-buffer-on-exit t)
   :init
-  (with-eval-after-load 'evil (evil-set-initial-state 'vterm-mode 'emacs)))
 
 (use-package vterm-toggle
   :commands vterm-toggle vterm-toggle-cd
