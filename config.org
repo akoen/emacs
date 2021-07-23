@@ -121,9 +121,6 @@ Note that system directories are set in init.el
 (defconst docs-dir "~/Documents/"
   "The root Drive directory, where all documents are stored.")
 
-(defconst archive-dir (concat docs-dir "Archive/")
-  "Archive directory")
-
 (defconst org-dir "~/Nextcloud/Org/"
   "Org directory")
 
@@ -1551,7 +1548,6 @@ Displays the folder tree
     (org-block-end-line ((t (:inherit org-block-begin-line))))
     :init
     (setq org-directory org-dir
-          org-archive-location (concat archive-dir "Tasks/archive_" (format-time-string "%Y") ".org::datetree/")
           org-use-fast-todo-selection t                                     ; allow changing to any todo state from a menu
           org-enforce-todo-dependencies t                                   ; block setting task to DONE if there are incomplete subtasks
           org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id ; use unique ID's for links
