@@ -3470,6 +3470,7 @@ rainbow-mode shows hex code colours in buffers.
   (setq web-mode-enable-auto-closing t
         web-mode-auto-close-style 2 ;; 2 is a nice number I suppose
         web-mode-enable-auto-quoting nil ;; messes with jsx
+        web-mode-enable-auto-pairing nil
         web-mode-markup-indent-offset 2
         web-mode-code-indent-offset 2
         web-mode-css-indent-offset 2)
