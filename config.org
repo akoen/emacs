@@ -1268,6 +1268,7 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
   :custom
   (vterm-kill-buffer-on-exit t)
   :init
+  (set-popup-rule! "\\*vterm\\*" :ttl nil :size 0.4))
 
 (use-package vterm-toggle
   :commands vterm-toggle vterm-toggle-cd
