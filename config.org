@@ -463,21 +463,25 @@ Copied from Doom Emacs
   :config
   (require 'smartparens-config)
 
-  ;; NOTE: Following config mostly stolen from Doom
+  (defun sp-point-before-non-whitespace-p (_id action _context)
+    "Return t if point is followed by a non-whitespace character, nil
+otherwise.This predicate is only tested on \"insert\" action."
+    (when (eq action 'insert)
+      (sp--looking-at-p "\\S-")))
 
-  ;; Expand {|} => SPC => { | }
-  ;; Expand {|} => RET => {
-  ;;   |
-  ;; }
   (dolist (brace '("(" "{" "["))
     (sp-pair brace nil
+             ;; Expand {|} => SPC => { | }
+             ;; Expand {|} => RET => {
+             ;;   |
+             ;; }
              :post-handlers '(("||\n[i]" "RET") ("| " "SPC"))
-             ;; Don't autopair opening braces if before a word character or
-             ;; other opening brace. The rationale: it interferes with manual
-             ;; balancing of braces, and is odd form to have s-exps with no
-             ;; whitespace in between, e.g. ()()(). Insert whitespace if
-             ;; genuinely want to start a new form in the middle of a word.
-             :unless '(sp-point-before-word-p sp-point-before-same-p)))
+             ;; Don't autopair opening braces if before a non-whitespace
+             ;; character. The rationale: it interferes with manual balancing of
+             ;; braces, and is odd form to have s-exps with no whitespace in
+             ;; between, e.g. ()()(). Insert whitespace if genuinely want to
+             ;; start a new form in the middle of a word.
+             :unless '(sp-point-before-non-whitespace-p)))
 
   (smartparens-global-mode 1))
 #+end_src
