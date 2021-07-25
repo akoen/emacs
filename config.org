@@ -459,7 +459,9 @@ Copied from Doom Emacs
   ;; Don't highlight - overly distracting
   (setq sp-highlight-pair-overlay nil
         sp-highlight-wrap-overlay nil
-        sp-highlight-wrap-tag-overlay nil)
+        sp-highlight-wrap-tag-overlay nil
+        sp-escape-quotes-after-insert nil)
+  (setq-default sp-autoskip-closing-pair nil)
   :config
   (require 'smartparens-config)
 
