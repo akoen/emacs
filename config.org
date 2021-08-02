@@ -1644,15 +1644,15 @@ Displays the folder tree
 
 Replace underline with highlight
 #+begin_src emacs-lisp :tangle yes
-(setq org-emphasis-alist
-      (quote (("*" bold)
-              ("/" italic)
-              ("_" (:background "#fffbc2"))
-              ("=" org-verbatim verbatim)
-              ("~" org-code verbatim)
-              ("+"
-               (:strike-through t))
-              )))
+(let* ((bg-dark (eq (frame-parameter nil 'background-mode) 'dark))
+       (highlight-color (if bg-dark "#585858" "#fffbc2")))
+  (setq org-emphasis-alist
+        `(("*" bold)
+          ("/" italic)
+          ("_" (:background ,highlight-color))
+          ("=" org-verbatim verbatim)
+          ("~" org-code verbatim)
+          ("+" (:strike-through t)))))
 #+end_src
 
 (disabled) Custom highlight face. From [[https://emacs.stackexchange.com/questions/38216/custom-faces-in-org-9-0]]. Here is possibly a better implementation: https://kitchingroup.cheme.cmu.edu/blog/2016/11/10/Persistent-highlighting-in-Emacs/
