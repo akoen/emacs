@@ -894,16 +894,10 @@ This code allows us to quit basically everything using ESC.
   ;; Back to the default
   ((keyboard-quit))))
 
-(global-set-key [remap keyboard-quit] #'escape-quit)
-(define-key minibuffer-local-map [escape] 'escape-quit)
-
-(with-eval-after-load 'evil
-  ;; Taken from doom emacs.
-  (defun my--evil-escape-also-quit (&rest _)
-    "Call `escape-quit' if `evil-force-normal-state' is called interactively."
-    (when (called-interactively-p 'any)
-      (call-interactively #'escape-quit)))
-  (advice-add #'evil-force-normal-state :after #'my--evil-escape-also-quit))
+;; We want this *everywhere*
+(general-define-key :states '(insert normal visual motion) "<escape>" 'escape-quit)
+;; Covers other places like the minibufer
+(general-define-key :keymaps 'override "<escape>" 'escape-quit)
 #+end_src
 
 *** evil-surround
@@ -977,7 +971,7 @@ Gives a visual indication as to the region you just edited.
   (evil-goggles-mode)
   (evil-goggles-use-diff-faces))
 #+end_src
-*** winner-mode
+** winner-mode
 
 Pressing Q restores the window configuration to the last state. Useful for killing compilation buffers etc. Redo with C-c right
 
