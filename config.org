@@ -1083,9 +1083,6 @@ Pressing Q restores the window configuration to the last state. Useful for killi
     "cf" 'consult-flycheck))
 
 (use-package marginalia
-  :custom
-  ;; REVIEW Deprecated
-  ;; (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
   :config
   (marginalia-mode +1))
 
