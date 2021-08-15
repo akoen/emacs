@@ -1900,28 +1900,6 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (setq org-log-repeat 'time
         org-log-into-drawer t))
 #+end_src
-**** Variable Pitch Mode
-
-We use a font that's easier on the eyes for long blocks of text
-
-#+begin_src emacs-lisp :tangle yes
-(add-hook 'org-mode-hook
-          '(lambda ()
-             (setq line-spacing 0.2) ;; Add more line padding for readability
-             (mapc
-              (lambda (face) ;; Other fonts with fixed-pitch.
-                (set-face-attribute face nil :inherit 'fixed-pitch))
-              (list 'org-code
-                    'org-link
-                    'org-block
-                    'org-table
-                    'org-verbatim
-                    'org-block-begin-line
-                    'org-block-end-line
-                    'org-meta-line
-                    'org-document-info-keyword))))
-#+end_src 
-
 **** SRC blocks
 #+begin_src emacs-lisp :tangle yes
 (use-feature ob
