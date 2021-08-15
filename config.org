@@ -1114,6 +1114,7 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 ;; REVIEW Consider replacing with https://github.com/minad/corfu
 (use-package company
   :defer 0.5
+  :hook (prog-mode . company-mode)
   :general
   (:keymaps 'company-active-map
             "<tab>" nil
