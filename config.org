@@ -1270,9 +1270,10 @@ Find and grep fuzzy searching, inspired by fzf.
   :custom
   (affe-regexp-function #'orderless-pattern-compiler)
   (affe-highlight-function #'orderless-highlight-matches)
+  (affe-grep-command "rg --hidden --null --color=never --max-columns=1000 --no-heading --line-number -v ^$ .")
   :config
-  ;; Keybind to preview the current match in context
-  (setf (alist-get #'affe-grep consult-config) `(:preview-key ,(kbd "M-."))))
+  ;; Preview the current match
+  (setf (alist-get #'affe-grep consult-config) nil))
 #+end_src
 ** Magit
 
