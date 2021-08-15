@@ -825,6 +825,41 @@ Especially when writing text, moving by visual lines instead of by numbered line
 
 (define-key evil-outer-text-objects-map "l" 'evil-a-line)
 (define-key evil-inner-text-objects-map "l" 'evil-inner-line)
+
+(with-eval-after-load 'evil-nerd-commenter
+  (define-key evil-outer-text-objects-map "c" 'evilnc-outer-commenter)
+  (define-key evil-inner-text-objects-map "c" 'evilnc-inner-comment))
+
+(evil-define-text-object evil-inner-url (count &optional _beg _end type)
+  "Text object to select the inner url at point.
+
+This excludes the protocol and querystring."
+  (cl-destructuring-bind (beg . end)
+      (bounds-of-thing-at-point 'url)
+    (evil-range
+     (save-excursion
+       (goto-char beg)
+       (re-search-forward "://" end t))
+     (save-excursion
+       (goto-char end)
+       (- (if-let (pos (re-search-backward "[?#]" beg t))
+              pos
+            end)
+          (if (evil-visual-state-p)
+              1
+            0)))
+     type)))
+
+(evil-define-text-object evil-outer-url (count &optional _beg _end type)
+  "Text object to select the whole url at point."
+  (cl-destructuring-bind (beg . end)
+      (bounds-of-thing-at-point 'url)
+    (evil-range
+     beg (- end (if (evil-visual-state-p) 1 0))
+     type)))
+
+(define-key evil-outer-text-objects-map "u" 'evil-outer-url)
+(define-key evil-inner-text-objects-map "u" 'evil-inner-url)
 #+end_src
 *** EVIL-Collection
 #+begin_src emacs-lisp :tangle yes
@@ -848,8 +883,9 @@ This code allows us to quit basically everything using ESC.
 (defun escape-quit ()
   "Run `my--escape-hook'."
   (interactive)
-  (cond ((minibuffer-window-active-p (minibuffer-window))
+  (cond ((evil-insert-state-p) (evil-force-normal-state))
 	 ;; quit the minibuffer if open.
+   ((minibuffer-window-active-p (minibuffer-window))
          (abort-recursive-edit))
 	;; Run all escape hooks. If any returns non-nil, then stop there.
 	((run-hook-with-args-until-success 'my--escape-hook))
