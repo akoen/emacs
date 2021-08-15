@@ -1574,17 +1574,18 @@ Displays the folder tree
           org-export-with-smart-quotes t)
 
     :custom-face
-    (variable-pitch ((t (:family "Roboto Mono Light" :height 1.0)))) ; Alternatively, Office Code Pro is second best
-    (org-default ((t (:family "Roboto Mono Light" :height 1.0)))) ; Alternatively, Office Code Pro is second best
-    (org-document-title ((t (:family "Roboto Slab" :weight bold :height 2.0))))
-    (org-document-info ((t (:family "Roboto Slab"))))
+    (org-default ((t (:family "Pragmata Pro" :height 1.0)))) ; Alternatively, Office Code Pro is second best
+    (org-document-title ((t (:family "Pragmata Pro" :weight bold :height 2.0))))
+    (org-document-info ((t (:family "Pragmata Pro"))))
     (org-done ((t (:strike-through t :weight bold))))
     (org-table-header ((t (:weight bold))))
     (org-headline-done ((t (:strike-through t))))
-    (org-level-1 ((t (:family "Roboto" :height 1.2))))
-    (org-level-2 ((t (:family "Roboto" :height 1.1))))
-    (org-level-3 ((t (:family "Roboto" :height 1.1))))
+    (org-level-1 ((t (:height 1.2))))
+    (org-level-2 ((t (:height 1.1))))
+    (org-level-3 ((t (:height 1.1))))
     (org-link ((t (:underline t))))
+    ;; FIXME Does not work at startup
+    (org-block-end-line ((t (:inherit org-block-begin-line))))
     :config
 
     ;; Scrolling of inline images in org is a terrible experience, so we
