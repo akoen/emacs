@@ -1042,16 +1042,19 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 
 (use-package embark
   :general
-  (general-define-key
-   :keymaps 'minibuffer-local-map
-   "C-o" 'embark-act
-   "C-S-o" 'embark-act-noexit)
+  ;; Bindings shadow evil-repeat-pop
+  (:states '(normal insert)
+           "C-." 'embark-act
+           "M-." 'embark-dwim
+           "C-h B" 'embark-bindings)
   :custom
-  (embark-action-indicator
-   (lambda (map)
-     (which-key--show-keymap "Embark" map nil nil 'no-paging)
-     #'which-key--hide-popup-ignore-command)
-   embark-become-indicator embark-action-indicator))
+  (prefix-help-command #'embark-prefix-help-command)
+  :config
+  (setq embark-action-indicator
+        (lambda (map _target)
+          (which-key--show-keymap "Embark" map nil nil 'no-paging)
+          #'which-key--hide-popup-ignore-command)
+        embark-become-indicator embark-action-indicator))
 
 (use-package embark-consult
   :after (embark consult)
