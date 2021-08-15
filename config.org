@@ -1006,13 +1006,14 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 #+end_src
 ** Link-hint
 #+begin_src emacs-lisp :tangle yes
-(use-package link-hint
+(use-package ace-link
+  ;; REVIEW Link-hint was better, but as problems in mu4e emails
   :general
   (general-nmap
     :keymaps '(helpful-mode-map info-mode-map mu4e-view-mode-map)
-    "o" 'link-hint-open-link)
+    "o" 'ace-link)
   (leader-key
-    "sl" 'link-hint-open-link))
+    "sl" 'ace-link))
 #+end_src
 * Completion
 ** Minibuffer Completion
