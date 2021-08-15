@@ -3387,6 +3387,10 @@ I used to dislike MATLAB, but the effort they put in to supporting Linux and Ema
   :general
   (:states 'normal :keymaps 'matlab-mode-map "gz" 'matlab-shell)
   :hook ((matlab-mode) . (lambda () (company-mode) (flycheck-mode)))
+  :custom
+  ;; Works in org. Other methods seem to need a file
+  (matlab-shell-run-region-function 'matlab-shell-region->commandline)
+  (matlab-shell-use-emacs-toolbox nil)
   :init
   (setq-default mlint-show-warnings t)
   (with-eval-after-load 'flycheck
