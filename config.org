@@ -1059,10 +1059,22 @@ Pressing Q restores the window configuration to the last state. Useful for killi
     "BB" 'consult-bookmark
     "yp" 'consult-yank
     "so" 'consult-outline
-    "ss" 'consult-line)
+    "sO" 'consult-org-agenda
+    "ss" 'consult-line
+    "sf" 'consult-focus-lines)
   :custom
   (consult-narrow-key "<")
-  (consult-project-root-function #'projectile-project-root))
+  (consult-project-root-function #'projectile-project-root)
+  :init
+  ;; Configure the register formatting. This improves the register
+  ;; preview for `consult-register', `consult-register-load',
+  ;; `consult-register-store' and the Emacs built-ins.
+  (setq register-preview-delay 0
+        register-preview-function #'consult-register-format)
+  (advice-add #'register-preview :override #'consult-register-window)
+
+  ;; Replace `completing-read-multiple' with an enhanced version.
+  (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple))
 
 (use-package consult-flycheck
   :commands consult-flycheck
