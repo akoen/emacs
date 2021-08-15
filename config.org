@@ -984,11 +984,23 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 (use-package vertico
   :straight '(vertico :host github
                       :repo "minad/vertico"
-                      :branch "main")
+                      :branch "main"
+                      :files (:defaults "extensions/*")
+                      :includes (vertico-directory))
   :custom
   (vertico-cycle t)
+  (enable-recursive-minibuffers t)
   :config
   (vertico-mode 1))
+
+(use-package vertico-directory
+  ;; More convenient directory navigation commands
+  :bind (:map vertico-map
+              ("RET" . vertico-directory-enter)
+              ("DEL" . vertico-directory-delete-char)
+              ("M-DEL" . vertico-directory-delete-word))
+  ;; Tidy shadowed file names
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
 (use-feature savehist
   :custom
