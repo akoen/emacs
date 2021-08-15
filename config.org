@@ -1082,6 +1082,13 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   (leader-key
     "cf" 'consult-flycheck))
 
+(use-package consult-dir
+  :general
+  (leader-key "fd" 'consult-dir)
+  (:keymaps 'vertico-map
+            "C-x C-d" 'consult-dir
+            "C-x C-j" 'consult-jump-file))
+
 (use-package marginalia
   :config
   (marginalia-mode +1))
