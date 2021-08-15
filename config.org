@@ -589,15 +589,19 @@ Space is the best leader key.
     "u" 'universal-argument
 
     ;; Buffer
+    "b" '(:wk "buffer")
     "br" 'revert-buffer
+    "bD" 'kill-buffer
     "`" 'evil-switch-to-windows-last-buffer
+
+    "d" '(:wk "debug")
 
     ;; Files
     "." 'find-file
     "ff" 'dired-jump
     "fs" 'save-buffer
     "fR" '((lambda (new-path)
-             (interactive (list (read-file-name "Move file to: ") current-prefix-arg))
+             (interactive (list (read-file-name "Move file to: ")))
              (rename-file (buffer-file-name) (expand-file-name new-path)))
            :wk "move/rename")
 
