@@ -338,9 +338,9 @@ The Modus themes are striking and are noticeably easier to read than alternative
                       :height 120)
 
   (set-face-attribute 'variable-pitch nil
-                      :font "Source Serif Pro"
+                      :font "Pragmata Pro"
                       :weight 'normal
-                      :height 140)
+                      :height 120)
 
  (remove-hook 'after-make-frame-functions #'my-configure-fonts))
 
