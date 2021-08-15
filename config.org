@@ -1553,10 +1553,9 @@ Displays the folder tree
                         paragraph-separate "[  ]*$")))
     
     (org-babel-after-execute . org-redisplay-inline-images)
-    ;; FIXME Does not work at startup
-    :custom-face
-    (org-block-end-line ((t (:inherit org-block-begin-line))))
     :init
+    ;; Org knows how to handle its own buffers
+    (set-popup-rule! "\\*Org" :ignore t)
     (setq org-directory org-dir
           org-use-fast-todo-selection t                                     ; allow changing to any todo state from a menu
           org-enforce-todo-dependencies t                                   ; block setting task to DONE if there are incomplete subtasks
