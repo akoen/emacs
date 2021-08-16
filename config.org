@@ -2665,6 +2665,7 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
 	mu4e-view-show-addresses t
 	mu4e-sent-messages-behavior 'sent
 	mu4e-hide-index-messages t
+  mu4e-headers-precise-alignment t
 	;; try to show images
 	mu4e-view-show-images t
 	mu4e-view-image-max-width 800
