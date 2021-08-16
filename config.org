@@ -493,6 +493,10 @@ otherwise. This predicate is only tested on \"insert\" action."
                      sp-point-before-closing-brace-p
                      sp-point-before-eol-p)))
 
+  ;; Don't do square-bracket space-expansion where it doesn't make sense to
+  (sp-local-pair '(emacs-lisp-mode org-mode markdown-mode)
+                 "[" nil :post-handlers '(:rem ("| " "SPC")))
+
   (smartparens-global-mode 1))
 #+end_src
 
