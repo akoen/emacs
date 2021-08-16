@@ -1202,6 +1202,8 @@ _r_eload    e_x_pand    _?_ list
 
   (add-hook 'post-command-hook #'my--yas-try-expanding-auto-snippets)
 
+  (add-to-list 'warning-suppress-types '(yasnippet backquote-change))
+
   (setq yas-verbosity 2)
   (yas-global-mode 1))
 #+END_SRC
