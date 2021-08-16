@@ -465,11 +465,17 @@ Copied from Doom Emacs
   :config
   (require 'smartparens-config)
 
-  (defun sp-point-before-non-whitespace-p (_id action _context)
-    "Return t if point is followed by a non-whitespace character, nil
-otherwise.This predicate is only tested on \"insert\" action."
+  (defun sp-point-before-whitespace-p (_id action _context)
+    "Return t if point is followed by a whitespace character, nil
+otherwise. This predicate is only tested on \"insert\" action."
     (when (eq action 'insert)
-      (sp--looking-at-p "\\S-")))
+      (sp--looking-at-p "\\s-")))
+
+  (defun sp-point-before-closing-brace-p (_id action _context)
+    "Return t if point is followed by a closing brace character, nil
+otherwise. This predicate is only tested on \"insert\" action."
+    (when (eq action 'insert)
+      (sp--looking-at-p "[])}]")))
 
   (dolist (brace '("(" "{" "["))
     (sp-pair brace nil
@@ -483,7 +489,9 @@ otherwise.This predicate is only tested on \"insert\" action."
              ;; braces, and is odd form to have s-exps with no whitespace in
              ;; between, e.g. ()()(). Insert whitespace if genuinely want to
              ;; start a new form in the middle of a word.
-             :unless '(sp-point-before-non-whitespace-p)))
+             :when '(sp-point-before-whitespace-p
+                     sp-point-before-closing-brace-p
+                     sp-point-before-eol-p)))
 
   (smartparens-global-mode 1))
 #+end_src
