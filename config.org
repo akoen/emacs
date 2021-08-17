@@ -2819,6 +2819,34 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
       (interactive "aFunction symbol: ")
       (edebug-instrument-function fun)))
 #+end_src
+*** Eval
+
+Framework, heavily inspired by Doom Emacs, for evaluating buffer code in major-mode specific "runner" functions.
+
+#+begin_src emacs-lisp :tangle yes
+(defvar +eval-runners
+  '((emacs-lisp-mode . +eval-emacs-lisp))
+  "Alist mapping major-modes to runner functions which evaluate buffer code.")
+
+(defun +eval-emacs-lisp (beg end)
+  "Runner for emacs-lisp."
+  (eval (read (format "(progn %s)"
+                      (buffer-substring-no-properties beg end)))))
+
+(defun +eval/region (beg end)
+  "Eval region with major-mode runner."
+  (let ((runner (alist-get major-mode +eval-runners)))
+    (if runner (funcall runner beg end)
+      (message "No runner found for %s" major-mode))))
+
+(evil-define-operator +eval:region (beg end)
+  "Evaluate selection with current major-mode runner."
+  :move-point nil
+  (interactive "<r>")
+  (+eval/region beg end))
+
+(general-nvmap :keymaps 'override "gr" '+eval:region)
+#+end_src
 *** Folding
 #+begin_src emacs-lisp :tangle yes
 ;; Adapted from doom emacs
@@ -2977,7 +3005,6 @@ rainbow-mode shows hex code colours in buffers.
   (leader-key :keymaps 'emacs-lisp-mode-map
     "eb" 'eval-buffer
     "ef" 'load-file
-    "er" 'eval-region
     "el" 'load-library
     "ee" 'pp-eval-last-sexp))
 
