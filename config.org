@@ -2975,7 +2975,6 @@ rainbow-mode shows hex code colours in buffers.
 
     "eb" 'cider-load-buffer
     "ed" 'cider-eval-defun-at-point
-    "er" 'cider-eval-region
     "ee" 'cider-eval-last-sexp
 
     "rn" 'cider-repl-set-ns)
@@ -2989,6 +2988,8 @@ rainbow-mode shows hex code colours in buffers.
   (cider-repl-result-prefix ";; => ")
   (cider-repl-display-help-banner nil)
   :config
+
+  (add-to-list '+eval-runners '(clojure-mode . cider-eval-region))
 
   ;; Evil collection does not support certain functionality in cider-debug, so
   ;; we disable it and use the standard bindings.
