@@ -2658,7 +2658,8 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
 #+begin_src emacs-lisp :tangle yes
 (use-package mu4e
   :commands mu4e mu4e-compose-new
-  :hook ((mu4e-compose-mode) . olivetti-mode)
+  :hook (((mu4e-compose-mode mu4e-view-mode) . olivetti-mode)
+         (dired-mode . turn-on-gnus-dired-mode))
   :general
   (leader-key
     "mm" 'mu4e
