@@ -2817,7 +2817,33 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
     (defun my--edebug-add-instrumentation (fun)
       "Interactively call edebug-instrument-function."
       (interactive "aFunction symbol: ")
-      (edebug-instrument-function fun)))
+      (edebug-instrument-function fun))
+
+    ;; Highlight instrumented functions
+    ;; REVIEW: The use of font-lock-debug-fontify breaks hl-todo and is
+    ;; *not-recommended* according to the doc.
+
+
+    (defface +instrumented-face
+      '((((type graphic)) :box (:color "#c00" :line-width -1))
+        (t :underline t :background "#800"))
+      "Face used to mark code being debugged.")
+
+    (defun +edebug-propertize-instrumented-function (func)
+      ""
+      (font-lock-add-keywords 'emacs-lisp-mode
+                              `((,(regexp-quote (symbol-name func)) . '+instrumented-face)))
+      (font-lock-debug-fontify))
+
+    (defun +edebug-propertize-instrumented-function-remove (functions)
+      ""
+      (dolist (func functions)
+        (font-lock-remove-keywords 'emacs-lisp-mode
+                                   `((,(regexp-quote (symbol-name func)) . '+instrumented-face))))
+      (font-lock-debug-fontify))
+
+    (advice-add 'edebug-instrument-function :after '+edebug-propertize-instrumented-function)
+    (advice-add 'edebug-remove-instrumentation :after '+edebug-propertize-instrumented-function-remove))
 #+end_src
 *** Eval
 
