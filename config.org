@@ -1765,10 +1765,11 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
     (delete-frame)))
 
 (defun my--activate-capture-frame ()
-  "run org-capture in capture frame"
+  "Capture a todo in a new frame."
   (select-frame-by-name "capture")
   (switch-to-buffer (get-buffer-create "*scratch*"))
-  (org-capture))
+  (org-capture nil "t")
+  (evil-insert-state))
 
 ;; System-wide org-agenda
 (defadvice org-agenda-quit
