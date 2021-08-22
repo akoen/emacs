@@ -1113,6 +1113,9 @@ Pressing Q restores the window configuration to the last state. Useful for killi
            "C-." 'embark-act
            "M-." 'embark-dwim
            "C-h B" 'embark-bindings)
+  (:keymaps 'vertico-map
+            "C-." 'embark-act
+            "M-." 'embark-dwim)
   :custom
   (prefix-help-command #'embark-prefix-help-command)
   :config
