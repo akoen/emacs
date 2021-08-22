@@ -556,6 +556,7 @@ Highlights keywords in comments
   :straight (:host github :repo "akoen/doom-popup")
   :custom
   (+popup-all-popups t)
+  (windmove-allow-all-windows t)
   :config
   (+popup-mode +1)
   ;; General keyword doesn't seem to work with :straight
