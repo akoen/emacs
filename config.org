@@ -32,6 +32,12 @@ To see what's loading a package:
 (with-eval-after-load 'ob (debug))
 #+end_src
 
+Or a function
+#+begin_src emacs-lisp :tangle no
+(debug-on-entry 'set-cursor-color)
+#+end_src
+
+
 * Initialization
 ** Lexical Binding
 
