@@ -307,7 +307,10 @@ The Modus themes are striking and are noticeably easier to read than alternative
 #+begin_src emacs-lisp :tangle yes
 (use-package modus-themes
   :config
-  (load-theme 'modus-vivendi t))
+  (load-theme 'modus-vivendi t)
+  ;; HACK: In daemon mode the cursor has a habit of taking on the background
+  ;; colour. This shouldn't be necessary.
+  (set-cursor-color "white"))
 #+end_src
 
 *** Doom-themes
