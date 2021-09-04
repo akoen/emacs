@@ -1885,21 +1885,6 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
             (tags "CLOSED>=\"<today>\""
                   ((org-agenda-overriding-header "\nCOMPLETED TODAY\n")))))))
 
-  (defun my--org-agenda-process-inbox-item ()
-    "Process a single item in the org-agenda."
-    (interactive)
-    (org-with-wide-buffer
-     ;; (org-agenda-schedule)
-     ;; (org-agenda-deadline)
-     ;; (org-agenda-set-tags)
-     (org-agenda-priority)
-     ;; (call-interactively 'my-org-agenda-set-effort)
-     (org-agenda-refile nil nil t)))
-
-  (general-mmap
-    :keymaps 'org-agenda-mode-map
-    "p" 'my--org-agenda-process-inbox-item)
-
   (defun my--check-sync-conflicts ()
     (when (directory-files org-dir nil "conflict")
       (message "Warning: Sync conflicts")))
