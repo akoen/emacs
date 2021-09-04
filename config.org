@@ -2245,7 +2245,6 @@ Allows for external applications to trigger custom actions without external depe
 **** org-roam
 #+begin_src emacs-lisp :tangle yes
 (use-package org-roam
-  :straight (:host github :repo "org-roam/org-roam" :branch "v2")
   :after org
   :commands
   (org-roam-buffer
@@ -2261,9 +2260,7 @@ Allows for external applications to trigger custom actions without external depe
   :init
   (setq org-roam-v2-ack t)
   :custom
-  ;; (org-roam-verbose nil)
   (org-roam-directory brain-dir)
-  ;; (org-roam-tag-sources '(prop last-directory))
   (org-roam-capture-templates
    '(("d" "default" plain
       "%?"
@@ -2298,10 +2295,9 @@ Allows for external applications to trigger custom actions without external depe
                          "#+title: ${title}\n")
       :unnarrowed t)))
   :config
-  (org-roam-setup)
   (set-popup-rule! "\\org-roam" :side 'right :select t))
 #+end_src
-**** org-roam-server
+**** org-roam-UI
 
 Visualize the Zettelkasten.
 
