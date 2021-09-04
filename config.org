@@ -1858,6 +1858,8 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (setq org-agenda-inhibit-startup t)
   (setq org-agenda-skip-unavailable-files t)
 
+  (add-to-list 'load-path "~/Programming/gtd-agenda")
+  (require 'gtd-agenda)
   
   (setq org-agenda-span 'day)
   (setq org-agenda-custom-commands
@@ -1867,17 +1869,11 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
                       '(org-agenda-skip-entry-if 'deadline))
                      (org-deadline-warning-days 0)
                      (org-agenda-overriding-header "\nAGENDA\n")))
-            (todo "NEXT"
-                  ((org-agenda-skip-function
-                    '(org-agenda-skip-entry-if 'deadline))
-                   (org-agenda-prefix-format " %i %-12:c [%e] ")
-                   (org-agenda-overriding-header "\nTASKS\n")))
+            (+agenda-projects-block nil)
             (agenda nil
                     ((org-agenda-entry-types '(:deadline))
                      (org-agenda-format-date "")
                      (org-deadline-warning-days 7)
-                     ;; (org-agenda-skip-function
-                     ;;  '(org-agenda-skip-entry-if 'notregexp "\\* NEXT"))
                      (org-agenda-overriding-header "\nDEADLINES\n")))
             (tags-todo "refile"
                        ((org-agenda-prefix-format "  %?-12t% s")
