@@ -37,6 +37,11 @@ Or a function
 (debug-on-entry 'set-cursor-color)
 #+end_src
 
+Or a variable
+#+begin_src emacs-lisp :tangle no
+(debug-on-variable-change 'evil-want-Y-yank-to-eol)
+#+end_src
+
 
 * Initialization
 ** Lexical Binding
