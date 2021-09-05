@@ -318,10 +318,7 @@ The Modus themes are striking and are noticeably easier to read than alternative
 #+begin_src emacs-lisp :tangle yes
 (use-package modus-themes
   :config
-  (load-theme 'modus-vivendi t)
-  ;; HACK: In daemon mode the cursor has a habit of taking on the background
-  ;; colour. This shouldn't be necessary.
-  (set-cursor-color "white"))
+  (load-theme 'modus-operandi t))
 #+end_src
 
 *** Doom-themes
@@ -622,6 +619,8 @@ Space is the best leader key.
     "`" 'evil-switch-to-windows-last-buffer
 
     "d" '(:wk "debug")
+
+    "e" '(:wk "eval")
 
     ;; Files
     "." 'find-file
@@ -2067,7 +2066,9 @@ Make bullets circular
 *** Packages
 **** EVIL-Org
 #+begin_src emacs-lisp :tangle yes
+;; FIXME Keybindings do not work in agenda
 (use-package evil-org
+  :straight (:host github :repo "hlissner/evil-org-mode")
   :after org
   :custom
   ;; Defines a bullet as the beginning of a sentence. Note that this regex
@@ -2266,7 +2267,7 @@ Allows for external applications to trigger custom actions without external depe
   :ensure-system-package hugo
   :after ox org
   :init
-  (setq org-hugo-set-lastmod t
+  (setq org-hugo-set-lastmod t))
 #+end_src
 **** ox-Pandoc
 #+begin_src emacs-lisp :tangle yes
@@ -2358,74 +2359,59 @@ Visualize the Zettelkasten.
   :config
   (org-roam-ui-mode 1))
 #+end_src
+**** Citations
 
-**** org-roam-bibtex
-#+begin_src emacs-lisp :tangle yes
-(use-package org-roam-bibtex
-  :after org-roam
-  :hook (org-roam-mode . org-roam-bibtex-mode)
-  :config
-  (setq org-roam-bibtex-preformat-keywords
-        '("=key=" "title" "url" "file" "author-or-editor" "keywords"))
-  (setq orb-templates
-        '(("r" "ref" plain (function org-roam-capture--get-point)
-           ""
-           :file-name "papers/%(org-roam--title-to-slug \"${title}\")"
-           :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}
-
-- tags ::
-- keywords :: ${keywords}
-- author :: ${author-or-editor}"
-           :unnarrowed t))))
-#+end_src
-**** ivy-bibtex
+***** bibtex
 
 #+begin_src emacs-lisp :tangle yes
 (use-package bibtex-completion
   :config
-  (setq bibtex-completion-notes-path brain-dir
-        bibtex-completion-bibliography "~/Documents/zotero-bib.bib"
-        bibtex-completion-pdf-field "file"
-        bibtex-completion-notes-template-multiple-files
-        (concat
-         "#+TITLE: ${title}\n"
-         "#+ROAM_KEY: cite:${=key=}\n"
-         "* TODO Notes\n"
-         ":PROPERTIES:\n"
-         ":Custom_ID: ${=key=}\n"
-         ":NOTER_DOCUMENT: %(orb-process-file-field \"${=key=}\")\n"
-         ":AUTHOR: ${author-abbrev}\n"
-         ":JOURNAL: ${journaltitle}\n"
-         ":DATE: ${date}\n"
-         ":YEAR: ${year}\n"
-         ":DOI: ${doi}\n"
-         ":URL: ${url}\n"
-         ":END:\n\n")))
+  (setq bibtex-completion-bibliography (concat docs-dir "zotero-bib.bib")
+        bibtex-completion-pdf-field "file"))
 
 
 (use-package bibtex-actions
-  :after embark
   :general
   (leader-key
     "ob" 'bibtex-actions-open)
+  (:keymaps 'org-mode-map
+            "C-c ]" 'bibtex-actions-insert-citation)
   :config
   ;; Make the 'bibtex-actions' bindings available from `embark-act'.
-  (add-to-list 'embark-keymap-alist '(bibtex . bibtex-actions-map)))
+  (with-eval-after-load 'embark
+    (add-to-list 'embark-keymap-alist '(bibtex . bibtex-actions-map))))
 #+end_src
-**** org-ref
+***** org-ref
 #+begin_src emacs-lisp :tangle yes
 (use-package org-ref
   :after org
   :init
   ;; must be called at init
   (setq org-ref-completion-library 'org-ref-ivy-cite)
-  :config
-  (setq org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex
-	org-ref-default-bibliography (list (concat docs-dir "zotero-bib.bib"))
-	org-ref-notes-directory brain-dir))
+  :custom
+  ;; We use the citation tools provided by bibtex-actions
+  (org-ref-insert-cite-key "")
+  ;; (org-ref-notes-function 'bibtex-completion-edit-notes)
+  (org-ref-default-bibliography (list (concat docs-dir "zotero-bib.bib")))
+  (org-ref-notes-directory brain-dir))
 #+end_src
 
-**** (disabled) org-ref-ox-hugo
+***** org-roam-bibtex
+#+begin_src emacs-lisp :tangle yes
+(use-package org-roam-bibtex
+  :straight (:host github :repo "org-roam/org-roam-bibtex" :branch "org-roam-v2")
+  :after org-roam
+  :custom
+  (orb-preformat-keywords '("citekey" "title"))
+  :config
+  (cl-pushnew '("r" "reference" plain
+                 "%?"
+                 :if-new (file+head "papers/${citekey}.org" "#+title: ${title}\n")
+                 :unnarrowed t)
+              org-roam-capture-templates)
+  (org-roam-bibtex-mode))
+#+end_src
+***** (disabled) org-ref-ox-hugo
 #+begin_src emacs-lisp :tangle yes
 (use-package org-ref-ox-hugo
   :disabled t
@@ -2645,7 +2631,7 @@ Checks for signs of bad writing.
 ;; find aspell and hunspell automatically
 (use-package flyspell
   :hook (((org-mode markdown-mode TeX-mode rst-mode mu4e-compose-mode notmuch-message-mode git-commit-mode) . flyspell-mode)
-         (prog-mode . flyspell-mode))
+         (prog-mode . flyspell-prog-mode))
   :custom
   (flyspell-prog-text-faces '(font-lock-comment-face font-lock-doc-face))
   :config
@@ -2656,6 +2642,11 @@ Checks for signs of bad writing.
         ;; Significantly speeds up flyspell, which would otherwise print
         ;; messages for every word when checking the entire buffer
         flyspell-issue-message-flag nil))
+
+(use-package flyspell-correct
+  :general
+  (general-nmap
+    "z=" 'flyspell-correct-wrapper))
 #+end_src
 ** PDF
 #+begin_src emacs-lisp :tangle yes
@@ -2714,6 +2705,8 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
   (leader-key
     "mm" 'mu4e
     "mc" 'mu4e-compose-new)
+  :custom-face
+  (mu4e-view-body-face ((t (:inherit default)))) ; Not variable-pitch
   :init
   (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
 
@@ -2852,6 +2845,16 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
   (message-kill-buffer-on-exit t)) ; close after sending)
 #+end_src
 
+* Tools
+** Calc
+#+begin_src emacs-lisp :tangle yes
+(use-feature calc
+  :general
+  (leader-key
+    "=" '(:wk "calc")
+    "==" 'calc
+    "=q" 'quick-calc))
+  
 #+end_src
 * Development
 ** Tools
@@ -2971,13 +2974,26 @@ Framework, heavily inspired by Doom Emacs, for evaluating buffer code in major-m
 
 *** Flycheck
 #+begin_src emacs-lisp :tangle yes
-(use-package flycheck)
+(use-package flycheck
+  :hook (prog-mode . flycheck-mode))
+#+end_src
+*** grep
+#+begin_src emacs-lisp :tangle yes
+(use-package wgrep
+  :general
+  (:keymaps 'wgrep-mode-map
+            "C-c C-c" 'wgrep-finish-edit
+            "C-c C-k" 'wgrep-abort-changes)
+  (:keymaps 'grep-mode-map
+            "C-c C-p" 'wgrep-change-to-wgrep-mode)
+  :custom
+  (wgrep-auto-save-buffer t))
 #+end_src
 *** Comment auto-fill
 
 #+begin_src emacs-lisp :tangle yes
 (use-feature simple
-  :hook (prog-mode . auto-fill-mode)
+  :hook (prog-mode . (lambda () (auto-fill-mode) (display-fill-column-indicator-mode)))
   :general
   (general-nmap "M-SPC" 'cycle-spacing)
   :custom
@@ -3097,7 +3113,8 @@ rainbow-mode shows hex code colours in buffers.
   (set-popup-rules!
     '(("^\\*cider-repl"         :vslot 2 :select t :ttl nil :size 0.4)
       ("^\\*cider-error*"       :vslot 3 :select t)
-      ("^\\*cider-repl-history" :vslot 4 :ttl nil)))
+      ("^\\*cider-repl-history" :vslot 4 :ttl nil)
+      ("^\\*cider-profile"      :side 'right)))
   :custom
   (cider-repl-result-prefix ";; => ")
   (cider-repl-display-help-banner nil)
@@ -3112,6 +3129,9 @@ rainbow-mode shows hex code colours in buffers.
               "Setup cider debug to override evil keys cleanly."
               (evil-make-overriding-map cider--debug-mode-map 'normal)
               (evil-normalize-keymaps))))
+
+(use-package clj-refactor
+  :after clojure-mode)
 #+end_src
 *** Elisp
 #+begin_src emacs-lisp :tangle yes
@@ -3119,6 +3139,7 @@ rainbow-mode shows hex code colours in buffers.
   :general
   (leader-key :keymaps 'emacs-lisp-mode-map
     "eb" 'eval-buffer
+    "ed" 'eval-defun
     "ef" 'load-file
     "el" 'load-library
     "ee" 'pp-eval-last-sexp))
@@ -3134,6 +3155,11 @@ rainbow-mode shows hex code colours in buffers.
 (use-package sly
   :hook (sly-mrepl-mode . company-mode)
   :general
+  (general-nmap
+    :keymaps
+    'sly-mode-map
+    ;; sly-mrepl default to switch-to-buffer
+    "gz" (lambda () (interactive) (sly-mrepl 'pop-to-buffer)))
   (leader-key
     :keymaps 'lisp-mode-map
     "'"  'sly
@@ -3277,7 +3303,7 @@ rainbow-mode shows hex code colours in buffers.
     :keymaps 'lsp-mode-map
     "cr" 'lsp-rename
     "cl" 'lsp-find-definition
-    "cd" 'lsp-ui-doc-glance
+    "cd" 'lsp-describe-thing-at-point
     "cpl" 'lsp-ui-peek-find-references
     "cpi" 'lsp-ui-peek-find-implementation)
   :hook ((lsp-mode . (lambda ()
@@ -3297,8 +3323,8 @@ rainbow-mode shows hex code colours in buffers.
 
   ;; Ignore specific directories in projectile
   (with-eval-after-load 'projectile
-    (add-to-list 'projectile-globally-ignored-directories ".clangd")))
-
+    (add-to-list 'projectile-globally-ignored-directories ".clangd"))
+  (set-popup-rule! "\\*lsp-help\\*" :size 0.4))
 #+end_src
 
 *** lsp-ui
@@ -3493,7 +3519,10 @@ Arch packages:
   :custom
   (python-indent-guess-indent-offset-verbose nil)
   ;; https://github.com/gregsexton/ob-ipython/issues/89
-  (python-shell-prompt-detect-failure-warning nil))
+  (python-shell-prompt-detect-failure-warning nil)
+  :config
+  (set-popup-rule! "\\*Python\\*" :ttl nil)
+  )
 
 (use-package lsp-pyright
   :if (executable-find "pyright")

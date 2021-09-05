@@ -18,6 +18,7 @@
 
 ;; Package management
 (setq straight-base-dir emacs-local-dir)
+(defvaralias 'comp-deferred-compilation-deny-list 'comp-deferred-compilation-black-list)
 ;; The following speeds up init time by almost a second, but is likely a hack.
 ;;See https://www.gitmemory.com/issue/raxod502/straight.el/373/491018643
 (setq straight-check-for-modifications '(check-on-save))
@@ -39,9 +40,8 @@
 ;; HACK The built-in version of org causes all sorts of issues with
 ;; straight.el. There is undoubtedly a simple way to solve this issue,
 ;; but I do not have the energy to discover it.
-(defvaralias 'comp-deferred-compilation-deny-list 'comp-deferred-compilation-black-list)
 (straight-use-package
- '(org :host github :repo "emacs-straight/org-mode" :local-repo "org" :no-byte-compile t))
+ '(org :host github :repo "emacs-straight/org-mode" :local-repo "org"))
 (use-package use-package-ensure-system-package)
 
 (if (file-exists-p (expand-file-name "config.el" user-emacs-directory))
