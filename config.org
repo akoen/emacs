@@ -1267,8 +1267,7 @@ Project management.
 
   :config
   (projectile-mode +1)
-  (setq projectile-project-root-files-bottom-up
-        (append '(".project"))))
+  (push ".project" projectile-project-root-files-bottom-up))
 #+end_src
 
 *** Projectile for specific projects
