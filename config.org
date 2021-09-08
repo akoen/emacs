@@ -613,6 +613,7 @@ Space is the best leader key.
     "d" '(:wk "debug")
 
     "e" '(:wk "eval")
+    "ef" 'load-file
 
     ;; Files
     "." 'find-file
@@ -3161,7 +3162,6 @@ rainbow-mode shows hex code colours in buffers.
   (leader-key :keymaps 'emacs-lisp-mode-map
     "eb" 'eval-buffer
     "ed" 'eval-defun
-    "ef" 'load-file
     "el" 'load-library
     "ee" 'pp-eval-last-sexp))
 
