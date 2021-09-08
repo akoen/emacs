@@ -1862,8 +1862,11 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (setq org-agenda-inhibit-startup t)
   (setq org-agenda-skip-unavailable-files t)
 
-  (add-to-list 'load-path "~/Programming/gtd-agenda")
-  (require 'gtd-agenda)
+  (use-package org-ql)
+
+  (use-package gtd-agenda
+    :straight (:host github :repo "akoen/gtd-agenda.el"))
+
   
   (setq org-agenda-span 'day)
   (setq org-agenda-custom-commands
