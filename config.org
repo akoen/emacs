@@ -2808,13 +2808,14 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
     "Set the From address based on the To address of the original."
     (let ((msg mu4e-compose-parent-message)) ;; msg is shorter...
       (when msg
-	(setq user-mail-address
-	      (cond
-	       ((mu4e-message-contact-field-matches msg :to "akoen@mailbox.org")
-		"akoen@mailbox.org")
-	       ((mu4e-message-contact-field-matches msg :to "jx7gq@mailbox.org")
-		"jx7gq@mailbox.org")
-	       (t "alex@koen.ca"))))))
+        (let ((to-addr (mu4e-message-contact-field-matches-me msg :to))
+              (cc-addr (mu4e-message-contact-field-matches-me msg :cc)))
+          ;; TODO Would be better not to permanently set user-mail-address
+          (setq user-mail-address
+                (cond
+                 (to-addr (cdr to-addr))
+                 (cc-addr (cdr cc-addr))
+                 (t "akoen@mailbox.org")))))))
 
   (add-hook 'mu4e-compose-pre-hook #'my--set-from-address)
 
