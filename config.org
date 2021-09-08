@@ -1868,7 +1868,8 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (setq org-agenda-span 'day)
   (setq org-agenda-custom-commands
         '(("g" "Get Things Done (GTD)"
-           ((agenda ""
+           (
+            (agenda ""
                     ((org-agenda-skip-function
                       '(org-agenda-skip-entry-if 'deadline))
                      (org-deadline-warning-days 0)
@@ -1884,8 +1885,10 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
             (tags-todo "refile"
                        ((org-agenda-prefix-format "  %?-12t% s")
                         (org-agenda-overriding-header "\nREFILE\n")))
-            (tags "CLOSED>=\"<today>\""
-                  ((org-agenda-overriding-header "\nCOMPLETED TODAY\n")))))))
+            ;; Disabled because SLOW
+            ;; (tags "CLOSED>=\"<today>\""
+            ;;       ((org-agenda-overriding-header "\nCOMPLETED TODAY\n")))
+            ))))
 
   (defun my--check-sync-conflicts ()
     (when (directory-files org-dir nil "conflict")
