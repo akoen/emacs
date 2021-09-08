@@ -17,7 +17,8 @@
   "Where pacakges are stored.")
 
 ;; Package management
-(setq straight-base-dir emacs-local-dir)
+(setq straight-base-dir emacs-local-dir
+      straight-vc-git-default-protocol 'ssh)
 (defvaralias 'comp-deferred-compilation-deny-list 'comp-deferred-compilation-black-list)
 ;; The following speeds up init time by almost a second, but is likely a hack.
 ;;See https://www.gitmemory.com/issue/raxod502/straight.el/373/491018643
