@@ -145,14 +145,6 @@ Note that system directories are set in init.el
   "Dotfiles directory")
 #+end_src
 
-Move files are folders to appropriate locations:
-#+begin_src emacs-lisp :tangle yes
-(setq bookmarks-default-file (concat emacs-etc-dir "bookmarks")
-      tramp-auto-save-directory (concat emacs-cache-dir "tramp-auto-save/")
-      tramp-backup-directory-alist backup-directory-alist
-      tramp-persistency-file-name (concat emacs-cache-dir "tramp-persistency.el"))
-#+end_src
-
 ** Native comp
 #+begin_src emacs-lisp :tangle yes
 (use-feature comp
