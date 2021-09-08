@@ -2741,44 +2741,44 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
   (setq mu4e-change-filenames-when-moving t)
 
   (setq mu4e-compose-format-flowed t ; visual-line-mode + auto-fill upon sending
-	fill-flowed-encode-column 998
-	mu4e-view-show-addresses t
-	mu4e-sent-messages-behavior 'sent
-	mu4e-hide-index-messages t
-  mu4e-headers-precise-alignment t
-	;; try to show images
-	mu4e-view-show-images t
-	mu4e-view-image-max-width 800
-	mu4e-compose-dont-reply-to-self t
-	;; use helm/ivy
-	mu4e-completing-read-function 'ivy-completing-read
+        fill-flowed-encode-column 998
+        mu4e-view-show-addresses t
+        mu4e-sent-messages-behavior 'sent
+        mu4e-hide-index-messages t
+        mu4e-headers-precise-alignment t
+        ;; try to show images
+        mu4e-view-show-images t
+        mu4e-view-image-max-width 800
+        mu4e-compose-dont-reply-to-self t
+        ;; use helm/ivy
+        mu4e-completing-read-function 'ivy-completing-read
         ;; Do not reply to self
         mu4e-compose-dont-reply-to-self t
-	;; set user agent
-	mail-user-agent 'mu4e-user-agent
-	;; no need to ask
-	mu4e-confirm-quit nil)
+        ;; set user agent
+        mail-user-agent 'mu4e-user-agent
+        ;; no need to ask
+        mu4e-confirm-quit nil)
 
   ;; Folders
   (setq mu4e-sent-folder "/Sent"
-	mu4e-drafts-folder "/Drafts"
-	mu4e-trash-folder "/Trash"
-	mu4e-refile-folder "/Archive"
-	mu4e-compose-signature  "Alex Koen\nhttps://alexkoen.com")
+        mu4e-drafts-folder "/Drafts"
+        mu4e-trash-folder "/Trash"
+        mu4e-refile-folder "/Archive"
+        mu4e-compose-signature  "Alex Koen\nhttps://alexkoen.com")
 
   ;; Use fancy icons
   (setq mu4e-use-fancy-chars t
-	mu4e-headers-draft-mark '("D" . "")
-	mu4e-headers-flagged-mark '("F" . "")
-	mu4e-headers-new-mark '("N" . "")
-	mu4e-headers-passed-mark '("P" . "")
-	mu4e-headers-replied-mark '("R" . "")
-	mu4e-headers-seen-mark '("S" . "")
-	mu4e-headers-trashed-mark '("T" . "")
-	mu4e-headers-attach-mark '("a" . "")
-	mu4e-headers-encrypted-mark '("x" . "")
-	mu4e-headers-signed-mark '("s" . "")
-	mu4e-headers-unread-mark '("u" . ""))
+        mu4e-headers-draft-mark '("D" . "")
+        mu4e-headers-flagged-mark '("F" . "")
+        mu4e-headers-new-mark '("N" . "")
+        mu4e-headers-passed-mark '("P" . "")
+        mu4e-headers-replied-mark '("R" . "")
+        mu4e-headers-seen-mark '("S" . "")
+        mu4e-headers-trashed-mark '("T" . "")
+        mu4e-headers-attach-mark '("a" . "")
+        mu4e-headers-encrypted-mark '("x" . "")
+        mu4e-headers-signed-mark '("s" . "")
+        mu4e-headers-unread-mark '("u" . ""))
 
   ;; Auto update
   (setq mu4e-update-interval (* 15 60))
@@ -2786,19 +2786,19 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
 
   ;; Saved queries
   (setq mu4e-bookmarks
-	'(( :name  "Unread messages"
-	    :query "flag:unread AND NOT flag:trashed"
-	    :key ?u)
-	  ( :name "All in inbox"
-	    :query "maildir:/Inbox OR maildir:/Inbox/*"
-	    :key ?i)
-	  ( :name "Messages with images"
-	    :query "mime:image/*"
-	    :key ?p)))
+        '(( :name  "Unread messages"
+            :query "flag:unread AND NOT flag:trashed"
+            :key ?u)
+          ( :name "All in inbox"
+            :query "maildir:/Inbox OR maildir:/Inbox/*"
+            :key ?i)
+          ( :name "Messages with images"
+            :query "mime:image/*"
+            :key ?p)))
 
   (add-to-list 'org-capture-templates
-	       `("m" "Mail" entry (file+olp ,(concat org-dir "refile.org") "Refile")
-		 "* TODO %? Link: %a"))
+               `("m" "Mail" entry (file+olp ,(concat org-dir "refile.org") "Refile")
+                 "* TODO %? Link: %a"))
 
   (define-key mu4e-headers-mode-map (kbd "C-c c") 'mu4e-org-store-and-capture)
   (define-key mu4e-view-mode-map    (kbd "C-c c") 'mu4e-org-store-and-capture)
@@ -2821,15 +2821,15 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
 
   ;; Remove the +T flag from trash. This emulates the behaviour of GUI clients. Emails are otherwise deleted when moving to trash.
   (setf (alist-get 'trash mu4e-marks)
-	(list :char '("d" . "▼")
-	      :prompt "dtrash"
-	      :dyn-target (lambda (target msg)
-			    (mu4e-get-trash-folder msg))
-	      :action (lambda (docid msg target)
-			;; Here's the main difference to the regular trash mark,
-			;; no +T before -N so the message is not marked as
-			;; IMAP-deleted:
-			(mu4e~proc-move docid (mu4e~mark-check-target target) "-N"))))
+        (list :char '("d" . "▼")
+              :prompt "dtrash"
+              :dyn-target (lambda (target msg)
+                            (mu4e-get-trash-folder msg))
+              :action (lambda (docid msg target)
+                        ;; Here's the main difference to the regular trash mark,
+			                  ;; no +T before -N so the message is not marked as
+			                  ;; IMAP-deleted:
+			                  (mu4e~proc-move docid (mu4e~mark-check-target target) "-N"))))
 
   ;; Html mails might be better rendered in a browser
   (add-to-list 'mu4e-view-actions '("View in browser" . mu4e-action-view-in-browser)))
