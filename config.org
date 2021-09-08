@@ -1874,6 +1874,8 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
                      (org-deadline-warning-days 0)
                      (org-agenda-overriding-header "\nAGENDA\n")))
             (+agenda-projects-block nil)
+            (org-ql-block '(and (todo "NEXT") (not (ancestors (todo))))
+                          ((org-ql-block-header "\nISOLATED TASKS\n")))
             (agenda nil
                     ((org-agenda-entry-types '(:deadline))
                      (org-agenda-format-date "")
