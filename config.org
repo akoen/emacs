@@ -2821,6 +2821,15 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
 
   (add-hook 'mu4e-compose-pre-hook #'my--set-from-address)
 
+
+  ;; Smart refile: move message sent by me to /Sent and messages sent by others
+  ;; to "/Archive"
+  (defun +mu4e-get-refile-folder (msg)
+    (if (mu4e-message-sent-by-me msg)
+        "/Sent"
+      "/Archive"))
+  (setq mu4e-refile-folder '+mu4e-get-refile-folder)
+
   ;; Remove the +T flag from trash. This emulates the behaviour of GUI clients. Emails are otherwise deleted when moving to trash.
   (setf (alist-get 'trash mu4e-marks)
         (list :char '("d" . "▼")
