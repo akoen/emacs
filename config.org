@@ -2091,20 +2091,17 @@ Make bullets circular
 *** Packages
 **** EVIL-Org
 #+begin_src emacs-lisp :tangle yes
-;; FIXME Keybindings do not work in agenda
 (use-package evil-org
   :straight (:host github :repo "hlissner/evil-org-mode")
   :after org
+  :hook (org-mode . evil-org-mode)
+  :hook (org-agenda-mode . evil-org-agenda-mode)
   :custom
   ;; Defines a bullet as the beginning of a sentence. Note that this regex
   ;; removes some of the complexity of the original definition, and might cause
   ;; problems.
   (sentence-end "\\(^\s*?- \\)\\|\\.\s*")
   :config
-  (add-hook 'org-mode-hook 'evil-org-mode)
-  (add-hook 'evil-org-mode-hook
-            (lambda ()
-              (evil-org-set-key-theme)))
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
 #+end_src
