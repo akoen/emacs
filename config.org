@@ -394,6 +394,10 @@ Make yes or no prompts be y or n prompts
   :config
   (dashboard-setup-startup-hook))
 #+end_src
+** Visual-line mode
+#+begin_src emacs-lisp :tangle yes
+(add-hook 'text-mode-hook #'visual-line-mode)
+#+end_src
 ** Relative line numbers
 
 #+begin_src emacs-lisp :tangle yes
@@ -1579,7 +1583,6 @@ Displays the folder tree
   (use-package org
     :hook
     (org-mode . (lambda ()
-                  (visual-line-mode)
                   (setq paragraph-start "\\|[  ]*$"
                         paragraph-separate "[  ]*$")))
     
@@ -2516,7 +2519,6 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
   (add-hook 'LaTeX-mode-hook
             (lambda ()
               (prettify-symbols-mode)))
-  (add-hook 'LaTeX-mode-hook 'visual-line-mode)
 
   (setq TeX-save-query nil)
   (setq TeX-auto-save t)
