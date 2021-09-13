@@ -1897,7 +1897,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (defconst org-ql-log-done-regexp
     (rx bol "- State \"DONE\"" (1+ blank) "from" (1+ blank) (group (1+ not-newline))))
 
-  (org-ql-defpred log-done (&key from to _on)
+  (org-ql--defpred log-done (&key from to _on)
     "Return non-nil if current entry contains DONE state change in given period. "
     :normalizers ((`(,predicate-names ,(and num-days (pred numberp)))
                    ;; (clocked) and (closed) implicitly look into the past.
