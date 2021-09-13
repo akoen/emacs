@@ -119,7 +119,7 @@ This sets the variable exec-path to the normal shell's PATH variable. This doesn
                (or (eval-when-compile
                      (when (require 'exec-path-from-shell nil t)
                        (setq exec-path-from-shell-check-startup-files nil)
-                       (nconc exec-path-from-shell-variables '("SSH_AUTH_LOCK" "PATH" "NNN_PLUG"))
+                       (nconc exec-path-from-shell-variables '("SSH_AUTH_LOCK" "PATH" "PASSWORD_STORE_DIR"))
                        (exec-path-from-shell-initialize)
                        exec-path))
                    exec-path)))))
