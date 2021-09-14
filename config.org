@@ -3163,6 +3163,10 @@ rainbow-mode shows hex code colours in buffers.
 
 (use-package clj-refactor
   :after clojure-mode)
+
+;; Requires clj-kondo system package
+(use-package flycheck-clj-kondo
+  :after clojure-mode)
 #+end_src
 *** Elisp
 #+begin_src emacs-lisp :tangle yes
