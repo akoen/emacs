@@ -3555,8 +3555,9 @@ Arch packages:
   ;; https://github.com/gregsexton/ob-ipython/issues/89
   (python-shell-prompt-detect-failure-warning nil)
   :config
-  (set-popup-rule! "\\*Python\\*" :ttl nil)
-  )
+  ;; Must be called manually to initiate jupyter :config block
+  (require 'jupyter)
+  (set-popup-rule! "\\*Python\\*" :ttl nil))
 
 (use-package lsp-pyright
   :if (executable-find "pyright")
