@@ -1864,11 +1864,8 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (setq org-agenda-span 'day)
   (setq org-agenda-custom-commands
         '(("g" "Get Things Done (GTD)"
-           (
-            (agenda ""
-                    ((org-agenda-skip-function
-                      '(org-agenda-skip-entry-if 'deadline))
-                     (org-deadline-warning-days 0)
+           ((agenda ""
+                    ((org-deadline-warning-days 0)
                      (org-agenda-overriding-header "\nAGENDA\n")))
             (+agenda-projects-block nil)
             (org-ql-block '(and (todo "NEXT") (not (ancestors (todo))))
