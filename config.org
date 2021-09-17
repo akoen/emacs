@@ -20,9 +20,8 @@ Usage of :preface, :init, :config
 
 The following blocks may be tangled to debug certain features:
 
-*** Package Loading
-
 #+begin_src emacs-lisp :tangle no
+Order of package loading
 (setq use-package-verbose t
       use-package-compute-statistics t)
 #+end_src
@@ -1893,6 +1892,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 ***** org-ql
 #+begin_src emacs-lisp :tangle yes
 (use-package org-ql
+  :after org
   :config
   (defconst org-ql-log-done-regexp
     (rx bol "- State \"DONE\"" (1+ blank) "from" (1+ blank) (group (1+ not-newline))))
@@ -2316,7 +2316,6 @@ Allows for external applications to trigger custom actions without external depe
   (leader-key
     "or" 'org-roam-buffer-toggle
     "oi" 'org-roam-node-insert
-    "og" 'org-roam-graph
     "of" 'org-roam-node-find)
   :init
   (setq org-roam-v2-ack t)
