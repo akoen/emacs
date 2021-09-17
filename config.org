@@ -2099,6 +2099,7 @@ Make bullets circular
   ;; problems.
   (sentence-end "\\(^\s*?- \\)\\|\\.\s*")
   :config
+  (evil-org-set-key-theme)
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
 #+end_src
