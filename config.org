@@ -2355,7 +2355,9 @@ Allows for external applications to trigger custom actions without external depe
                          "#+title: ${title}\n")
       :unnarrowed t)))
   :config
-  (set-popup-rule! "\\org-roam" :side 'right :select t))
+  ;; Setting :select t in the popup-rule seems to break functionality
+  (set-popup-rule! "\\org-roam" :side 'right :ttl nil)
+  (org-roam-db-autosync-mode 1))
 #+end_src
 **** org-roam-UI
 
