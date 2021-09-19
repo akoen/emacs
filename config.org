@@ -20,9 +20,8 @@ Usage of :preface, :init, :config
 
 The following blocks may be tangled to debug certain features:
 
-*** Package Loading
-
 #+begin_src emacs-lisp :tangle no
+Order of package loading
 (setq use-package-verbose t
       use-package-compute-statistics t)
 #+end_src
@@ -1864,11 +1863,8 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (setq org-agenda-span 'day)
   (setq org-agenda-custom-commands
         '(("g" "Get Things Done (GTD)"
-           (
-            (agenda ""
-                    ((org-agenda-skip-function
-                      '(org-agenda-skip-entry-if 'deadline))
-                     (org-deadline-warning-days 0)
+           ((agenda ""
+                    ((org-deadline-warning-days 0)
                      (org-agenda-overriding-header "\nAGENDA\n")))
             (+agenda-projects-block nil)
             (org-ql-block '(and (todo "NEXT") (not (ancestors (todo))))
@@ -1896,6 +1892,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 ***** org-ql
 #+begin_src emacs-lisp :tangle yes
 (use-package org-ql
+  :after org
   :config
 
   (setq org-ql-views
@@ -2097,20 +2094,18 @@ Make bullets circular
 *** Packages
 **** EVIL-Org
 #+begin_src emacs-lisp :tangle yes
-;; FIXME Keybindings do not work in agenda
 (use-package evil-org
   :straight (:host github :repo "hlissner/evil-org-mode")
   :after org
+  :hook (org-mode . evil-org-mode)
+  :hook (org-agenda-mode . evil-org-agenda-mode)
   :custom
   ;; Defines a bullet as the beginning of a sentence. Note that this regex
   ;; removes some of the complexity of the original definition, and might cause
   ;; problems.
   (sentence-end "\\(^\s*?- \\)\\|\\.\s*")
   :config
-  (add-hook 'org-mode-hook 'evil-org-mode)
-  (add-hook 'evil-org-mode-hook
-            (lambda ()
-              (evil-org-set-key-theme)))
+  (evil-org-set-key-theme)
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
 #+end_src
@@ -2327,7 +2322,6 @@ Allows for external applications to trigger custom actions without external depe
   (leader-key
     "or" 'org-roam-buffer-toggle
     "oi" 'org-roam-node-insert
-    "og" 'org-roam-graph
     "of" 'org-roam-node-find)
   :init
   (setq org-roam-v2-ack t)
@@ -2367,7 +2361,9 @@ Allows for external applications to trigger custom actions without external depe
                          "#+title: ${title}\n")
       :unnarrowed t)))
   :config
-  (set-popup-rule! "\\org-roam" :side 'right :select t))
+  ;; Setting :select t in the popup-rule seems to break functionality
+  (set-popup-rule! "\\org-roam" :side 'right :ttl nil)
+  (org-roam-db-autosync-mode 1))
 #+end_src
 **** org-roam-UI
 
@@ -2827,6 +2823,15 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
 
   (add-hook 'mu4e-compose-pre-hook #'my--set-from-address)
 
+
+  ;; Smart refile: move message sent by me to /Sent and messages sent by others
+  ;; to "/Archive"
+  (defun +mu4e-get-refile-folder (msg)
+    (if (mu4e-message-sent-by-me msg)
+        "/Sent"
+      "/Archive"))
+  (setq mu4e-refile-folder '+mu4e-get-refile-folder)
+
   ;; Remove the +T flag from trash. This emulates the behaviour of GUI clients. Emails are otherwise deleted when moving to trash.
   (setf (alist-get 'trash mu4e-marks)
         (list :char '("d" . "▼")
@@ -3162,6 +3167,10 @@ rainbow-mode shows hex code colours in buffers.
               (evil-normalize-keymaps))))
 
 (use-package clj-refactor
+  :after clojure-mode)
+
+;; Requires clj-kondo system package
+(use-package flycheck-clj-kondo
   :after clojure-mode)
 #+end_src
 *** Elisp
@@ -3551,8 +3560,9 @@ Arch packages:
   ;; https://github.com/gregsexton/ob-ipython/issues/89
   (python-shell-prompt-detect-failure-warning nil)
   :config
-  (set-popup-rule! "\\*Python\\*" :ttl nil)
-  )
+  ;; Must be called manually to initiate jupyter :config block
+  (require 'jupyter)
+  (set-popup-rule! "\\*Python\\*" :ttl nil))
 
 (use-package lsp-pyright
   :if (executable-find "pyright")
