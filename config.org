@@ -1913,10 +1913,10 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
                    (let* ((from-day (* -1 num-days))
                           (rest (list :from from-day)))
                      (org-ql--normalize-from-to-on
-                       `(log-done :from ,from))))
+                      `(log-done :from ,from))))
                   (`(,predicate-names . ,rest)
                    (org-ql--normalize-from-to-on
-                     `(log-done :from ,from :to ,to))))
+                    `(log-done :from ,from :to ,to))))
     :preambles ((`(,predicate-names ,(pred numberp))
                  (list :regexp org-ql-log-done-regexp :query t))
                 (`(,predicate-names)
