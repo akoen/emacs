@@ -2808,6 +2808,9 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
   (define-key mu4e-headers-mode-map (kbd "C-c c") 'mu4e-org-store-and-capture)
   (define-key mu4e-view-mode-map    (kbd "C-c c") 'mu4e-org-store-and-capture)
 
+  ;; After refiling message immediately refresh buffer.
+  (advice-add 'mu4e-mark-execute-all :after #'mu4e-headers-rerun-search)
+
   ;; Set from address based on address that message was sent to. See https://www.djcbsoftware.nl/code/mu/mu4e/Compose-hooks.html
   (defun my--set-from-address ()
     "Set the From address based on the To address of the original."
