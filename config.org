@@ -1601,6 +1601,7 @@ Displays the folder tree
           org-return-follows-link t
           org-startup-indented t                                            ; indent each level of heading
           org-hide-emphasis-markers t                                       ; hide the markers for italics and bold
+          org-format-latex-options (plist-put org-format-latex-options :scale 2)
           org-pretty-entities t                                             ; show entities as UTF8 characters
           org-image-actual-width 600
           org-startup-with-inline-images t
