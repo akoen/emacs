@@ -1946,7 +1946,26 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   :after org
   :config
   (setq org-log-repeat 'time
-        org-log-into-drawer t))
+        org-log-into-drawer t)
+
+  (defun org-habit-streak-count ()
+    (save-excursion
+      (goto-char (point-min))
+      (while (not (eobp))
+        ;;on habit line?
+        (when (get-text-property (point) 'org-habit-p)
+          (let ((streak 0)
+                (counter (+ org-habit-graph-column (- org-habit-preceding-days org-habit-following-days))))
+            (move-to-column counter)
+            ;;until end of line
+            (while (= (char-after (point)) org-habit-completed-glyph)
+              (setq streak (+ streak 1))
+              (setq counter (- counter 1))
+              (backward-char 1))
+            (end-of-line)
+            (insert (concat "✨" (number-to-string streak)))))
+        (forward-line 1))))
+  (add-hook 'org-agenda-finalize-hook 'org-habit-streak-count))
 #+end_src
 **** SRC blocks
 #+begin_src emacs-lisp :tangle yes
