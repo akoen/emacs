@@ -2806,6 +2806,23 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
                `("m" "Mail" entry (file+olp ,(concat org-dir "refile.org") "Refile")
                  "* TODO %? Link: %a"))
 
+
+  (defun +mu4e-attach-file (&optional file-to-attach)
+    "Prompt for FILE-TO-ATTACH to message."
+    (interactive "p")
+    (if (eq major-mode 'mu4e-compose-mode)
+        (let ((mail-buffer (current-buffer))
+              (location (read-file-name "Attach: ")))
+          (if (not (file-directory-p location))
+              (save-excursion
+                (goto-char (point-max))
+                (unless (eq (current-column) 0)
+                  (insert "\n\n")
+                  (forward-line 2))
+                (mail-add-attachment location)))
+          (message "Cannot attach directory."))
+      (message "Must attach from a compose buffer.")))
+
   (define-key mu4e-headers-mode-map (kbd "C-c c") 'mu4e-org-store-and-capture)
   (define-key mu4e-view-mode-map    (kbd "C-c c") 'mu4e-org-store-and-capture)
 
