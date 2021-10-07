@@ -801,53 +801,28 @@ Especially when writing text, moving by visual lines instead of by numbered line
 #+end_src
 *** Custom text objects
 #+begin_src emacs-lisp :tangle no :noweb-ref custom text objects
-(defmacro define-and-bind-text-object (key start-regex end-regex)
+;; See https://github.com/emacs-evil/evil-surround#add-new-surround-pairs-through-creation-of-evil-objects
+(defmacro define-and-bind-text-object (key start-regex end-regex
+                                           &optional inner-include-delims)
   (let ((inner-name (make-symbol "inner-name"))
         (outer-name (make-symbol "outer-name")))
     `(progn
        (evil-define-text-object ,inner-name (count &optional beg end type)
-         (evil-select-paren ,start-regex ,end-regex beg end type count nil))
+         (evil-select-paren ,start-regex ,end-regex beg end type count
+                            ,inner-include-delims))
        (evil-define-text-object ,outer-name (count &optional beg end type)
          (evil-select-paren ,start-regex ,end-regex beg end type count t))
        (define-key evil-inner-text-objects-map ,key (quote ,inner-name))
        (define-key evil-outer-text-objects-map ,key (quote ,outer-name)))))
 
-;; FIXME These do not work at beginning/end of region
-;; create "il"/"al" (inside/around) line text objects:
-;; (define-and-bind-text-object "l" "^\\s-*" "\\s-*$")
-;; create "ie"/"ae" (inside/around) entire buffer text objects:
-
-;; See https://github.com/emacs-evil/evil-surround#add-new-surround-pairs-through-creation-of-evil-objects
-(define-and-bind-text-object "e" "\\`\\s-*" "\\s-*\\'")
+(define-and-bind-text-object "e" "\\`." ".\\'" t)
+(define-and-bind-text-object "l" "^." ".$" t)
 (define-and-bind-text-object "/" "/" "/")
 (define-and-bind-text-object "*" "*" "*")
 (define-and-bind-text-object "~" "\\~" "\\~")
 (define-and-bind-text-object "=" "=" "=")
 (define-and-bind-text-object "$" "\\$" "\\$")
 (define-and-bind-text-object "," "," ",")
-
-;; Inner/around line text object from https://github.com/emacsorphanage/evil-textobj-line
-(defun evil-line-range (count beg end type &optional inclusive)
-  (if inclusive
-      (evil-range (line-beginning-position) (line-end-position))
-    (let ((start (save-excursion
-                   (back-to-indentation)
-                   (point)))
-          (end (save-excursion
-                 (goto-char (line-end-position))
-                 (skip-syntax-backward " " (line-beginning-position))
-                 (point))))
-      (evil-range start end))))
-
-(evil-define-text-object evil-a-line (count &optional beg end type)
-  "Select range between a character by which the command is followed."
-  (evil-line-range count beg end type t))
-(evil-define-text-object evil-inner-line (count &optional beg end type)
-  "Select inner range between a character by which the command is followed."
-  (evil-line-range count beg end type))
-
-(define-key evil-outer-text-objects-map "l" 'evil-a-line)
-(define-key evil-inner-text-objects-map "l" 'evil-inner-line)
 
 (with-eval-after-load 'evil-nerd-commenter
   (define-key evil-outer-text-objects-map "c" 'evilnc-outer-commenter)
