@@ -268,7 +268,10 @@ A small buffer which shows the list of commands you can execute next.
 (use-package which-key
   :demand t
   :custom
-  (which-key-idle-delay 0.2)
+  ;; Activate manually using C-h
+  (which-key-show-early-on-C-h t)
+  (which-key-idle-delay 10000)
+  (which-key-idle-secondary-delay 0.05)
   (which-key-separator " ")
   (which-key-prefix-prefix "+")
   :config
