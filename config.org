@@ -21,7 +21,6 @@ Usage of :preface, :init, :config
 The following blocks may be tangled to debug certain features:
 
 #+begin_src emacs-lisp :tangle no
-Order of package loading
 (setq use-package-verbose t
       use-package-compute-statistics t)
 #+end_src
@@ -565,6 +564,7 @@ Highlights keywords in comments
   (windmove-allow-all-windows t)
   :config
   (+popup-mode +1)
+  (add-hook '+window-quit-hook #'+popup-close-on-escape-h 'append)
   ;; General keyword doesn't seem to work with :straight
   (general-define-key :states '(normal insert motion)
                       :keymaps 'override
@@ -878,10 +878,11 @@ This code allows us to quit basically everything using ESC.
 (defvar my--escape-hook nil
   "A hook run when esc is pressed")
 
-(defun escape-quit ()
+(defun +edit-quit ()
   "Run `my--escape-hook'."
   (interactive)
-  (cond ((evil-insert-state-p) (evil-force-normal-state))
+  (cond
+   ((evil-insert-state-p) (evil-force-normal-state))
 	 ;; quit the minibuffer if open.
    ((minibuffer-window-active-p (minibuffer-window))
          (abort-recursive-edit))
@@ -892,10 +893,20 @@ This code allows us to quit basically everything using ESC.
   ;; Back to the default
   ((keyboard-quit))))
 
+(defun +window-quit ()
+  (interactive)
+  (cond
+   ((minibuffer-window-active-p (minibuffer-window))
+   (abort-recursive-edit))
+  ((run-hook-with-args-until-success '+window-quit-hook))))
+
 ;; We want this *everywhere*
-(general-define-key :states '(insert normal visual motion) "<escape>" 'escape-quit)
+(general-define-key :states '(insert normal visual motion) "<escape>" '+edit-quit)
 ;; Covers other places like the minibufer
-(general-define-key :keymaps 'override "<escape>" 'escape-quit)
+(general-def :keymaps 'override "<escape>" '+edit-quit)
+(general-def :states '(normal visual motion) :keymaps 'override
+  "<DEL>" '+window-quit
+  "<backspace>" '+window-quit)
 #+end_src
 
 *** evil-surround
