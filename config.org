@@ -2416,21 +2416,6 @@ Visualize the Zettelkasten.
   (with-eval-after-load 'embark
     (add-to-list 'embark-keymap-alist '(bibtex . bibtex-actions-map))))
 #+end_src
-***** org-ref
-#+begin_src emacs-lisp :tangle yes
-(use-package org-ref
-  :after org
-  :init
-  ;; must be called at init
-  (setq org-ref-completion-library 'org-ref-ivy-cite)
-  :custom
-  ;; We use the citation tools provided by bibtex-actions
-  (org-ref-insert-cite-key "")
-  ;; (org-ref-notes-function 'bibtex-completion-edit-notes)
-  (org-ref-default-bibliography (list (concat docs-dir "zotero-bib.bib")))
-  (org-ref-notes-directory brain-dir))
-#+end_src
-
 ***** org-roam-bibtex
 #+begin_src emacs-lisp :tangle yes
 (use-package org-roam-bibtex
