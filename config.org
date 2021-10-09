@@ -16,6 +16,16 @@ Usage of :preface, :init, :config
   (message "I'm always here after the package is loaded"))
 #+end_src
 
+
+* Initialization
+** Lexical Binding
+
+[[https://www.gnu.org/software/emacs/manual/html_node/elisp/Lexical-Binding.html][Lexical binding]] improves performance.
+
+#+begin_src emacs-lisp :tangle yes :comments no
+;;; init.el --- The personal Emacs configuration of Alex Koen -*- lexical-binding: t; -*-
+#+end_src
+
 ** Debugging
 
 The following blocks may be tangled to debug certain features:
@@ -38,16 +48,6 @@ Or a function
 Or a variable
 #+begin_src emacs-lisp :tangle no
 (debug-on-variable-change 'evil-want-Y-yank-to-eol)
-#+end_src
-
-
-* Initialization
-** Lexical Binding
-
-[[https://www.gnu.org/software/emacs/manual/html_node/elisp/Lexical-Binding.html][Lexical binding]] improves performance.
-
-#+begin_src emacs-lisp :tangle yes :comments no
-;;; init.el --- The personal Emacs configuration of Alex Koen -*- lexical-binding: t; -*-
 #+end_src
 
 ** Performance Optimizations
