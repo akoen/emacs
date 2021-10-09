@@ -2399,72 +2399,36 @@ Visualize the Zettelkasten.
 ***** bibtex
 
 #+begin_src emacs-lisp :tangle yes
-(use-package bibtex-completion
-  :config
-  (setq bibtex-completion-bibliography (concat docs-dir "zotero-bib.bib")
-        bibtex-completion-pdf-field "file"))
+(setq +zotero-bibliography (concat docs-dir "zotero-bib.bib"))
 
 
+(use-feature oc
+  :after org
+  :general
+  (general-nmap :keymaps 'org-mode-map
+    ;; FIXME: Does not work
+    "C-c [" 'org-cite-insert))
+
+(use-package citeproc)
 (use-package bibtex-actions
+  :after oc
   :general
   (leader-key
     "ob" 'bibtex-actions-open)
-  (:keymaps 'org-mode-map
-            "C-c ]" 'bibtex-actions-insert-citation)
-  :config
-  ;; Make the 'bibtex-actions' bindings available from `embark-act'.
-  (with-eval-after-load 'embark
-    (add-to-list 'embark-keymap-alist '(bibtex . bibtex-actions-map))))
-#+end_src
-***** org-roam-bibtex
-#+begin_src emacs-lisp :tangle yes
-(use-package org-roam-bibtex
-  :straight (:host github :repo "org-roam/org-roam-bibtex" :branch "org-roam-v2")
-  :after org-roam
   :custom
-  (orb-preformat-keywords '("citekey" "title"))
+  (bibtex-actions-bibliography +zotero-bibliography)
   :config
-  (cl-pushnew '("r" "reference" plain
-                 "%?"
-                 :if-new (file+head "papers/${citekey}.org" "#+title: ${title}\n")
-                 :unnarrowed t)
-              org-roam-capture-templates)
-  (org-roam-bibtex-mode))
-#+end_src
-***** (disabled) org-ref-ox-hugo
-#+begin_src emacs-lisp :tangle yes
-(use-package org-ref-ox-hugo
-  :disabled t
-  :straight (:host github :repo "jethrokuan/org-ref-ox-hugo")
-  :after org org-ref ox-hugo
-  :config
-  (add-to-list 'org-ref-formatted-citation-formats
-               '("md"
-                 ("article" . "${author}, *${title}*, ${journal}, *${volume}(${number})*, ${pages} (${year}). ${doi}")
-                 ("inproceedings" . "${author}, *${title}*, In ${editor}, ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
-                 ("book" . "${author}, *${title}* (${year}), ${address}: ${publisher}.")
-                 ("phdthesis" . "${author}, *${title}* (Doctoral dissertation) (${year}). ${school}, ${address}.")
-                 ("inbook" . "${author}, *${title}*, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
-                 ("incollection" . "${author}, *${title}*, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
-                 ("proceedings" . "${editor} (Eds.), _${booktitle}_ (${year}). ${address}: ${publisher}.")
-                 ("unpublished" . "${author}, *${title}* (${year}). Unpublished manuscript.")
-                 ("misc" . "${author} (${year}). *${title}*. Retrieved from [${howpublished}](${howpublished}). ${note}.")
-                 (nil . "${author}, *${title}* (${year})."))))
-#+end_src
-**** org-noter
-#+begin_src emacs-lisp :tangle yes
-(use-package org-noter
-  :after ( org pdf-view)
-  :config
-  (setq
-   ;; The WM can handle splits
-   org-noter-notes-window-location 'other-frame
-   ;; Please stop opening frames
-   org-noter-always-create-frame nil
-   ;; I want to see the whole file
-   org-noter-hide-other nil
-   ;; Everything is relative to the main notes file
-   org-noter-notes-search-path (list (concat brain-dir "papers/"))))
+  (add-to-list 'embark-target-finders 'bibtex-actions-citation-key-at-point)
+  (add-to-list 'embark-keymap-alist '(bib-reference . bibtex-actions-map))
+  (add-to-list 'embark-keymap-alist '(citation-key . bibtex-actions-buffer-map)))
+
+(use-feature oc-bibtex-actions
+  :after bibtex-actions
+  :custom
+  (org-cite-global-bibliography +zotero-bibliography)
+  (org-cite-insert-processor 'oc-bibtex-actions)
+  (org-cite-follow-processor 'oc-bibtex-actions)
+  (org-cite-activate-processor 'oc-bibtex-actions))
 #+end_src
 *** Reviews
 
