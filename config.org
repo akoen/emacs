@@ -1079,7 +1079,7 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   (leader-key
     "fr" 'consult-recent-file
     "bb" 'consult-buffer
-    "BB" 'consult-bookmark
+    "RET" 'consult-bookmark
     "yp" 'consult-yank
     "so" 'consult-outline
     "sO" 'consult-org-agenda
@@ -1877,8 +1877,9 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
             (tags-todo "refile"
                        ((org-agenda-prefix-format "  %?-12t% s")
                         (org-agenda-overriding-header "\nREFILE\n")))
-            (org-ql-block '(or (closed :on 0) (log-done :on 0))
-                          ((org-ql-block-header "\nCOMPLETED TODAY\n")))))))
+            ;; (org-ql-block '(or (closed :on 0) (log-done :on 0))
+            ;;               ((org-ql-block-header "\nCOMPLETED TODAY\n")))
+            ))))
 
   (defun my--check-sync-conflicts ()
     (when (directory-files org-dir nil "conflict")
@@ -3130,7 +3131,8 @@ rainbow-mode shows hex code colours in buffers.
 
   ;; Order matters!
   (set-popup-rules! '(("\\*jupyter-" :size 0.4)
-                      ("\\*jupyter-repl" :ttl nil))))
+                      ("\\*jupyter-repl" :ttl nil)
+                      ("\\*jupyter-display" :size 0.6))))
 
 (use-feature ob-jupyter
   :commands
@@ -3636,7 +3638,7 @@ Arch packages:
         #+end_src
 *** MATLAB
 
-I used to dislike MATLAB, but the effort they put in to supporting Linux and Emacs earns my admiration.
+I used to dislike MATLAB, but the effort they put in to supporting Linux and Emacs earns my admiration. [[https://github.com/karthink/.emacs.d/blob/master/init.el#L1660][Karthink]] has a great set of modifications in his config for adding functionality.
 #+begin_src emacs-lisp :tangle yes
 (use-package matlab-mode
   :mode "\\.m\\'"
