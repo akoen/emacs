@@ -1577,26 +1577,24 @@ Displays the folder tree
                         paragraph-separate "[  ]*$")))
     
     (org-babel-after-execute . org-redisplay-inline-images)
-    :init
+    :custom
     ;; Org knows how to handle its own buffers
-    (set-popup-rule! "\\*Org" :ignore t)
-    (setq org-directory org-dir
-          org-use-fast-todo-selection t                                     ; allow changing to any todo state from a menu
-          org-enforce-todo-dependencies t                                   ; block setting task to DONE if there are incomplete subtasks
-          org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id ; use unique ID's for links
-          org-id-locations-file (concat org-dir ".orgids")
-          org-clone-delete-id t
-          org-log-done 'time
-          org-catch-invisible-edits 'show
-          org-confirm-babel-evaluate nil                                    ; do not ask for confirmation
-          org-return-follows-link t
-          org-startup-indented t                                            ; indent each level of heading
-          org-hide-emphasis-markers t                                       ; hide the markers for italics and bold
-          org-format-latex-options (plist-put org-format-latex-options :scale 2)
-          org-pretty-entities t                                             ; show entities as UTF8 characters
-          org-image-actual-width 600
-          org-startup-with-inline-images t
-          org-export-with-smart-quotes t)
+    (org-directory org-dir)
+    (org-use-fast-todo-selection t)
+    (org-enforce-todo-dependencies t)
+    (org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
+    (org-id-locations-file (concat org-dir ".orgids"))
+    (org-clone-delete-id t)
+    (org-log-done 'time)
+    (org-catch-invisible-edits 'show)
+    (org-confirm-babel-evaluate nil)
+    (org-return-follows-link t)
+    (org-startup-indented t)
+    (org-hide-emphasis-markers t)
+    (org-pretty-entities t)
+    (org-image-actual-width 600)
+    (org-startup-with-inline-images t)
+    (org-export-with-smart-quotes t)
 
     :custom-face
     (org-default ((t (:family "Pragmata Pro" :height 1.0)))) ; Alternatively, Office Code Pro is second best
@@ -1612,7 +1610,10 @@ Displays the folder tree
     ;; FIXME Does not work at startup
     (org-block-end-line ((t (:inherit org-block-begin-line))))
     :config
+    (set-popup-rule! "\\*Org" :ignore t)
 
+    (setq org-format-latex-options (plist-put org-format-latex-options :scale 2))
+    
     ;; Scrolling of inline images in org is a terrible experience, so we
     ;; allow them to be toggled individually with tab and C-c C-c. Alternatively,
     ;; https://github.com/casouri/lunarymacs/blob/master/site-lisp/iscroll.el
@@ -1642,14 +1643,14 @@ Displays the folder tree
     (defun create-image-with-background-color (args)
       "Specify background color of Org-mode inline image through modify `ARGS'."
       (if (eq major-mode 'org-mode)
-        (let* ((file (car args))
-               (type (cadr args))
-               (data-p (caddr args))
-               (props (cdddr args)))
-          ;; get this return result style from `create-image'
-          (append (list file type data-p)
-                  (list :background "white")
-                  props))
+          (let* ((file (car args))
+                 (type (cadr args))
+                 (data-p (caddr args))
+                 (props (cdddr args)))
+            ;; get this return result style from `create-image'
+            (append (list file type data-p)
+                    (list :background "white")
+                    props))
         args))
     (advice-add 'create-image :filter-args #'create-image-with-background-color))
 #+end_src
@@ -2414,7 +2415,9 @@ Visualize the Zettelkasten.
     ;; FIXME: Does not work
     "C-c [" 'org-cite-insert))
 
-(use-package citeproc)
+;; REVIEW Not included as a dependency of bibtex-actions
+(use-package citeproc
+  :defer t)
 (use-package bibtex-actions
   :after oc
   :general
