@@ -1068,7 +1068,7 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   (leader-key
     "fr" 'consult-recent-file
     "bb" 'consult-buffer
-    "BB" 'consult-bookmark
+    "RET" 'consult-bookmark
     "yp" 'consult-yank
     "so" 'consult-outline
     "sO" 'consult-org-agenda
@@ -1867,8 +1867,9 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
             (tags-todo "refile"
                        ((org-agenda-prefix-format "  %?-12t% s")
                         (org-agenda-overriding-header "\nREFILE\n")))
-            (org-ql-block '(or (closed :on 0) (log-done :on 0))
-                          ((org-ql-block-header "\nCOMPLETED TODAY\n")))))))
+            ;; (org-ql-block '(or (closed :on 0) (log-done :on 0))
+            ;;               ((org-ql-block-header "\nCOMPLETED TODAY\n")))
+            ))))
 
   (defun my--check-sync-conflicts ()
     (when (directory-files org-dir nil "conflict")
@@ -1936,7 +1937,26 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   :after org
   :config
   (setq org-log-repeat 'time
-        org-log-into-drawer t))
+        org-log-into-drawer t)
+
+  (defun org-habit-streak-count ()
+    (save-excursion
+      (goto-char (point-min))
+      (while (not (eobp))
+        ;;on habit line?
+        (when (get-text-property (point) 'org-habit-p)
+          (let ((streak 0)
+                (counter (+ org-habit-graph-column (- org-habit-preceding-days org-habit-following-days))))
+            (move-to-column counter)
+            ;;until end of line
+            (while (= (char-after (point)) org-habit-completed-glyph)
+              (setq streak (+ streak 1))
+              (setq counter (- counter 1))
+              (backward-char 1))
+            (end-of-line)
+            (insert (concat "✨" (number-to-string streak)))))
+        (forward-line 1))))
+  (add-hook 'org-agenda-finalize-hook 'org-habit-streak-count))
 #+end_src
 **** SRC blocks
 #+begin_src emacs-lisp :tangle yes
@@ -3118,7 +3138,8 @@ rainbow-mode shows hex code colours in buffers.
 
   ;; Order matters!
   (set-popup-rules! '(("\\*jupyter-" :size 0.4)
-                      ("\\*jupyter-repl" :ttl nil))))
+                      ("\\*jupyter-repl" :ttl nil)
+                      ("\\*jupyter-display" :size 0.6))))
 
 (use-feature ob-jupyter
   :commands
@@ -3624,7 +3645,7 @@ Arch packages:
         #+end_src
 *** MATLAB
 
-I used to dislike MATLAB, but the effort they put in to supporting Linux and Emacs earns my admiration.
+I used to dislike MATLAB, but the effort they put in to supporting Linux and Emacs earns my admiration. [[https://github.com/karthink/.emacs.d/blob/master/init.el#L1660][Karthink]] has a great set of modifications in his config for adding functionality.
 #+begin_src emacs-lisp :tangle yes
 (use-package matlab-mode
   :mode "\\.m\\'"
