@@ -1989,6 +1989,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 
   :custom
   (org-src-tab-acts-natively t)
+  (org-src-ask-before-returning-to-edit-buffer nil)
   (org-edit-src-content-indentation 0)
   (org-src-preserve-indentation t)
   (org-src-window-setup 'current-window)
