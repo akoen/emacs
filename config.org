@@ -51,12 +51,10 @@ Or a variable
 #+end_src
 
 ** Performance Optimizations
+
 #+begin_src emacs-lisp :tangle yes
-(add-hook 'emacs-startup-hook
-          (lambda ()
-            "Recover GC values after startup."
-            (setq gc-cons-threshold 800000
-                  gc-cons-percentage 0.1)))
+(use-package gcmh
+  :hook (after-init . gcmh-mode))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
