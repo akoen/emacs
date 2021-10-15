@@ -5,5 +5,5 @@
 !config.org
 !config.el
 !init.el
-!custom.el
+!early-init.el
 !.gitignore

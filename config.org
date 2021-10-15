@@ -51,14 +51,21 @@ Or a variable
 #+end_src
 
 ** Performance Optimizations
-*** Garbage collector
-
-The garbage collector eats up a lot of time during startup, so turn up its memory threshold to prevent it from getting triggered.
+#+begin_src emacs-lisp :tangle yes
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            "Recover GC values after startup."
+            (setq gc-cons-threshold 800000
+                  gc-cons-percentage 0.1)))
+#+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(setq gc-cons-threshold (* 100 1024 1024)
-      gc-cons-percentage 0.6)
+(add-function :after after-focus-change-function
+              (defun +garbage-collect-maybe ()
+                (unless (frame-focus-state)
+                  (garbage-collect))))
 #+end_src
+
 
 ** Benchmarking
 
@@ -355,19 +362,6 @@ The Modus themes are striking and are noticeably easier to read than alternative
 #+end_src
 
 ** Frame
-*** Parameters
-#+begin_src emacs-lisp :tangle yes
-(add-to-list 'default-frame-alist '(internal-border-width . 16))
-#+end_src
-*** Tool Bar
-
-#+begin_src emacs-lisp :tangle yes
-(menu-bar-mode -1)
-(scroll-bar-mode -1)
-(tool-bar-mode -1)
-(tooltip-mode -1)
-#+end_src
-
 *** Startup Screen
 
 #+begin_src emacs-lisp :tangle yes
