@@ -1304,13 +1304,11 @@ Find and grep fuzzy searching, inspired by fzf.
     ;; We handle file searching with projectile
     ;; "fz" 'affe-find
     )
-  :custom
-  (affe-regexp-function #'orderless-pattern-compiler)
-  (affe-highlight-function #'orderless-highlight-matches)
-  (affe-grep-command "rg --hidden --null --color=never --max-columns=1000 --no-heading --line-number -v ^$ .")
   :config
-  ;; Preview the current match
-  (setf (alist-get #'affe-grep consult-config) nil))
+  (defun affe-orderless-regexp-compiler (input _type)
+    (setq input (orderless-pattern-compiler input))
+    (cons input (lambda (str) (orderless--highlight input str))))
+  (setq affe-regexp-compiler #'affe-orderless-regexp-compiler))
 #+end_src
 ** Magit
 
