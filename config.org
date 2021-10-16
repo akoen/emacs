@@ -1029,7 +1029,10 @@ Pressing Q restores the window configuration to the last state. Useful for killi
                       :repo "minad/vertico"
                       :branch "main"
                       :files (:defaults "extensions/*")
-                      :includes (vertico-directory))
+                      :includes (vertico-directory vertico-quick))
+  :general
+  (:keymaps 'vertico-map
+            "C-s" 'vertico-quick-insert)
   :custom
   (vertico-cycle t)
   (enable-recursive-minibuffers t)
