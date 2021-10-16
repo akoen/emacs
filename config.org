@@ -725,6 +725,16 @@ Allows for traditional vim bindings inside of emacs
 ;; load evil
 (use-package evil
   :after undo-tree
+  :general
+  ;; quick replace
+  (general-def :states 'normal
+    "<SPC>;" (lambda ()
+               (interactive)
+               (evil-ex "%s/")))
+  (general-def :states 'visual
+    "<SPC>;" (lambda ()
+               (interactive)
+               (evil-ex "'<,'>s/")))
   :init
   ;; In general, evil-want- keybinds must be set on init.
   (setq evil-want-keybinding nil
