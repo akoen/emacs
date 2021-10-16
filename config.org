@@ -3636,9 +3636,6 @@ Arch packages:
   ;; :hook (python-mode . blacken-mode)
   )
 
-(use-package importmagic
-  :hook (python-mode . importmagic-mode))
-
 (use-package sphinx-doc
   :after python
   :hook (python-mode . sphinx-doc-mode))
