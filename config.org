@@ -16,6 +16,16 @@ Usage of :preface, :init, :config
   (message "I'm always here after the package is loaded"))
 #+end_src
 
+
+* Initialization
+** Lexical Binding
+
+[[https://www.gnu.org/software/emacs/manual/html_node/elisp/Lexical-Binding.html][Lexical binding]] improves performance.
+
+#+begin_src emacs-lisp :tangle yes :comments no
+;;; init.el --- The personal Emacs configuration of Alex Koen -*- lexical-binding: t; -*-
+#+end_src
+
 ** Debugging
 
 The following blocks may be tangled to debug certain features:
@@ -38,16 +48,6 @@ Or a function
 Or a variable
 #+begin_src emacs-lisp :tangle no
 (debug-on-variable-change 'evil-want-Y-yank-to-eol)
-#+end_src
-
-
-* Initialization
-** Lexical Binding
-
-[[https://www.gnu.org/software/emacs/manual/html_node/elisp/Lexical-Binding.html][Lexical binding]] improves performance.
-
-#+begin_src emacs-lisp :tangle yes :comments no
-;;; init.el --- The personal Emacs configuration of Alex Koen -*- lexical-binding: t; -*-
 #+end_src
 
 ** Performance Optimizations
@@ -727,6 +727,16 @@ Allows for traditional vim bindings inside of emacs
 ;; load evil
 (use-package evil
   :after undo-tree
+  :general
+  ;; quick replace
+  (general-def :states 'normal
+    "<SPC>;" (lambda ()
+               (interactive)
+               (evil-ex "%s/")))
+  (general-def :states 'visual
+    "<SPC>;" (lambda ()
+               (interactive)
+               (evil-ex "'<,'>s/")))
   :init
   ;; In general, evil-want- keybinds must be set on init.
   (setq evil-want-keybinding nil
@@ -799,21 +809,17 @@ Especially when writing text, moving by visual lines instead of by numbered line
 *** Custom text objects
 #+begin_src emacs-lisp :tangle no :noweb-ref custom text objects
 ;; See https://github.com/emacs-evil/evil-surround#add-new-surround-pairs-through-creation-of-evil-objects
-(defmacro define-and-bind-text-object (key start-regex end-regex
-                                           &optional inner-include-delims)
+(defmacro define-and-bind-text-object (key start-regex end-regex)
   (let ((inner-name (make-symbol "inner-name"))
         (outer-name (make-symbol "outer-name")))
     `(progn
        (evil-define-text-object ,inner-name (count &optional beg end type)
-         (evil-select-paren ,start-regex ,end-regex beg end type count
-                            ,inner-include-delims))
+         (evil-select-paren ,start-regex ,end-regex beg end type count nil))
        (evil-define-text-object ,outer-name (count &optional beg end type)
          (evil-select-paren ,start-regex ,end-regex beg end type count t))
        (define-key evil-inner-text-objects-map ,key (quote ,inner-name))
        (define-key evil-outer-text-objects-map ,key (quote ,outer-name)))))
 
-(define-and-bind-text-object "e" "\\`." ".\\'" t)
-(define-and-bind-text-object "l" "^." ".$" t)
 (define-and-bind-text-object "/" "/" "/")
 (define-and-bind-text-object "*" "*" "*")
 (define-and-bind-text-object "~" "\\~" "\\~")
@@ -821,10 +827,43 @@ Especially when writing text, moving by visual lines instead of by numbered line
 (define-and-bind-text-object "$" "\\$" "\\$")
 (define-and-bind-text-object "," "," ",")
 
-(with-eval-after-load 'evil-nerd-commenter
-  (define-key evil-outer-text-objects-map "c" 'evilnc-outer-commenter)
-  (define-key evil-inner-text-objects-map "c" 'evilnc-inner-comment))
+;; LINE
+from https://github.com/emacsorphanage/evil-textobj-line
+(defun evil-line-range (count beg end type &optional inclusive)
+  (if inclusive
+      (evil-range (line-beginning-position) (line-end-position))
+    (let ((start (save-excursion
+                   (back-to-indentation)
+                   (point)))
+          (end (save-excursion
+                 (goto-char (line-end-position))
+                 (skip-syntax-backward " " (line-beginning-position))
+                 (point))))
+      (evil-range start end))))
 
+(evil-define-text-object evil-a-line (count &optional beg end type)
+  "Select range between a character by which the command is followed."
+  (evil-line-range count beg end type t))
+
+(evil-define-text-object evil-inner-line (count &optional beg end type)
+  "Select inner range between a character by which the command is followed."
+  (evil-line-range count beg end type))
+
+(define-key evil-outer-text-objects-map "l" 'evil-a-line)
+(define-key evil-inner-text-objects-map "l" 'evil-inner-line)
+
+;; BUFFER
+(defun evil-buffer-range (count beg end type)
+      (evil-range (point-min) (point-max)))
+
+(evil-define-text-object evil-i-buffer (count &optional beg end type)
+  "Select range between a character by which the command is followed."
+  (evil-buffer-range count beg end type))
+
+(define-key evil-outer-text-objects-map "e" 'evil-i-buffer)
+(define-key evil-inner-text-objects-map "e" 'evil-i-buffer)
+
+;; URL
 (evil-define-text-object evil-inner-url (count &optional _beg _end type)
   "Text object to select the inner url at point.
 
@@ -855,6 +894,11 @@ This excludes the protocol and querystring."
 
 (define-key evil-outer-text-objects-map "u" 'evil-outer-url)
 (define-key evil-inner-text-objects-map "u" 'evil-inner-url)
+
+;; NERD COMMENTER
+(with-eval-after-load 'evil-nerd-commenter
+  (define-key evil-outer-text-objects-map "c" 'evilnc-outer-commenter)
+  (define-key evil-inner-text-objects-map "c" 'evilnc-inner-comment))
 #+end_src
 *** EVIL-Collection
 #+begin_src emacs-lisp :tangle yes
@@ -1584,26 +1628,24 @@ Displays the folder tree
                         paragraph-separate "[  ]*$")))
     
     (org-babel-after-execute . org-redisplay-inline-images)
-    :init
+    :custom
     ;; Org knows how to handle its own buffers
-    (set-popup-rule! "\\*Org" :ignore t)
-    (setq org-directory org-dir
-          org-use-fast-todo-selection t                                     ; allow changing to any todo state from a menu
-          org-enforce-todo-dependencies t                                   ; block setting task to DONE if there are incomplete subtasks
-          org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id ; use unique ID's for links
-          org-id-locations-file (concat org-dir ".orgids")
-          org-clone-delete-id t
-          org-log-done 'time
-          org-catch-invisible-edits 'show
-          org-confirm-babel-evaluate nil                                    ; do not ask for confirmation
-          org-return-follows-link t
-          org-startup-indented t                                            ; indent each level of heading
-          org-hide-emphasis-markers t                                       ; hide the markers for italics and bold
-          org-format-latex-options (plist-put org-format-latex-options :scale 2)
-          org-pretty-entities t                                             ; show entities as UTF8 characters
-          org-image-actual-width 600
-          org-startup-with-inline-images t
-          org-export-with-smart-quotes t)
+    (org-directory org-dir)
+    (org-use-fast-todo-selection t)
+    (org-enforce-todo-dependencies t)
+    (org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
+    (org-id-locations-file (concat org-dir ".orgids"))
+    (org-clone-delete-id t)
+    (org-log-done 'time)
+    (org-catch-invisible-edits 'show)
+    (org-confirm-babel-evaluate nil)
+    (org-return-follows-link t)
+    (org-startup-indented t)
+    (org-hide-emphasis-markers t)
+    (org-pretty-entities t)
+    (org-image-actual-width 600)
+    (org-startup-with-inline-images t)
+    (org-export-with-smart-quotes t)
 
     :custom-face
     (org-default ((t (:family "Pragmata Pro" :height 1.0)))) ; Alternatively, Office Code Pro is second best
@@ -1619,7 +1661,10 @@ Displays the folder tree
     ;; FIXME Does not work at startup
     (org-block-end-line ((t (:inherit org-block-begin-line))))
     :config
+    (set-popup-rule! "\\*Org" :ignore t)
 
+    (setq org-format-latex-options (plist-put org-format-latex-options :scale 2))
+    
     ;; Scrolling of inline images in org is a terrible experience, so we
     ;; allow them to be toggled individually with tab and C-c C-c. Alternatively,
     ;; https://github.com/casouri/lunarymacs/blob/master/site-lisp/iscroll.el
@@ -1649,14 +1694,14 @@ Displays the folder tree
     (defun create-image-with-background-color (args)
       "Specify background color of Org-mode inline image through modify `ARGS'."
       (if (eq major-mode 'org-mode)
-        (let* ((file (car args))
-               (type (cadr args))
-               (data-p (caddr args))
-               (props (cdddr args)))
-          ;; get this return result style from `create-image'
-          (append (list file type data-p)
-                  (list :background "white")
-                  props))
+          (let* ((file (car args))
+                 (type (cadr args))
+                 (data-p (caddr args))
+                 (props (cdddr args)))
+            ;; get this return result style from `create-image'
+            (append (list file type data-p)
+                    (list :background "white")
+                    props))
         args))
     (advice-add 'create-image :filter-args #'create-image-with-background-color))
 #+end_src
@@ -2412,87 +2457,38 @@ Visualize the Zettelkasten.
 ***** bibtex
 
 #+begin_src emacs-lisp :tangle yes
-(use-package bibtex-completion
-  :config
-  (setq bibtex-completion-bibliography (concat docs-dir "zotero-bib.bib")
-        bibtex-completion-pdf-field "file"))
+(setq +zotero-bibliography (concat docs-dir "zotero-bib.bib"))
 
 
+(use-feature oc
+  :after org
+  :general
+  (general-nmap :keymaps 'org-mode-map
+    ;; FIXME: Does not work
+    "C-c [" 'org-cite-insert))
+
+;; REVIEW Not included as a dependency of bibtex-actions
+(use-package citeproc
+  :defer t)
 (use-package bibtex-actions
+  :after oc
   :general
   (leader-key
     "ob" 'bibtex-actions-open)
-  (:keymaps 'org-mode-map
-            "C-c ]" 'bibtex-actions-insert-citation)
-  :config
-  ;; Make the 'bibtex-actions' bindings available from `embark-act'.
-  (with-eval-after-load 'embark
-    (add-to-list 'embark-keymap-alist '(bibtex . bibtex-actions-map))))
-#+end_src
-***** org-ref
-#+begin_src emacs-lisp :tangle yes
-(use-package org-ref
-  :after org
-  :init
-  ;; must be called at init
-  (setq org-ref-completion-library 'org-ref-ivy-cite)
   :custom
-  ;; We use the citation tools provided by bibtex-actions
-  (org-ref-insert-cite-key "")
-  ;; (org-ref-notes-function 'bibtex-completion-edit-notes)
-  (org-ref-default-bibliography (list (concat docs-dir "zotero-bib.bib")))
-  (org-ref-notes-directory brain-dir))
-#+end_src
+  (bibtex-actions-bibliography +zotero-bibliography)
+  :config
+  (add-to-list 'embark-target-finders 'bibtex-actions-citation-key-at-point)
+  (add-to-list 'embark-keymap-alist '(bib-reference . bibtex-actions-map))
+  (add-to-list 'embark-keymap-alist '(citation-key . bibtex-actions-buffer-map)))
 
-***** org-roam-bibtex
-#+begin_src emacs-lisp :tangle yes
-(use-package org-roam-bibtex
-  :straight (:host github :repo "org-roam/org-roam-bibtex" :branch "org-roam-v2")
-  :after org-roam
+(use-feature oc-bibtex-actions
+  :after bibtex-actions
   :custom
-  (orb-preformat-keywords '("citekey" "title"))
-  :config
-  (cl-pushnew '("r" "reference" plain
-                 "%?"
-                 :if-new (file+head "papers/${citekey}.org" "#+title: ${title}\n")
-                 :unnarrowed t)
-              org-roam-capture-templates)
-  (org-roam-bibtex-mode))
-#+end_src
-***** (disabled) org-ref-ox-hugo
-#+begin_src emacs-lisp :tangle yes
-(use-package org-ref-ox-hugo
-  :disabled t
-  :straight (:host github :repo "jethrokuan/org-ref-ox-hugo")
-  :after org org-ref ox-hugo
-  :config
-  (add-to-list 'org-ref-formatted-citation-formats
-               '("md"
-                 ("article" . "${author}, *${title}*, ${journal}, *${volume}(${number})*, ${pages} (${year}). ${doi}")
-                 ("inproceedings" . "${author}, *${title}*, In ${editor}, ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
-                 ("book" . "${author}, *${title}* (${year}), ${address}: ${publisher}.")
-                 ("phdthesis" . "${author}, *${title}* (Doctoral dissertation) (${year}). ${school}, ${address}.")
-                 ("inbook" . "${author}, *${title}*, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
-                 ("incollection" . "${author}, *${title}*, In ${editor} (Eds.), ${booktitle} (pp. ${pages}) (${year}). ${address}: ${publisher}.")
-                 ("proceedings" . "${editor} (Eds.), _${booktitle}_ (${year}). ${address}: ${publisher}.")
-                 ("unpublished" . "${author}, *${title}* (${year}). Unpublished manuscript.")
-                 ("misc" . "${author} (${year}). *${title}*. Retrieved from [${howpublished}](${howpublished}). ${note}.")
-                 (nil . "${author}, *${title}* (${year})."))))
-#+end_src
-**** org-noter
-#+begin_src emacs-lisp :tangle yes
-(use-package org-noter
-  :after ( org pdf-view)
-  :config
-  (setq
-   ;; The WM can handle splits
-   org-noter-notes-window-location 'other-frame
-   ;; Please stop opening frames
-   org-noter-always-create-frame nil
-   ;; I want to see the whole file
-   org-noter-hide-other nil
-   ;; Everything is relative to the main notes file
-   org-noter-notes-search-path (list (concat brain-dir "papers/"))))
+  (org-cite-global-bibliography +zotero-bibliography)
+  (org-cite-insert-processor 'oc-bibtex-actions)
+  (org-cite-follow-processor 'oc-bibtex-actions)
+  (org-cite-activate-processor 'oc-bibtex-actions))
 #+end_src
 *** Reviews
 
