@@ -2886,6 +2886,7 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
   (epa-pinentry-mode 'loopback)
   :config
   (epa-file-enable)
+  (require 'auth-source)
   (auth-source-forget-all-cached))
 
 (use-feature sendmail
