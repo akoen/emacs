@@ -115,17 +115,19 @@ This sets the variable exec-path to the normal shell's PATH variable. This doesn
 
 [[https://www.reddit.com/r/emacs/comments/f8xwau/hack_replace_execpathfromshell/fioa62n/]]
 #+begin_src emacs-lisp :tangle yes
-(use-package exec-path-from-shell
-  :config
-  (cond ((display-graphic-p)
-         (setq exec-path
-               (or (eval-when-compile
-                     (when (require 'exec-path-from-shell nil t)
-                       (setq exec-path-from-shell-check-startup-files nil)
-                       (nconc exec-path-from-shell-variables '("SSH_AUTH_LOCK" "PATH" "PASSWORD_STORE_DIR"))
-                       (exec-path-from-shell-initialize)
-                       exec-path))
-                   exec-path)))))
+;; REVIEW use-package :if keyword doesn't seem to work
+(if (daemonp)
+    (use-package exec-path-from-shell
+      :config
+      (cond ((display-graphic-p)
+             (setq exec-path
+                   (or (eval-when-compile
+                         (when (require 'exec-path-from-shell nil t)
+                           (setq exec-path-from-shell-check-startup-files nil)
+                           (nconc exec-path-from-shell-variables '("SSH_AUTH_LOCK" "PATH" "PASSWORD_STORE_DIR"))
+                           (exec-path-from-shell-initialize)
+                           exec-path))
+                       exec-path))))))
 #+end_src
 ** Set Directories
 
