@@ -318,20 +318,9 @@ A small buffer which shows the list of commands you can execute next.
 #+end_src
 * Appearance
 ** Theme
-*** Modus-themes
-
-The Modus themes are striking and are noticeably easier to read than alternatives. The following code is taken from the theme's [[https://protesilaos.com/modus-themes/#h:69b92089-069c-4ba1-9d94-cc3415fc4f87][manual]].
-
-#+begin_src emacs-lisp :tangle yes
-(use-package modus-themes
-  :config
-  (load-theme 'modus-operandi t))
-#+end_src
-
 *** Doom-themes
 
 #+begin_src emacs-lisp :tangle yes
-
 (use-package doom-themes
   :defer t
   :custom-face
@@ -527,11 +516,6 @@ A fancy and fast mode-line inspired by minimalistic design
   :init (doom-modeline-mode 1))
 #+end_src
 
-** Hide modeline
-#+begin_src emacs-lisp :tangle yes
-(use-package hide-mode-line
-  :commands hide-mode-line-mode)
-#+end_src
 ** hl-todo
 
 Highlights keywords in comments
