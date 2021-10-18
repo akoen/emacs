@@ -1638,6 +1638,7 @@ Displays the folder tree
     (org-image-actual-width 600)
     (org-startup-with-inline-images t)
     (org-export-with-smart-quotes t)
+    (org-preview-latex-image-directory "/tmp/ltximg")
 
     :custom-face
     (org-default ((t (:family "Pragmata Pro" :height 1.0)))) ; Alternatively, Office Code Pro is second best
