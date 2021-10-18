@@ -1053,6 +1053,7 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 ** Minibuffer Completion
 #+begin_src emacs-lisp :tangle yes
 (use-package vertico
+  :demand t
   :straight '(vertico :host github
                       :repo "minad/vertico"
                       :branch "main"
