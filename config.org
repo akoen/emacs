@@ -196,7 +196,6 @@ Tangling this org file on save. This code is borrowed from https://github.com/re
       kill-buffer-query-functions nil
       initial-major-mode 'emacs-lisp-mode
       initial-scratch-message nil
-      debug-on-error nil
       save-interprogram-paste-before-kill t
       default-input-method 'TeX
       compilation-scroll-output 'first-error

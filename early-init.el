@@ -61,8 +61,10 @@
   (hide-mode-line-mode 1))
 
 (setq inhibit-message t
-      warning-minimum-level :emergency)
+      warning-minimum-level :error
+      debug-on-error t)
 (add-hook 'emacs-startup-hook (lambda ()
                                 (interactive)
                                 (setq inhibit-message nil
-                                      warning-minimum-level :warning)))
+                                      warning-minimum-level :warning
+                                      debug-on-error nil)))
