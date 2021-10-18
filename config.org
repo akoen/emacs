@@ -513,6 +513,8 @@ A fancy and fast mode-line inspired by minimalistic design
 
 #+begin_src emacs-lisp :tangle yes
 (use-package doom-modeline
+  :custom
+  (doom-modeline-buffer-encoding nil)
   :init (doom-modeline-mode 1))
 #+end_src
 
@@ -1071,7 +1073,10 @@ Pressing Q restores the window configuration to the last state. Useful for killi
                       :repo "minad/vertico"
                       :branch "main"
                       :files (:defaults "extensions/*")
-                      :includes (vertico-directory))
+                      :includes (vertico-directory vertico-quick))
+  :general
+  (:keymaps 'vertico-map
+            "C-s" 'vertico-quick-insert)
   :custom
   (vertico-cycle t)
   (enable-recursive-minibuffers t)
@@ -3625,9 +3630,6 @@ Arch packages:
   :commands blacken-mode
   ;; :hook (python-mode . blacken-mode)
   )
-
-(use-package importmagic
-  :hook (python-mode . importmagic-mode))
 
 (use-package sphinx-doc
   :after python
