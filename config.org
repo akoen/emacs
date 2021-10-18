@@ -2534,6 +2534,7 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
 #+begin_src emacs-lisp :tangle yes
 (use-package latex
   :straight auctex
+  :defer t
   :config
   (add-hook 'LaTeX-mode-hook
             (lambda ()
