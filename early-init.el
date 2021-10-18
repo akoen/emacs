@@ -60,7 +60,9 @@
   :init
   (hide-mode-line-mode 1))
 
-;; TODO This should use display-buffer-alist instead
-(defun +startup-hide-warnings ()
-  (window--delete (get-buffer-window "*Warnings*")))
-(add-hook 'emacs-startup-hook #'+startup-hide-warnings)
+(setq inhibit-message t
+      warning-minimum-level :emergency)
+(add-hook 'emacs-startup-hook (lambda ()
+                                (interactive)
+                                (setq inhibit-message nil
+                                      warning-minimum-level :warning)))
