@@ -3158,7 +3158,7 @@ rainbow-mode shows hex code colours in buffers.
                                                        (:session . "py")
                                                        (:kernel . "python3")))
   :custom
-  (org-babel-jupyter-resource-directory "/tmp/.ob-jupyter")
+  (jupyter-org-resource-directory "/tmp/.ob-jupyter")
   :config
   ;; See note in jupyter's :config above.
   (require 'jupyter))
