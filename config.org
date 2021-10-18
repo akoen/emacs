@@ -2766,8 +2766,7 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
         mu4e-view-show-images t
         mu4e-view-image-max-width 800
         mu4e-compose-dont-reply-to-self t
-        ;; use helm/ivy
-        mu4e-completing-read-function 'ivy-completing-read
+        mu4e-completing-read-function 'completing-read
         ;; Do not reply to self
         mu4e-compose-dont-reply-to-self t
         ;; set user agent
