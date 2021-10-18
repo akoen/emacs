@@ -50,6 +50,15 @@ Or a variable
 (debug-on-variable-change 'evil-want-Y-yank-to-eol)
 #+end_src
 
+** Silence messages 
+
+#+begin_src emacs-lisp :tangle yes
+(setq inhibit-message t)
+(add-hook 'emacs-startup-hook (lambda ()
+                                (interactive)
+                                (setq inhibit-message nil)))
+#+end_src
+
 ** Performance Optimizations
 
 #+begin_src emacs-lisp :tangle yes
