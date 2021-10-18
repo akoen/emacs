@@ -368,7 +368,13 @@ Make yes or no prompts be y or n prompts
 #+begin_src emacs-lisp :tangle yes
 (use-package dashboard
   :custom
-  (dashboard-startup-banner (concat emacs-dir "splash.png"))
+  (initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+  (dashboard-startup-banner (concat emacs-dir "splash.svg"))
+  (dashboard-footer-messages
+   (with-temp-buffer
+     (insert-file-contents (concat user-emacs-directory "messages"))
+     (split-string (buffer-string) "\n" t)))
+  (dashboard-banner-logo-title nil)
   (dashboard-set-heading-icons t)
   (dashboard-set-file-icons t)
   (dashboard-center-content t)
