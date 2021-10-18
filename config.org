@@ -2345,6 +2345,12 @@ Allows for external applications to trigger custom actions without external depe
 (use-package org-appear
   :hook (org-mode . org-appear-mode))
 #+end_src
+**** org-fragtog
+
+#+begin_src emacs-lisp :tangle yes
+(use-package org-fragtog
+  :hook (org-mode . org-fragtog-mode))
+#+end_src
 **** ox-hugo
 #+begin_src emacs-lisp :tangle yes
 (use-package ox-hugo
