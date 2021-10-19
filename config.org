@@ -2038,6 +2038,11 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
                                    (:hlines . "no")
                                    (:tangle . "no")))
   :config
+  ;; Use tab completion in src-blocks
+  (add-hook 'org-tab-first-hook (defun +org-src-block-tab-completion ()
+                                  (if (org-in-src-block-p t)
+                                      (or (completion-at-point) t))))
+
   (setq my--org-babel-repl-handlers
         '(("jupyter-python" . (message "python"))
           ("emacs-lisp" . (message "elisp"))))
