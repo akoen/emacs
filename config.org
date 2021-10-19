@@ -3166,6 +3166,11 @@ rainbow-mode shows hex code colours in buffers.
   :custom
   (jupyter-org-resource-directory "/tmp/.ob-jupyter")
   :config
+  ;; By default, jupyter adds a hook for jupyter-org-interaction-mode to
+  ;; org-mode-hook, but this doesn't get set the first time src block is
+  ;; executed.
+  (when (eq major-mode 'org-mode)
+    (jupyter-org-interaction-mode))
   ;; See note in jupyter's :config above.
   (require 'jupyter))
 #+end_src
