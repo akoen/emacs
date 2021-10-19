@@ -1198,11 +1198,11 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   ;; instead of three.
   (setq company-minimum-prefix-length 1))
 #+end_src
-** (disabled) Corfu
+** Corfu
 
 #+begin_src emacs-lisp :tangle yes 
 (use-package corfu
-  :disabled t
+  :demand t
   :general
   (:states '(insert) :keymaps 'corfu-map
     "C-n" 'corfu-next
@@ -1215,7 +1215,7 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   (evil-make-overriding-map corfu-map)
   (advice-add 'corfu--setup :after 'evil-normalize-keymaps)
   (advice-add 'corfu--teardown :after 'evil-normalize-keymaps)
-  (corfu-global-mode 1))
+  (corfu-global-mode))
 #+end_src
 
 
