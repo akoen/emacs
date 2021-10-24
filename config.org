@@ -1628,6 +1628,9 @@ Displays the folder tree
                         paragraph-separate "[  ]*$")))
     
     (org-babel-after-execute . org-redisplay-inline-images)
+    :general
+    (general-nmap :keymaps 'org-mode-map
+      "<RET>" 'org-ctrl-c-ctrl-c)
     :custom
     ;; Org knows how to handle its own buffers
     (org-directory org-dir)
