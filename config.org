@@ -304,6 +304,9 @@ A small buffer which shows the list of commands you can execute next.
   (setq auto-save-file-name-transforms
 	`((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
 
+  ;; Want to sync bookmarks
+  (setq bookmark-default-file (concat docs-dir "bookmarks"))
+
   ;; no-littering changes default snippets directory, so I changed it back.
   (add-to-list 'yas-snippet-dirs
 	       (expand-file-name "snippets" user-emacs-directory)))
