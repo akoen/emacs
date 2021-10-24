@@ -1433,7 +1433,8 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
   :commands dired-jump
   :general
   (general-nmap :keymaps 'dired-mode-map
-    "=" 'my--diff-files)
+    "=" 'my--diff-files
+    "C-<return>" 'open-file-external)
   (:keymaps 'dired-mode-map
             "C-c C-p" 'wdired-change-to-wdired-mode)
   :config
@@ -1446,6 +1447,13 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
 
   ;; Show directories before files + default -al
   (setq dired-listing-switches "-lAX --group-directories-first")
+
+  (defun open-file-external ()
+    "Open file at point externally with xdg-open."
+    (interactive)
+    (let ((file (dired-filename-at-point)))
+      (call-process
+       "xdg-open" nil 0 nil (expand-file-name file))))
 
   ;; Show contents of .desc file in minibuffer
   (defun show-folder-description ()
