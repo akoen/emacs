@@ -1057,6 +1057,14 @@ Pressing Q restores the window configuration to the last state. Useful for killi
     "sl" 'ace-link))
 #+end_src
 * Completion
+** Function
+#+begin_src emacs-lisp :tangle yes
+(defun +insert-filename ()
+  "Prompt and insert filename at point."
+  (interactive)
+  (insert (read-file-name "File: ")))
+(general-define-key "<f3>" '+insert-filename)
+#+end_src
 ** Minibuffer Completion
 #+begin_src emacs-lisp :tangle yes
 (use-package vertico
