@@ -1605,7 +1605,6 @@ Keeps a list of recently opened files.
 
 #+begin_src emacs-lisp :tangle yes
 (use-feature recentf
-  :commands projectile-recentf
   :config
   (setq recentf-save-file (concat emacs-cache-dir "recentf"))
   (setq recentf-max-menu-item 300)
@@ -2974,6 +2973,8 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
       "Interactively call edebug-instrument-function."
       (interactive "aFunction symbol: ")
       (edebug-instrument-function fun))
+    (with-eval-after-load 'embark
+      (define-key embark-command-map (kbd "e") 'my--edebug-add-instrumentation))
 
     ;; Highlight instrumented functions
     ;; REVIEW: The use of font-lock-debug-fontify breaks hl-todo and is
