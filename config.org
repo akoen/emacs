@@ -1158,7 +1158,19 @@ Pressing Q restores the window configuration to the last state. Useful for killi
         (lambda (map _target)
           (which-key--show-keymap "Embark" map nil nil 'no-paging)
           #'which-key--hide-popup-ignore-command)
-        embark-become-indicator embark-action-indicator))
+        embark-become-indicator embark-action-indicator)
+
+  (defmacro +embark-ace-action (fn)
+    `(defun ,(intern (concat "+embark-ace-" (symbol-name fn))) ()
+       (interactive)
+       (with-demoted-errors "%s"
+         (require 'ace-window)
+         (let ((aw-dispatch-always t))
+           (aw-switch-to-window (aw-select nil))
+           (call-interactively (symbol-function ',fn))))))
+  (define-key embark-file-map     (kbd "o") (+embark-ace-action find-file))
+  (define-key embark-buffer-map   (kbd "o") (+embark-ace-action switch-to-buffer))
+  (define-key embark-bookmark-map (kbd "o") (+embark-ace-action bookmark-jump)))
 
 (use-package embark-consult
   :after (embark consult)
