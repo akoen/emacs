@@ -2698,7 +2698,11 @@ Checks for signs of bad writing.
         flyspell-issue-welcome-flag nil
         ;; Significantly speeds up flyspell, which would otherwise print
         ;; messages for every word when checking the entire buffer
-        flyspell-issue-message-flag nil))
+        flyspell-issue-message-flag nil)
+
+  ;; REVIEW There is likely a better way to preserve undo
+  ;; Ensure that change is pushed to buffer-undo-list
+  (advice-add 'flyspell-auto-correct-word :after #'save-buffer))
 
 (use-package flyspell-correct
   :general
