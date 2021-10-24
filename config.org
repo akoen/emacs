@@ -1060,6 +1060,14 @@ Pressing Q restores the window configuration to the last state. Useful for killi
     "sl" 'ace-link))
 #+end_src
 * Completion
+** Function
+#+begin_src emacs-lisp :tangle yes
+(defun +insert-filename ()
+  "Prompt and insert filename at point."
+  (interactive)
+  (insert (read-file-name "File: ")))
+(general-define-key "<f3>" '+insert-filename)
+#+end_src
 ** Minibuffer Completion
 #+begin_src emacs-lisp :tangle yes
 (use-package vertico
@@ -1642,6 +1650,9 @@ Displays the folder tree
                         paragraph-separate "[  ]*$")))
     
     (org-babel-after-execute . org-redisplay-inline-images)
+    :general
+    (general-nmap :keymaps 'org-mode-map
+      "<RET>" 'org-ctrl-c-ctrl-c)
     :custom
     ;; Org knows how to handle its own buffers
     (org-directory org-dir)
@@ -2712,7 +2723,11 @@ Checks for signs of bad writing.
         flyspell-issue-welcome-flag nil
         ;; Significantly speeds up flyspell, which would otherwise print
         ;; messages for every word when checking the entire buffer
-        flyspell-issue-message-flag nil))
+        flyspell-issue-message-flag nil)
+
+  ;; REVIEW There is likely a better way to preserve undo
+  ;; Ensure that change is pushed to buffer-undo-list
+  (advice-add 'flyspell-auto-correct-word :after #'save-buffer))
 
 (use-package flyspell-correct
   :general
