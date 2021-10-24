@@ -2028,7 +2028,8 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 
   (general-nmap :keymaps 'override
     :predicate '(eq (org-element-type (org-element-at-point)) 'src-block)
-    "C-<return>" 'my--org-babel-eval-line-or-region)
+    "C-<return>" 'my--org-babel-eval-line-or-region
+    "S-<return>" 'org-babel-execute-src-block)
 
   :custom
   (org-src-tab-acts-natively t)
