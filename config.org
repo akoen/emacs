@@ -1100,9 +1100,10 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 
 (use-package orderless
   :custom
-  (completion-styles '(orderless))
-  (completion-category-defaults nil)
-  (completion-category-overrides '((file (styles . (partial-completion))))))
+  (completion-styles '(orderless partial-completion))
+  (orderless-matching-styles
+   '(orderless-regexp
+     orderless-strict-leading-initialism)))
 
 (use-package consult
   :general
