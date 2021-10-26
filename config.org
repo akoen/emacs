@@ -1869,6 +1869,10 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   :hook (org-agenda-mode . (lambda ()
                              ;; (org-agenda-entry-text-mode)
                              (hide-mode-line-mode)))
+  :general
+  (general-def "<f1>" (lambda ()
+                        (interactive)
+                        (org-agenda nil "g")))
   :custom
   (org-agenda-remove-tags t)
   (org-agenda-breadcrumbs-separator " ❯ ")
