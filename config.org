@@ -2995,14 +2995,8 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
 Framework, heavily inspired by Doom Emacs, for evaluating buffer code in major-mode specific "runner" functions.
 
 #+begin_src emacs-lisp :tangle yes
-(defvar +eval-runners
-  '((emacs-lisp-mode . +eval-emacs-lisp))
+(defvar +eval-runners '()
   "Alist mapping major-modes to runner functions which evaluate buffer code.")
-
-(defun +eval-emacs-lisp (beg end)
-  "Runner for emacs-lisp."
-  (eval (read (format "(progn %s)"
-                      (buffer-substring-no-properties beg end)))))
 
 (defun +eval/region (beg end)
   "Eval region with major-mode runner."
@@ -3242,12 +3236,28 @@ rainbow-mode shows hex code colours in buffers.
     "eb" 'eval-buffer
     "ed" 'eval-defun
     "el" 'load-library
-    "ee" 'pp-eval-last-sexp))
+    "ee" 'pp-eval-last-sexp)
+
+  :init
+  (defun +eval-emacs-lisp (beg end)
+    "Runner for emacs-lisp."
+    (eval (read (format "(progn %s)"
+                        (buffer-substring-no-properties beg end)))))
+  (add-to-list '+eval-runners '(emacs-lisp-mode . +eval-emacs-lisp)))
 
 (use-feature ielm
   :hook (inferior-emacs-lisp-mode . company-mode)
   :init
   (set-popup-rule! "\\*ielm\\*" :ttl nil))
+
+(use-package eros
+  :hook (emacs-lisp-mode . eros-mode)
+  :config
+  (defun +eval-emacs-lisp-overlay (orig-fn &rest args)
+    (eros--eval-overlay
+     (apply orig-fn args)
+     (point)))
+  (advice-add #'+eval-emacs-lisp :around #'+eval-emacs-lisp-overlay))
 #+end_src
 *** Common Lisp
 
