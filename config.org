@@ -1922,8 +1922,8 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
             (tags-todo "refile"
                        ((org-agenda-prefix-format "  %?-12t% s")
                         (org-agenda-overriding-header "\nREFILE\n")))
-            ;; (org-ql-block '(or (closed :on 0) (log-done :on 0))
-            ;;               ((org-ql-block-header "\nCOMPLETED TODAY\n")))
+            (org-ql-block '(or (closed :on 0) (log-done :on 0))
+                          ((org-ql-block-header "\nCOMPLETED TODAY\n")))
             ))))
 
   (defun my--check-sync-conflicts ()
@@ -1949,7 +1949,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (defconst org-ql-log-done-regexp
     (rx bol "- State \"DONE\"" (1+ blank) "from" (1+ blank) (group (1+ not-newline))))
 
-  (org-ql--defpred log-done (&key from to _on)
+  (org-ql-defpred log-done (&key from to _on)
     "Return non-nil if current entry contains DONE state change in given period. "
     :normalizers ((`(,predicate-names ,(and num-days (pred numberp)))
                    ;; (clocked) and (closed) implicitly look into the past.
