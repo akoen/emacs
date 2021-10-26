@@ -152,10 +152,7 @@ Note that system directories are set in init.el
 
 ** Native comp
 #+begin_src emacs-lisp :tangle yes
-(use-feature comp
-  :if (featurep 'comp)
-  :custom
-  (warning-suppress-log-types '((comp))))
+(setq native-comp-async-report-warnings-errors nil)
 #+end_src
 ** Secrets
 #+begin_src emacs-lisp :tangle yes
@@ -1035,7 +1032,8 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   :general
   (general-nmap "C-s" 'evil-avy-goto-char-timer)
   :custom
-  (avy-background t))
+  (avy-background t)
+  (avy-all-windows nil))
 #+end_src
 ** Ace-window
 
@@ -1050,14 +1048,21 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 #+end_src
 ** Link-hint
 #+begin_src emacs-lisp :tangle yes
-(use-package ace-link
-  ;; REVIEW Link-hint was better, but as problems in mu4e emails
+(use-package link-hint
   :general
   (general-nmap
     :keymaps '(helpful-mode-map info-mode-map mu4e-view-mode-map)
-    "o" 'ace-link)
+    "o" 'link-hint-open-link)
   (leader-key
-    "sl" 'ace-link))
+    "sl" 'link-hint-open-link)
+  :config
+  (link-hint-define-type 'mu4e-message
+    :next #'mu4e-headers-next
+    :at-point-p #'mu4e-message-at-point
+    :open #'mu4e-headers-view-message
+    :copy #'mu4e-copy-message-path
+    :vars '(mu4e-headers-mode))
+  (push 'link-hint-mu4e-message link-hint-types))
 #+end_src
 ** Expand-region
 
@@ -1113,9 +1118,10 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 
 (use-package orderless
   :custom
-  (completion-styles '(orderless))
-  (completion-category-defaults nil)
-  (completion-category-overrides '((file (styles . (partial-completion))))))
+  (completion-styles '(orderless partial-completion))
+  (orderless-matching-styles
+   '(orderless-regexp
+     orderless-strict-leading-initialism)))
 
 (use-package consult
   :general
@@ -1904,6 +1910,10 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   :hook (org-agenda-mode . (lambda ()
                              ;; (org-agenda-entry-text-mode)
                              (hide-mode-line-mode)))
+  :general
+  (general-def "<f1>" (lambda ()
+                        (interactive)
+                        (org-agenda nil "g")))
   :custom
   (org-agenda-remove-tags t)
   (org-agenda-breadcrumbs-separator " ❯ ")
@@ -1957,8 +1967,8 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
             (tags-todo "refile"
                        ((org-agenda-prefix-format "  %?-12t% s")
                         (org-agenda-overriding-header "\nREFILE\n")))
-            ;; (org-ql-block '(or (closed :on 0) (log-done :on 0))
-            ;;               ((org-ql-block-header "\nCOMPLETED TODAY\n")))
+            (org-ql-block '(or (closed :on 0) (log-done :on 0))
+                          ((org-ql-block-header "\nCOMPLETED TODAY\n")))
             ))))
 
   (defun my--check-sync-conflicts ()
@@ -1984,7 +1994,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (defconst org-ql-log-done-regexp
     (rx bol "- State \"DONE\"" (1+ blank) "from" (1+ blank) (group (1+ not-newline))))
 
-  (org-ql--defpred log-done (&key from to _on)
+  (org-ql-defpred log-done (&key from to _on)
     "Return non-nil if current entry contains DONE state change in given period. "
     :normalizers ((`(,predicate-names ,(and num-days (pred numberp)))
                    ;; (clocked) and (closed) implicitly look into the past.
@@ -3032,14 +3042,8 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
 Framework, heavily inspired by Doom Emacs, for evaluating buffer code in major-mode specific "runner" functions.
 
 #+begin_src emacs-lisp :tangle yes
-(defvar +eval-runners
-  '((emacs-lisp-mode . +eval-emacs-lisp))
+(defvar +eval-runners '()
   "Alist mapping major-modes to runner functions which evaluate buffer code.")
-
-(defun +eval-emacs-lisp (beg end)
-  "Runner for emacs-lisp."
-  (eval (read (format "(progn %s)"
-                      (buffer-substring-no-properties beg end)))))
 
 (defun +eval/region (beg end)
   "Eval region with major-mode runner."
@@ -3279,12 +3283,28 @@ rainbow-mode shows hex code colours in buffers.
     "eb" 'eval-buffer
     "ed" 'eval-defun
     "el" 'load-library
-    "ee" 'pp-eval-last-sexp))
+    "ee" 'pp-eval-last-sexp)
+
+  :init
+  (defun +eval-emacs-lisp (beg end)
+    "Runner for emacs-lisp."
+    (eval (read (format "(progn %s)"
+                        (buffer-substring-no-properties beg end)))))
+  (add-to-list '+eval-runners '(emacs-lisp-mode . +eval-emacs-lisp)))
 
 (use-feature ielm
   :hook (inferior-emacs-lisp-mode . company-mode)
   :init
   (set-popup-rule! "\\*ielm\\*" :ttl nil))
+
+(use-package eros
+  :hook (emacs-lisp-mode . eros-mode)
+  :config
+  (defun +eval-emacs-lisp-overlay (orig-fn &rest args)
+    (eros--eval-overlay
+     (apply orig-fn args)
+     (point)))
+  (advice-add #'+eval-emacs-lisp :around #'+eval-emacs-lisp-overlay))
 #+end_src
 *** Common Lisp
 
