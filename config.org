@@ -301,6 +301,9 @@ A small buffer which shows the list of commands you can execute next.
   (setq auto-save-file-name-transforms
 	`((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
 
+  ;; Want to sync bookmarks
+  (setq bookmark-default-file (concat docs-dir "bookmarks"))
+
   ;; no-littering changes default snippets directory, so I changed it back.
   (add-to-list 'yas-snippet-dirs
 	       (expand-file-name "snippets" user-emacs-directory)))
@@ -1160,7 +1163,19 @@ Pressing Q restores the window configuration to the last state. Useful for killi
         (lambda (map _target)
           (which-key--show-keymap "Embark" map nil nil 'no-paging)
           #'which-key--hide-popup-ignore-command)
-        embark-become-indicator embark-action-indicator))
+        embark-become-indicator embark-action-indicator)
+
+  (defmacro +embark-ace-action (fn)
+    `(defun ,(intern (concat "+embark-ace-" (symbol-name fn))) ()
+       (interactive)
+       (with-demoted-errors "%s"
+         (require 'ace-window)
+         (let ((aw-dispatch-always t))
+           (aw-switch-to-window (aw-select nil))
+           (call-interactively (symbol-function ',fn))))))
+  (define-key embark-file-map     (kbd "o") (+embark-ace-action find-file))
+  (define-key embark-buffer-map   (kbd "o") (+embark-ace-action switch-to-buffer))
+  (define-key embark-bookmark-map (kbd "o") (+embark-ace-action bookmark-jump)))
 
 (use-package embark-consult
   :after (embark consult)
@@ -1423,7 +1438,8 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
   :commands dired-jump
   :general
   (general-nmap :keymaps 'dired-mode-map
-    "=" 'my--diff-files)
+    "=" 'my--diff-files
+    "C-<return>" 'open-file-external)
   (:keymaps 'dired-mode-map
             "C-c C-p" 'wdired-change-to-wdired-mode)
   :config
@@ -1436,6 +1452,13 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
 
   ;; Show directories before files + default -al
   (setq dired-listing-switches "-lAX --group-directories-first")
+
+  (defun open-file-external ()
+    "Open file at point externally with xdg-open."
+    (interactive)
+    (let ((file (dired-filename-at-point)))
+      (call-process
+       "xdg-open" nil 0 nil (expand-file-name file))))
 
   ;; Show contents of .desc file in minibuffer
   (defun show-folder-description ()
@@ -1587,7 +1610,6 @@ Keeps a list of recently opened files.
 
 #+begin_src emacs-lisp :tangle yes
 (use-feature recentf
-  :commands projectile-recentf
   :config
   (setq recentf-save-file (concat emacs-cache-dir "recentf"))
   (setq recentf-max-menu-item 300)
@@ -2967,6 +2989,8 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
       "Interactively call edebug-instrument-function."
       (interactive "aFunction symbol: ")
       (edebug-instrument-function fun))
+    (with-eval-after-load 'embark
+      (define-key embark-command-map (kbd "e") 'my--edebug-add-instrumentation))
 
     ;; Highlight instrumented functions
     ;; REVIEW: The use of font-lock-debug-fontify breaks hl-todo and is
