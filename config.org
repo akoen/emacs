@@ -1032,7 +1032,8 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   :general
   (general-nmap "C-s" 'evil-avy-goto-char-timer)
   :custom
-  (avy-background t))
+  (avy-background t)
+  (avy-all-windows nil))
 #+end_src
 ** Ace-window
 
@@ -1053,7 +1054,15 @@ Pressing Q restores the window configuration to the last state. Useful for killi
     :keymaps '(helpful-mode-map info-mode-map mu4e-view-mode-map)
     "o" 'link-hint-open-link)
   (leader-key
-    "sl" 'link-hint-open-link))
+    "sl" 'link-hint-open-link)
+  :config
+  (link-hint-define-type 'mu4e-message
+    :next #'mu4e-headers-next
+    :at-point-p #'mu4e-message-at-point
+    :open #'mu4e-headers-view-message
+    :copy #'mu4e-copy-message-path
+    :vars '(mu4e-headers-mode))
+  (push 'link-hint-mu4e-message link-hint-types))
 #+end_src
 * Completion
 ** Function
