@@ -929,7 +929,9 @@ This code allows us to quit basically everything using ESC.
   (interactive)
   (cond
    ((minibuffer-window-active-p (minibuffer-window))
-   (abort-recursive-edit))
+    (abort-recursive-edit))
+   ((org-src-edit-buffer-p)
+    (org-edit-src-exit))
   ((run-hook-with-args-until-success '+window-quit-hook))))
 
 ;; We want this *everywhere*
@@ -2081,7 +2083,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (org-src-ask-before-returning-to-edit-buffer nil)
   (org-edit-src-content-indentation 0)
   (org-src-preserve-indentation t)
-  (org-src-window-setup 'current-window)
+  (org-src-window-setup 'plain)
 
   ;; See https://org-babel.readthedocs.io/en/latest/header-args/
   (org-babel-default-header-args '((:session . "none")
@@ -2100,6 +2102,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (setq my--org-babel-repl-handlers
         '(("jupyter-python" . (message "python"))
           ("emacs-lisp" . (message "elisp"))))
+  (set-popup-rule! "\\*Org Src" :size 0.6 :ttl nil)
 
   (defun my--org-babel-eval-line-or-region ()
     "Evalue the current line or region in the repl associated with the current src block."
