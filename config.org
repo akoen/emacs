@@ -329,15 +329,15 @@ A small buffer which shows the list of commands you can execute next.
 #+begin_src emacs-lisp :tangle yes
 (defun my--configure-fonts (_)
   (set-face-attribute 'default nil
-                      :font "Pragmata Pro"
+                      :font "PragmataPro"
                       :height 120)
 
   (set-face-attribute 'fixed-pitch nil
-                      :font "Pragmata Pro"
+                      :font "PragmataPro Mono"
                       :height 120)
 
   (set-face-attribute 'variable-pitch nil
-                      :font "Pragmata Pro"
+                      :font "PragmataPro"
                       :weight 'normal
                       :height 120)
 
@@ -1681,9 +1681,9 @@ Displays the folder tree
     (org-preview-latex-image-directory "/tmp/ltximg")
 
     :custom-face
-    (org-default ((t (:family "Pragmata Pro" :height 1.0)))) ; Alternatively, Office Code Pro is second best
-    (org-document-title ((t (:family "Pragmata Pro" :weight bold :height 2.0))))
-    (org-document-info ((t (:family "Pragmata Pro"))))
+    (org-default ((t (:family "PragmataPro" :height 1.0)))) ; Alternatively, Office Code Pro is second best
+    (org-document-title ((t (:family "PragmataPro" :weight bold :height 2.0))))
+    (org-document-info ((t (:family "PragmataPro"))))
     (org-done ((t (:strike-through t :weight bold))))
     (org-table-header ((t (:weight bold))))
     (org-headline-done ((t (:strike-through t))))
