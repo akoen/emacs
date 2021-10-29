@@ -1678,9 +1678,10 @@ Displays the folder tree
     (org-startup-indented t)
     (org-hide-emphasis-markers t)
     (org-pretty-entities t)
-    (org-image-actual-width 600)
+    (org-image-actual-width t)
     (org-startup-with-inline-images t)
     (org-export-with-smart-quotes t)
+    (org-M-RET-may-split-line nil)
     (org-preview-latex-image-directory "/tmp/ltximg")
 
     :custom-face
