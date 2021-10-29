@@ -1202,7 +1202,6 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 #+begin_src emacs-lisp :tangle yes
 ;; REVIEW Consider replacing with https://github.com/minad/corfu
 (use-package company
-  :defer 0.5
   :hook (prog-mode . company-mode)
   :general
   (:keymaps 'company-active-map
@@ -1261,7 +1260,7 @@ A package with which you can insert code or text snippets based on templates.
 We define a function to autocomplete snippets. See [[https://github.com/joaotavora/yasnippet/issues/998]]
 #+begin_src emacs-lisp :tangle yes
 (use-package yasnippet
-  :defer 5
+  :demand t
   :general
   (leader-key "cy" (defhydra hydra-yas (:color blue
                                                :hint nil)
@@ -1312,7 +1311,7 @@ Project management.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package projectile
-  :defer 1
+  :demand t
   :general
   (leader-key
     ;; Projects
@@ -3132,7 +3131,6 @@ Framework, heavily inspired by Doom Emacs, for evaluating buffer code in major-m
 *** EditorConfig
 #+begin_src emacs-lisp :tangle yes
 (use-package editorconfig
-  :defer 1
   :config
   (editorconfig-mode 1))
 #+end_src
