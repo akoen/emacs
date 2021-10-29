@@ -2247,7 +2247,7 @@ Make the header bullets look prettier
   (org-indent-mode-turns-on-hiding stars)
 
   (org-superstar-leading-bullet ?\s)
-  (org-superstar-headline-bullets-list '("◉" "◎" "⚫" "○" "►" "◇"))
+  (org-superstar-headline-bullets-list '("◉" "◎" "◍" "○" "◌"))
   (org-superstar-item-bullet-alist '((?- . ?•)
                                      (?* . ?*)
                                      (?+ . ?+)))
