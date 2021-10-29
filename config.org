@@ -2212,6 +2212,12 @@ Make bullets circular
   :after org
   :hook (org-mode . evil-org-mode)
   :hook (org-agenda-mode . evil-org-agenda-mode)
+  :general
+  (general-nmap :keymaps 'evil-org-mode-map
+    "C-<return>" (lambda ()
+                   (interactive)
+                   (org-insert-heading-after-current)
+                   (evil-append-line 0)))
   :custom
   ;; Defines a bullet as the beginning of a sentence. Note that this regex
   ;; removes some of the complexity of the original definition, and might cause
