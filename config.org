@@ -2047,15 +2047,32 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
                                    (:noweb . "no")
                                    (:hlines . "no")
                                    (:tangle . "no")))
-  :config
-  ;; Use tab completion in src-blocks
-  (add-hook 'org-tab-first-hook (defun +org-src-block-tab-completion ()
-                                  (if (org-in-src-block-p t)
-                                      (or (completion-at-point) t))))
-
+  :init
   (setq my--org-babel-repl-handlers
         '(("jupyter-python" . (message "python"))
           ("emacs-lisp" . (message "elisp"))))
+  :config
+  ;; Use tab completion in src-blocks
+  (defun +org-src-block-tab-completion ()
+    (when (org-in-src-block-p t)
+      (let ((old-point (point)))
+        (org-babel-do-in-edit-buffer
+         (indent-for-tab-command))
+        (when (eq (point) old-point)
+          (completion-at-point)))
+      t))
+  (add-hook 'org-tab-first-hook #'+org-src-block-tab-completion)
+
+
+  ;; (defun +org-src-block-smart-backspace ()
+  ;;   (interactive)
+  ;;   (org-babel-do-in-edit-buffer
+  ;;    (evil-insert-state)
+  ;;    (call-interactively (global-key-binding (kbd "<DEL>")))))
+  ;; (general-imap :keymaps 'org-mode-map
+  ;;   :predicate '(org-in-src-block-p)
+  ;;   "<DEL>" #'+org-src-block-smart-backspace)
+
   (set-popup-rule! "\\*Org Src" :size 0.6 :ttl nil)
 
   (defun my--org-babel-eval-line-or-region ()
@@ -2075,7 +2092,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
          (org-in-src-block-p t))
         (progn
           (org-babel-do-in-edit-buffer
-             (call-interactively #'indent-for-tab-command)))))
+           (call-interactively #'indent-for-tab-command)))))
 
   ;; NOTE Work
   (advice-add 'org-return :after #'my--org-fix-newline-and-indent-in-src-blocks-a)
@@ -3132,11 +3149,15 @@ rainbow-mode shows hex code colours in buffers.
 #+begin_src emacs-lisp :tangle yes
 (use-package jupyter
   :commands (jupyter-run-repl)
-  :hook (jupyter-repl-mode . company-mode)
   :general
   (:keymaps 'jupyter-repl-mode-map
             "<up>" 'jupyter-repl-history-previous
-            "<down>" 'jupyter-repl-history-next)
+            "<down>" 'jupyter-repl-history-next
+            "A" (lambda ()
+                  (interactive)
+                  (goto-char (point-max))
+                  (evil-append 0)))
+            
 
   (general-nmap :keymaps 'jupyter-repl-interaction-mode-map
     "gz" 'jupyter-repl-pop-to-buffer
@@ -3157,11 +3178,16 @@ rainbow-mode shows hex code colours in buffers.
 
   ;; Jump to julia repl in org src blocks. In :config to prevent errors when
   ;; jupyter not yet loaded.
+  (defun +jupyter-org-pop-to-repl ()
+    (interactive)
+    (jupyter-org-with-src-block-client
+      (jupyter-with-repl-buffer jupyter-current-client
+        (goto-char (point-max))
+        (pop-to-buffer (current-buffer))
+        (evil-append 0))))
   (general-nmap :keymaps 'override
     :predicate '(jupyter-org-with-src-block-client (jupyter-kernel-language jupyter-current-client))
-    "gz"         (lambda ()
-                   (interactive)
-                   (jupyter-org-with-src-block-client (jupyter-repl-pop-to-buffer))))
+    "gz" '+jupyter-org-pop-to-repl)
 
   ;; Order matters!
   (set-popup-rules! '(("\\*jupyter-" :size 0.4)
