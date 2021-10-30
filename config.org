@@ -1065,6 +1065,16 @@ Pressing Q restores the window configuration to the last state. Useful for killi
     :vars '(mu4e-headers-mode))
   (push 'link-hint-mu4e-message link-hint-types))
 #+end_src
+** Expand-region
+
+#+begin_src emacs-lisp :tangle yes
+(use-package expand-region
+  :general
+  (general-vmap
+    "v" 'er/expand-region
+    "-" 'er/contract-region))
+#+end_src
+
 * Completion
 ** Function
 #+begin_src emacs-lisp :tangle yes
