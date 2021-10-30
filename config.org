@@ -3267,7 +3267,6 @@ rainbow-mode shows hex code colours in buffers.
 (use-feature elisp
   :general
   (leader-key :keymaps 'emacs-lisp-mode-map
-    "eb" 'eval-buffer
     "ed" 'eval-defun
     "el" 'load-library
     "ee" 'pp-eval-last-sexp)
@@ -3505,8 +3504,7 @@ rainbow-mode shows hex code colours in buffers.
 *** DAP
 #+begin_src emacs-lisp :tangle yes
 (use-package dap-mode
-  :after lsp-mode
-  :commands dap-debug
+  :hook (lsp-mode . dap-mode)
   :hook
   ((python-mode . (lambda () (require 'dap-python)))
    (java-mode . (lambda () (require 'dap-java)))
@@ -3530,11 +3528,7 @@ rainbow-mode shows hex code colours in buffers.
     "<f7>" 'dap-next
     "<f8>" 'dap-step-in
     "<S-f8>" 'dap-step-out
-    "<f9>" 'dap-breakpoint-toggle)
-
-  :config
-  (dap-mode 1)
-  (dap-ui-mode 1))
+    "<f9>" 'dap-breakpoint-toggle))
 
 ;; NOTE: Make sure that debugpy is available in the current environment.
 ;; Otherwise will get error:
