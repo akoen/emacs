@@ -1435,6 +1435,14 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
       (call-process
        "xdg-open" nil 0 nil (expand-file-name file))))
 
+  (defun +dired-drag-and-drop ()
+    "Open dragon with the marked files or the file at point."
+    (interactive)
+    (make-process
+     :name "dragon-drag-and-drop"
+     :command (append '("dragon-drag-and-drop") (dired-get-marked-files))
+     :noquery t))
+
   ;; Show contents of .desc file in minibuffer
   (defun show-folder-description ()
     (interactive)
