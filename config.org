@@ -889,7 +889,6 @@ This excludes the protocol and querystring."
 (use-package evil-collection
   :after evil
   :config
-  (setq evil-collection-company-use-tng nil)
   (evil-collection-init))
 #+end_src
 
@@ -1197,40 +1196,6 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   :hook
   (embark-collect-mode . embark-consult-preview-minor-mode))
 #+end_src
-** Company
-
-#+begin_src emacs-lisp :tangle yes
-;; REVIEW Consider replacing with https://github.com/minad/corfu
-(use-package company
-  :hook (prog-mode . company-mode)
-  :general
-  (:keymaps 'company-active-map
-            "<tab>" nil
-            "TAB" nil
-            "C-n" 'company-select-next-or-abort
-            "C-p" 'company-select-previous-or-abort)
-  (:keymaps 'company-active-map
-            :predicate '(company-explicit-action-p)
-            "<return>"  'company-complete-selection
-            "RET"  'company-complete-selection)
-  (general-imap "TAB" (general-predicate-dispatch nil
-           (and (bound-and-true-p yas-minor-mode)
-                (yas-maybe-expand-abbrev-key-filter 'yas-expand))
-           #'yas-expand
-           (and company-candidates-length (>= company-candidates-length 1))
-           #'company-complete-selection))
-
-  :config
-  ;; Make completions display faster
-  (setq company-idle-delay 0.15)
-  ;; don't downcase results from company-dabbrev
-  (setq company-dabbrev-downcase nil)
-  ;; use only buffers with same major-mode for company-dabbrev
-  (setq company-dabbrev-other-buffers t)
-  ;; Make completions display when you have only typed one character,
-  ;; instead of three.
-  (setq company-minimum-prefix-length 1))
-#+end_src
 ** Corfu
 
 #+begin_src emacs-lisp :tangle yes 
@@ -1241,7 +1206,7 @@ Pressing Q restores the window configuration to the last state. Useful for killi
     "C-n" 'corfu-next
     "C-p" 'corfu-previous)
   :custom
-  (corfu-auto t)
+  (corfu-auto nil)
   (corfu-commit-predicate nil)
   (tab-always-indent 'complete)
   :config
@@ -1275,10 +1240,6 @@ _r_eload    e_x_pand    _?_ list
 		     ("x" yas-expand)
 		     ("?" yas-describe-tables)
 		     ("q" nil "cancel" :color blue)))
-  :bind*
-  (:map yas-keymap
-	("TAB" . (lambda () (interactive) (company-abort) (yas-next-field)))
-	("<tab>" . (lambda () (interactive) (company-abort) (yas-next-field))))
   :config
 
   ;; Automatically expand snippet when # condition: 'auto is used in snippet header
@@ -3237,7 +3198,6 @@ rainbow-mode shows hex code colours in buffers.
   :hook (clojure-mode . lsp))
 
 (use-package cider
-  :hook (cider-repl-mode . company-mode)
   :general
   (leader-key :keymaps 'cider-mode-map
     "'" 'cider-jack-in-clj
@@ -3294,7 +3254,6 @@ rainbow-mode shows hex code colours in buffers.
   (add-to-list '+eval-runners '(emacs-lisp-mode . +eval-emacs-lisp)))
 
 (use-feature ielm
-  :hook (inferior-emacs-lisp-mode . company-mode)
   :init
   (set-popup-rule! "\\*ielm\\*" :ttl nil))
 
@@ -3311,7 +3270,6 @@ rainbow-mode shows hex code colours in buffers.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package sly
-  :hook (sly-mrepl-mode . company-mode)
   :general
   (general-nmap
     :keymaps
@@ -3471,7 +3429,6 @@ rainbow-mode shows hex code colours in buffers.
   (lsp-enable-indentation nil)
   (lsp-keep-workspace-alive nil)
   (lsp-enable-on-type-formatting nil)
-  (lsp-enable-snippet nil) ;; Clashes with company
   (lsp-enable-file-watchers nil)
   (read-process-ouput-max (* 1024 1024))
   :init
@@ -3636,9 +3593,7 @@ Where ~-BDebug~ specifies the build directory (Debug)
 
 (use-package shader-mode
   :mode ("\\.shader\\'"
-          "\\.compute\\'")
-  :hook
-  (shader-mode . company-mode))
+          "\\.compute\\'"))
 #+end_src
 
 **** Using omnisharp with Unity
@@ -3735,7 +3690,7 @@ I used to dislike MATLAB, but the effort they put in to supporting Linux and Ema
   :mode "\\.m\\'"
   :general
   (:states 'normal :keymaps 'matlab-mode-map "gz" 'matlab-shell)
-  :hook ((matlab-mode) . (lambda () (company-mode) (flycheck-mode)))
+  :hook (matlab-mode . flycheck-mode)
   :custom
   ;; Works in org. Other methods seem to need a file
   (matlab-shell-run-region-function 'matlab-shell-region->commandline)
