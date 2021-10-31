@@ -2424,13 +2424,7 @@ Allows for external applications to trigger custom actions without external depe
 **** org-roam
 #+begin_src emacs-lisp :tangle yes
 (use-package org-roam
-  :after org
   :hook (org-roam-mode . visual-line-mode)
-  :commands
-  (org-roam-buffer
-   org-roam-setup
-   org-roam-capture
-   org-roam-node-find)
   :general
   (leader-key
     "or" 'org-roam-buffer-toggle
