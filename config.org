@@ -1414,7 +1414,7 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
   :general
   (general-nmap :keymaps 'dired-mode-map
     "=" 'my--diff-files
-    "C-<return>" 'open-file-external)
+    "C-<return>" '+open-file-external)
   (:keymaps 'dired-mode-map
             "C-c C-p" 'wdired-change-to-wdired-mode)
   :config
@@ -1428,13 +1428,22 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
   ;; Show directories before files + default -al
   (setq dired-listing-switches "-lAX --group-directories-first")
 
-  (defun open-file-external ()
-    "Open file at point externally with xdg-open."
-    (interactive)
-    (let ((file (dired-filename-at-point)))
-      (call-process
-       "xdg-open" nil 0 nil (expand-file-name file))))
-
+(defun +open-file-external (arg)
+  "Open visited file in default external program.
+When in dired mode, open file under the cursor.
+With a prefix ARG always prompt for command to use."
+  (interactive "P")
+  (let* ((current-file-name
+          (if (eq major-mode 'dired-mode)
+              (dired-get-file-for-visit)
+            buffer-file-name))
+         (open (pcase system-type
+                 (`darwin "open")
+                 ((or `gnu `gnu/linux `gnu/kfreebsd) "xdg-open")))
+         (program (if (or arg (not open))
+                      (read-shell-command "Open current file with: ")
+                    open)))
+    (call-process program nil 0 nil current-file-name)))
   (defun +dired-drag-and-drop ()
     "Open dragon with the marked files or the file at point."
     (interactive)
