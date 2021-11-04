@@ -2084,8 +2084,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
                                    (:tangle . "no")))
   :init
   (setq my--org-babel-repl-handlers
-        '(("jupyter-python" . (message "python"))
-          ("emacs-lisp" . (message "elisp"))))
+        '(("emacs-lisp" . (message "elisp"))))
   :config
   ;; Use tab completion in src-blocks
   (defun +org-src-block-tab-completion ()
@@ -3205,10 +3204,17 @@ rainbow-mode shows hex code colours in buffers.
   :config
   ;; NOTE: Jupyter functions themeselves never call (require 'jupyter), so this
   ;; section of code does not invoke unless it is called directly.
+
+  (defun +jupyter-org-maybe-eval-line-or-region ()
+    (if (jupyter-org-with-src-block-client (jupyter-kernel-language jupyter-current-client))
+        (jupyter-org-with-src-block-client (jupyter-eval-line-or-region nil))
+      (user-error "%s" "No running client.")))
+
   (cl-pushnew
-   '("jupyter-julia" . (if (jupyter-org-with-src-block-client (jupyter-kernel-language jupyter-current-client))
-                           (jupyter-org-with-src-block-client (jupyter-eval-line-or-region nil))
-                         (user-error "%s" "No running client.")))
+   '("jupyter-julia" . (+jupyter-org-maybe-eval-line-or-region))
+   my--org-babel-repl-handlers)
+  (cl-pushnew
+   '("jupyter-python" . (+jupyter-org-maybe-eval-line-or-region))
    my--org-babel-repl-handlers)
 
   ;; Jump to julia repl in org src blocks. In :config to prevent errors when
@@ -3216,13 +3222,19 @@ rainbow-mode shows hex code colours in buffers.
   (defun +jupyter-org-pop-to-repl ()
     (interactive)
     (jupyter-org-with-src-block-client
-      (jupyter-with-repl-buffer jupyter-current-client
-        (goto-char (point-max))
-        (pop-to-buffer (current-buffer))
-        (evil-append 0))))
+     (jupyter-with-repl-buffer jupyter-current-client
+       (goto-char (point-max))
+       (pop-to-buffer (current-buffer))
+       (evil-append 0))))
   (general-nmap :keymaps 'override
     :predicate '(jupyter-org-with-src-block-client (jupyter-kernel-language jupyter-current-client))
     "gz" '+jupyter-org-pop-to-repl)
+
+
+  (with-eval-after-load 'eros
+    (defun +eros-jupyter (result)
+      (eros--make-result-overlay result :where (point) :duration 5))
+    (setq jupyter-eval-short-result-display-function #'+eros-jupyter))
 
   ;; Order matters!
   (set-popup-rules! '(("\\*jupyter-" :size 0.4)
