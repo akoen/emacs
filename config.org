@@ -909,24 +909,24 @@ This code allows us to quit basically everything using ESC.
   (interactive)
   (cond
    ((evil-insert-state-p) (evil-force-normal-state))
-	 ;; quit the minibuffer if open.
+   ;; quit the minibuffer if open.
    ((minibuffer-window-active-p (minibuffer-window))
-         (abort-recursive-edit))
-	;; Run all escape hooks. If any returns non-nil, then stop there.
-	((run-hook-with-args-until-success 'my--escape-hook))
-	;; don't abort macros
-	((or defining-kbd-macro executing-kbd-macro) nil)
-  ;; Back to the default
-  ((keyboard-quit))))
+    (abort-recursive-edit))
+   ;; Run all escape hooks. If any returns non-nil, then stop there.
+   ((run-hook-with-args-until-success 'my--escape-hook))
+   ;; don't abort macros
+   ((or defining-kbd-macro executing-kbd-macro) nil)
+   ;; Back to the default
+   ((keyboard-quit))))
 
 (defun +window-quit ()
   (interactive)
   (cond
    ((minibuffer-window-active-p (minibuffer-window))
     (abort-recursive-edit))
+   ((run-hook-with-args-until-success '+window-quit-hook))
    ((org-src-edit-buffer-p)
-    (org-edit-src-exit))
-  ((run-hook-with-args-until-success '+window-quit-hook))))
+    (org-edit-src-exit))))
 
 ;; We want this *everywhere*
 (general-define-key :states '(insert normal visual motion) "<escape>" '+edit-quit)
