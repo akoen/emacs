@@ -1071,6 +1071,14 @@ Pressing Q restores the window configuration to the last state. Useful for killi
     "-" 'er/contract-region))
 #+end_src
 
+** Hungry-delete
+#+begin_src emacs-lisp :tangle yes
+(use-package smart-hungry-delete
+  :general
+  (general-imap "<DEL>" 'smart-hungry-delete-backward-char)
+  :config
+  (smart-hungry-delete-add-default-hooks))
+#+end_src
 * Completion
 ** Function
 #+begin_src emacs-lisp :tangle yes
