@@ -2660,6 +2660,8 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
   :after (:any latex org)
   :hook ((LaTeX-mode . cdlatex-mode)
 	 (org-mode . org-cdlatex-mode))
+  :custom
+  (cdlatex-math-modify-prefix 59) ;; semicolon
   :config
   (add-to-list 'cdlatex-math-modify-alist
                '(66 "\\mathbb" nil t nil nil)))
