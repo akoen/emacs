@@ -22,3 +22,5 @@
 
 (defun test ()
   (message "hello"))
+
+(provide 'edebug-x)
