@@ -1267,6 +1267,29 @@ _r_eload    e_x_pand    _?_ list
   (yas-global-mode 1))
 #+END_SRC
 
+** Snippet
+
+#+begin_src emacs-lisp :tangle yes
+(use-package aas)
+(add-to-list 'load-path (concat user-emacs-directory "lisp"))
+(use-package sfp
+  :demand t
+  :straight nil
+  :hook (LaTeX-mode . aas-activate-for-major-mode)
+  :config
+  (+snippet-def 'latex-mode
+                :cond #'texmathp
+                :auto t
+                "ooo" "\\infty"
+                "neq" "\\ne"
+                "leq" "\\le"
+                "geq" "\\ge"
+                "->"  "\\to"
+                "EE" "\\exists"
+                "td" "^{$0}"
+                "dint" "\\int\_{${1:-\\infty}}^{${2:\\infty}}$0"))
+#+end_src
+
 ** Hippie
 #+begin_src emacs-lisp :tangle yes
 (use-feature hipie-exp
