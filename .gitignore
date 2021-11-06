@@ -1,9 +1,7 @@
-*
-*/
+/*
 !.local/straight/versions/
-!snippets/
+!lisp/
 !config.org
-!config.el
 !init.el
 !splash.svg
 !messages
