@@ -1422,7 +1422,7 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
 #+begin_src emacs-lisp :tangle yes
 (use-package vterm
   :ensure-system-package (vterm-ctrl . libvterm)
-  :commands vterm vterm-mode
+  :commands vterm vterm-mode +vterm-run-command
   :general
   (general-emap
     :keymaps 'vterm-mode-map
@@ -1688,7 +1688,7 @@ Displays the folder tree
                   (setq paragraph-start "\\|[  ]*$"
                         paragraph-separate "[  ]*$")))
     
-    (org-babel-after-execute . org-redisplay-inline-images)
+    (org-babel-after-execute . org-display-inline-images)
     :general
     (general-nmap :keymaps 'org-mode-map
       "<RET>" 'org-ctrl-c-ctrl-c)
@@ -1707,7 +1707,7 @@ Displays the folder tree
     (org-startup-indented t)
     (org-hide-emphasis-markers t)
     (org-pretty-entities t)
-    (org-image-actual-width t)
+    (org-image-actual-width 1.0)
     (org-startup-with-inline-images t)
     (org-export-with-smart-quotes t)
     (org-M-RET-may-split-line nil)
@@ -2635,9 +2635,11 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
   :straight auctex
   :defer t
   :config
+  ;; FIXME Not indempotent
   (add-hook 'LaTeX-mode-hook
             (lambda ()
-              (prettify-symbols-mode)))
+              (prettify-symbols-mode)
+              (setq-local TeX-command-default "+latexmk-file")))
 
   (setq TeX-save-query nil)
   (setq TeX-auto-save t)
@@ -2650,7 +2652,11 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
   ;; Method for enabling forward and inverse search 
   (setq TeX-source-correlate-method 'synctex)
   ;; inhibit the question to start a server process
-  (setq TeX-source-correlate-start-server t))
+  (setq TeX-source-correlate-start-server t)
+
+  (defun +latexmk-file ()
+    (interactive)
+    (+vterm-run-command (concat "latexmk -pdf -pvc " buffer-file-name))))
 #+end_src
 
 *** CdLaTeX
