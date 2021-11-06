@@ -692,7 +692,6 @@ The Hydra is vanquished once Hercules, any binding that isn't the Hydra's head, 
   )
 #+end_src
 
-
 ** Undo
 
 #+begin_src emacs-lisp :tangle yes
@@ -1455,27 +1454,32 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
   ;; Show directories before files + default -al
   (setq dired-listing-switches "-lAX --group-directories-first")
 
-(defun +open-file-external (arg)
-  "Open visited file in default external program.
+  (defun +open-file-external (arg)
+    "Open visited file in default external program.
 When in dired mode, open file under the cursor.
 With a prefix ARG always prompt for command to use."
-  (interactive "P")
-  (let* ((current-file-name
-          (if (eq major-mode 'dired-mode)
-              (dired-get-file-for-visit)
-            buffer-file-name))
-         (open (pcase system-type
-                 (`darwin "open")
-                 ((or `gnu `gnu/linux `gnu/kfreebsd) "xdg-open")))
-         (program (if (or arg (not open))
-                      (read-shell-command "Open current file with: ")
-                    open)))
-    (call-process program nil 0 nil current-file-name)))
+    (interactive "P")
+    (let* ((current-file-name
+            (if (eq major-mode 'dired-mode)
+                (dired-get-file-for-visit)
+              buffer-file-name))
+           (open (pcase system-type
+                   (`darwin "open")
+                   ((or `gnu `gnu/linux `gnu/kfreebsd) "xdg-open")))
+           (program (if (or arg (not open))
+                        (read-shell-command "Open current file with: ")
+                      open)))
+      (call-process program nil 0 nil current-file-name)))
+
+  (with-eval-after-load 'embark
+    (define-key embark-file-map (kbd "e") 'my--edebug-add-instrumentation))
+
   (defun +dired-drag-and-drop ()
     "Open dragon with the marked files or the file at point."
     (interactive)
     (make-process
      :name "dragon-drag-and-drop"
+     :buffer "*dragon*"
      :command (append '("dragon-drag-and-drop") (dired-get-marked-files))
      :noquery t))
 
@@ -1517,22 +1521,22 @@ open and unsaved."
       (mapc (lambda (filename)
               (find-file filename)
               (call-interactively command))
-            (dired-get-marked-files)))))
+            (dired-get-marked-files))))
 
 
-(defun my--copy-file-to-clipboard (&rest @fnames)
-  "Copy buffer/dired selection in the linux clipboard as URIs.
+  (defun my--copy-file-to-clipboard (&rest @fnames)
+    "Copy buffer/dired selection in the linux clipboard as URIs.
 ALso accepts file-name strings as a paramater"
-  (interactive)
-  (let* (($file-list (cond (@fnames @fnames)
-                           ((string-equal major-mode "dired-mode") (dired-get-marked-files))
-                           ((buffer-file-name) (list (buffer-file-name)))
-                           (t (user-error "Nothing selected!"))))
-         (file-uri-list (cl-loop for file in $file-list collect (concat "file://" file)))
-         (process-connection-type nil)
-         (proc (start-process "xclip" nil "xclip" "-i" "-selection" "clipboard" "-t" "text/uri-list")))
-    (process-send-string proc (mapconcat 'identity file-uri-list "\n"))
-    (process-send-eof proc)))
+    (interactive)
+    (let* (($file-list (cond (@fnames @fnames)
+                             ((string-equal major-mode "dired-mode") (dired-get-marked-files))
+                             ((buffer-file-name) (list (buffer-file-name)))
+                             (t (user-error "Nothing selected!"))))
+           (file-uri-list (cl-loop for file in $file-list collect (concat "file://" file)))
+           (process-connection-type nil)
+           (proc (start-process "xclip" nil "xclip" "-i" "-selection" "clipboard" "-t" "text/uri-list")))
+      (process-send-string proc (mapconcat 'identity file-uri-list "\n"))
+      (process-send-eof proc))))
 #+end_src
 *** Dired-x
 
@@ -2096,16 +2100,12 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (setq my--org-babel-repl-handlers
         '(("emacs-lisp" . (message "elisp"))))
   :config
-  ;; Use tab completion in src-blocks
-  (defun +org-src-block-tab-completion ()
+  (defun +org-src-block-tab ()
     (when (org-in-src-block-p t)
-      (let ((old-point (point)))
         (org-babel-do-in-edit-buffer
-         (indent-for-tab-command))
-        (when (eq (point) old-point)
-          (completion-at-point)))
-      t))
-  (add-hook 'org-tab-first-hook #'+org-src-block-tab-completion)
+         (indent-for-tab-command)))
+      t)
+  (add-hook 'org-tab-first-hook #'+org-src-block-tab)
 
 
   ;; (defun +org-src-block-smart-backspace ()
