@@ -1223,11 +1223,12 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   :demand t
   :general
   (:states '(insert) :keymaps 'corfu-map
-    "C-n" 'corfu-next
-    "C-p" 'corfu-previous)
+           "C-n" 'corfu-next
+           "C-p" 'corfu-previous)
+  (:states '(insert)
+           "C-;" 'completion-at-point)
   :custom
   (corfu-auto nil)
-  (corfu-commit-predicate nil)
   (tab-always-indent 'complete)
   :config
   (evil-make-overriding-map corfu-map)
@@ -1294,9 +1295,11 @@ _r_eload    e_x_pand    _?_ list
                 "leq" "\\le"
                 "geq" "\\ge"
                 "->"  "\\to"
+                "==" "&="
                 "EE" "\\exists"
                 "td" "^{$0}"
-                "dint" "\\int\_{${1:-\\infty}}^{${2:\\infty}}$0"))
+                "dint" "\\int\_{${1:-\\infty}}^{${2:\\infty}}$0"
+                "sum" "\\sum\_{${1:n=0}}^{${2:\\infty}}$0"))
 #+end_src
 
 ** Hippie
@@ -1696,94 +1699,104 @@ Displays the folder tree
 *** Configuration
 **** Base
 #+begin_src emacs-lisp :tangle yes
-  (use-package org
-    :hook
-    (org-mode . (lambda ()
-                  (setq paragraph-start "\\|[  ]*$"
-                        paragraph-separate "[  ]*$")))
-    
-    (org-babel-after-execute . org-display-inline-images)
-    :general
-    (general-nmap :keymaps 'org-mode-map
-      "<RET>" 'org-ctrl-c-ctrl-c)
-    :custom
-    ;; Org knows how to handle its own buffers
-    (org-directory org-dir)
-    (org-use-fast-todo-selection t)
-    (org-enforce-todo-dependencies t)
-    (org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
-    (org-id-locations-file (concat org-dir ".orgids"))
-    (org-clone-delete-id t)
-    (org-log-done 'time)
-    (org-catch-invisible-edits 'show)
-    (org-confirm-babel-evaluate nil)
-    (org-return-follows-link t)
-    (org-startup-indented t)
-    (org-hide-emphasis-markers t)
-    (org-pretty-entities t)
-    (org-image-actual-width 1.0)
-    (org-startup-with-inline-images t)
-    (org-export-with-smart-quotes t)
-    (org-M-RET-may-split-line nil)
-    (org-preview-latex-image-directory "/tmp/ltximg")
+(use-package org
+  :hook
+  (org-mode . (lambda ()
+                (setq paragraph-start "\\|[  ]*$"
+                      paragraph-separate "[  ]*$")))
+  
+  (org-babel-after-execute . org-display-inline-images)
+  :general
+  (general-nmap :keymaps 'org-mode-map
+    "<RET>" 'org-ctrl-c-ctrl-c)
+  :custom
+  ;; Org knows how to handle its own buffers
+  (org-directory org-dir)
+  (org-use-fast-todo-selection t)
+  (org-enforce-todo-dependencies t)
+  (org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
+  (org-id-locations-file (concat org-dir ".orgids"))
+  (org-clone-delete-id t)
+  (org-log-done 'time)
+  (org-catch-invisible-edits 'show)
+  (org-confirm-babel-evaluate nil)
+  (org-return-follows-link t)
+  (org-startup-indented t)
+  (org-hide-emphasis-markers t)
+  (org-pretty-entities t)
+  (org-startup-with-inline-images nil) ;; See hook in :config
+  (org-export-with-smart-quotes t)
+  (org-M-RET-may-split-line nil)
+  (org-preview-latex-image-directory "/tmp/ltximg")
 
-    :custom-face
-    (org-default ((t (:family "PragmataPro" :height 1.0)))) ; Alternatively, Office Code Pro is second best
-    (org-document-title ((t (:family "PragmataPro" :weight bold :height 2.0))))
-    (org-document-info ((t (:family "PragmataPro"))))
-    (org-done ((t (:strike-through t :weight bold))))
-    (org-table-header ((t (:weight bold))))
-    (org-headline-done ((t (:strike-through t))))
-    (org-level-1 ((t (:height 1.2))))
-    (org-level-2 ((t (:height 1.1))))
-    (org-level-3 ((t (:height 1.1))))
-    (org-link ((t (:underline t))))
-    ;; FIXME Does not work at startup
-    (org-block-end-line ((t (:inherit org-block-begin-line))))
-    :config
-    (set-popup-rule! "\\*Org" :ignore t)
+  :custom-face
+  (org-default ((t (:family "PragmataPro" :height 1.0)))) ; Alternatively, Office Code Pro is second best
+  (org-document-title ((t (:family "PragmataPro" :weight bold :height 2.0))))
+  (org-document-info ((t (:family "PragmataPro"))))
+  (org-done ((t (:strike-through t :weight bold))))
+  (org-table-header ((t (:weight bold))))
+  (org-headline-done ((t (:strike-through t))))
+  (org-level-1 ((t (:height 1.2))))
+  (org-level-2 ((t (:height 1.1))))
+  (org-level-3 ((t (:height 1.1))))
+  (org-link ((t (:underline t))))
+  ;; FIXME Does not work at startup
+  (org-block-end-line ((t (:inherit org-block-begin-line))))
+  :config
+  (set-popup-rule! "\\*Org" :ignore t)
 
-    (setq org-format-latex-options (plist-put org-format-latex-options :scale 2))
-    
-    ;; Scrolling of inline images in org is a terrible experience, so we
-    ;; allow them to be toggled individually with tab and C-c C-c. Alternatively,
-    ;; https://github.com/casouri/lunarymacs/blob/master/site-lisp/iscroll.el
-    ;; is a promising attempt to fix scrolling itself
-    (defun org-toggle-inline-images-at-point ()
-      (interactive)
-      (when-let* ((link-region (org-in-regexp org-link-bracket-re 1)))
-        (let ((org-inline-image-overlays-old org-inline-image-overlays))
-          (save-restriction
-            (narrow-to-region (car link-region) (cdr link-region))
-            (if (-intersection (overlays-at (point)) org-inline-image-overlays)
-                (mapc (lambda (ov)
-                        (when (member ov org-inline-image-overlays)
-                          (delete-overlay ov)
-                          (setq org-inline-image-overlays (delete ov org-inline-image-overlays))))
-                      (overlays-at (point)))
-              (org-display-inline-images 'include-linked 'refresh))
-            )
-          (unless (equal org-inline-image-overlays org-inline-image-overlays-old) t)) ;; if overlays did not change, the link is not inline image
-        ))
+  (run-with-idle-timer 60 t 'org-save-all-org-buffers)
 
-    (add-hook 'org-tab-first-hook #'org-toggle-inline-images-at-point)
-    (add-hook 'org-ctrl-c-ctrl-c-hook #'org-toggle-inline-images-at-point)
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 2))
 
-    ;; What's more, when using ipython etc. it is often hard to read
-    ;; figure text since the background colour is dark.
-    (defun create-image-with-background-color (args)
-      "Specify background color of Org-mode inline image through modify `ARGS'."
-      (if (eq major-mode 'org-mode)
-          (let* ((file (car args))
-                 (type (cadr args))
-                 (data-p (caddr args))
-                 (props (cdddr args)))
-            ;; get this return result style from `create-image'
-            (append (list file type data-p)
-                    (list :background "white")
-                    props))
-        args))
-    (advice-add 'create-image :filter-args #'create-image-with-background-color))
+  (defun +org-image-resize-to-fit ()
+    (when (eq major-mode 'org-mode)
+      (setq-local org-image-actual-width
+                  (min 600 (window-width nil t)))
+      (org-display-inline-images nil t)))
+
+  (add-hook 'org-mode-hook #'+org-image-resize-to-fit)
+  (add-hook 'olivetti-mode-hook #'+org-image-resize-to-fit)
+
+  ;; Scrolling of inline images in org is a terrible experience, so we
+  ;; allow them to be toggled individually with tab and C-c C-c. Alternatively,
+  ;; https://github.com/casouri/lunarymacs/blob/master/site-lisp/iscroll.el
+  ;; is a promising attempt to fix scrolling itself
+  (defun org-toggle-inline-images-at-point ()
+    (interactive)
+    (when-let* ((link-region (org-in-regexp org-link-bracket-re 1)))
+      (let ((org-inline-image-overlays-old org-inline-image-overlays))
+        (save-restriction
+          (narrow-to-region (car link-region) (cdr link-region))
+          (if (-intersection (overlays-at (point)) org-inline-image-overlays)
+              (mapc (lambda (ov)
+                      (when (member ov org-inline-image-overlays)
+                        (delete-overlay ov)
+                        (setq org-inline-image-overlays (delete ov org-inline-image-overlays))))
+                    (overlays-at (point)))
+            (org-display-inline-images 'include-linked 'refresh))
+          )
+        (unless (equal org-inline-image-overlays org-inline-image-overlays-old) t)) ;; if overlays did not change, the link is not inline image
+      ))
+
+  (add-hook 'org-tab-first-hook #'org-toggle-inline-images-at-point)
+  (add-hook 'org-ctrl-c-ctrl-c-hook #'org-toggle-inline-images-at-point)
+
+  ;; What's more, when using ipython etc. it is often hard to read
+  ;; figure text since the background colour is dark.
+  (defun create-image-with-background-color (args)
+    "Specify background color of Org-mode inline image through modify `ARGS'."
+    (if (eq major-mode 'org-mode)
+        (let* ((file (car args))
+               (type (cadr args))
+               (data-p (caddr args))
+               (props (cdddr args)))
+          ;; get this return result style from `create-image'
+          (append (list file type data-p)
+                  (list :background "white")
+                  props))
+      args))
+  (advice-add 'create-image :filter-args #'create-image-with-background-color))
 #+end_src
 
 **** Todo keywords
@@ -2135,9 +2148,9 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   :config
   (defun +org-src-block-tab ()
     (when (org-in-src-block-p t)
-        (org-babel-do-in-edit-buffer
-         (indent-for-tab-command)))
-      t)
+      (org-babel-do-in-edit-buffer
+       (indent-for-tab-command))
+      t))
   (add-hook 'org-tab-first-hook #'+org-src-block-tab)
 
 
@@ -2666,7 +2679,7 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
 
   (defun +latexmk-file ()
     (interactive)
-    (+vterm-run-command (concat "latexmk -pdf -pvc " buffer-file-name))))
+    (+vterm-run-command (concat "latexmk -pdf -pvc '" buffer-file-name "'"))))
 #+end_src
 
 *** CdLaTeX
@@ -3070,33 +3083,8 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
       (interactive "aFunction symbol: ")
       (edebug-instrument-function fun))
     (with-eval-after-load 'embark
-      (define-key embark-command-map (kbd "e") 'my--edebug-add-instrumentation))
+      (define-key embark-command-map (kbd "e") 'my--edebug-add-instrumentation)))
 
-    ;; Highlight instrumented functions
-    ;; REVIEW: The use of font-lock-debug-fontify breaks hl-todo and is
-    ;; *not-recommended* according to the doc.
-
-
-    (defface +instrumented-face
-      '((((type graphic)) :box (:color "#c00" :line-width -1))
-        (t :underline t :background "#800"))
-      "Face used to mark code being debugged.")
-
-    (defun +edebug-propertize-instrumented-function (func)
-      ""
-      (font-lock-add-keywords 'emacs-lisp-mode
-                              `((,(regexp-quote (symbol-name func)) . '+instrumented-face)))
-      (font-lock-debug-fontify))
-
-    (defun +edebug-propertize-instrumented-function-remove (functions)
-      ""
-      (dolist (func functions)
-        (font-lock-remove-keywords 'emacs-lisp-mode
-                                   `((,(regexp-quote (symbol-name func)) . '+instrumented-face))))
-      (font-lock-debug-fontify))
-
-    (advice-add 'edebug-instrument-function :after '+edebug-propertize-instrumented-function)
-    (advice-add 'edebug-remove-instrumentation :after '+edebug-propertize-instrumented-function-remove))
 #+end_src
 *** Eval
 

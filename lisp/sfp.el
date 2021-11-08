@@ -29,8 +29,9 @@
           (if auto
               (aas-set-snippets mode
                 :cond cond
-                key `(lambda () (interactive)
-                       (yas-expand-snippet ,template)))
+                key (if (functionp template)
+                          template
+                        `(lambda () (interactive) (yas-expand-snippet ,template))))
             (yas-define-snippets mode `((,key ,template nil (,cond))))))))))
 
 (provide 'sfp)
