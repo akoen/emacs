@@ -787,6 +787,15 @@ Especially when writing text, moving by visual lines instead of by numbered line
   (define-key evil-normal-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line-or-previous-line)
   (define-key evil-motion-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line-or-next-line)
   (define-key evil-motion-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line-or-previous-line)
+
+(defun back-to-indentation-or-beginning ()
+  (interactive)
+  (let ((old-point (point)))
+    (back-to-indentation)
+    (when (eq (point) old-point)
+      (beginning-of-line))))
+
+(general-nvmap "0" 'back-to-indentation-or-beginning)
 #+end_src
 *** CamelCase word movement
 #+begin_src emacs-lisp :tangle yes
