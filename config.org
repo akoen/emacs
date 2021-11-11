@@ -2297,12 +2297,6 @@ Make bullets circular
   :after org
   :hook (org-mode . evil-org-mode)
   :hook (org-agenda-mode . evil-org-agenda-mode)
-  :general
-  (general-nmap :keymaps 'evil-org-mode-map
-    "C-<return>" (lambda ()
-                   (interactive)
-                   (org-insert-heading-after-current)
-                   (evil-append-line 0)))
   :custom
   ;; Defines a bullet as the beginning of a sentence. Note that this regex
   ;; removes some of the complexity of the original definition, and might cause
@@ -2311,7 +2305,13 @@ Make bullets circular
   :config
   (evil-org-set-key-theme)
   (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys))
+  (evil-org-agenda-set-keys)
+
+  (general-nmap :keymaps 'evil-org-mode-map
+    "C-<return>" (lambda ()
+                   (interactive)
+                   (org-insert-heading-after-current)
+                   (evil-append-line 0))))
 #+end_src
 **** Good-scroll
 Better alternative to pixel-scroll-mode. Makes scrolling over images in org mode tolerable. Another promising alternative is [[https://github.com/casouri/iscroll]].
