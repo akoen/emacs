@@ -1006,6 +1006,14 @@ This package emulates surround.vim by Tim Pope.
   (global-evil-matchit-mode 1))
 #+end_src
 
+*** evil-lion
+#+begin_src emacs-lisp :tangle yes
+(use-package evil-lion
+  :general
+  (general-nvmap
+    "gl" 'evil-lion-left
+    "gL" 'evil-lion-right))
+#+end_src
 *** evil-snipe
 
 Allows for quick movement to 2-char sequences.
