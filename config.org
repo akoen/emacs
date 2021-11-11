@@ -858,6 +858,15 @@ Especially when writing text, moving by visual lines instead of by numbered line
 (define-key evil-outer-text-objects-map "e" 'evil-i-buffer)
 (define-key evil-inner-text-objects-map "e" 'evil-i-buffer)
 
+;; DEFUN
+(evil-define-text-object evil-i-defun (count &optinoal beg end type)
+   (cl-destructuring-bind (beg . end)
+      (bounds-of-thing-at-point 'defun)
+    (evil-range beg end type)))
+
+(define-key evil-outer-text-objects-map "d" 'evil-i-defun)
+(define-key evil-inner-text-objects-map "d" 'evil-i-defun)
+
 ;; URL
 (evil-define-text-object evil-inner-url (count &optional _beg _end type)
   "Text object to select the inner url at point.
