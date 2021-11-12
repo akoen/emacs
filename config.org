@@ -375,6 +375,14 @@ Make yes or no prompts be y or n prompts
   (dashboard-center-content t)
   (dashboard-items nil)
   (dashboard-page-separator "\n")
+  :init
+  (add-hook 'after-init-hook
+            (lambda ()
+              (setq dashboard-init-info
+                    (format
+                     "Emacs ready in %.2f seconds"
+                     (float-time
+                      (time-subtract after-init-time before-init-time))))))
   :config
   (dashboard-setup-startup-hook))
 #+end_src
