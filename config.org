@@ -3320,6 +3320,11 @@ rainbow-mode shows hex code colours in buffers.
   ;; executed.
   (when (eq major-mode 'org-mode)
     (jupyter-org-interaction-mode))
+
+  (defun +jupyter-org-insert-result-refresh-images (&rest _ignore)
+    (org-display-inline-images))
+  (advice-add #'jupyter-org--do-insert-result :after #'+jupyter-org-insert-result-refresh-images)
+
   ;; See note in jupyter's :config above.
   (require 'jupyter))
 #+end_src
