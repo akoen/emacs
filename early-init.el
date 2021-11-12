@@ -1,10 +1,19 @@
 ;;; early-init.el -*- lexical-binding: t; -*-
 
+;; Performance
 (setq gc-cons-threshold most-positive-fixnum
       gc-cons-percentage 0.5)
+(setq inhibit-compacting-font-caches t)
+(setq frame-inhibit-implied-resize t)
+(setq read-process-output-max (* 64 1024))  ; 64kb
+
+(defvar +file-name-handler-alist file-name-handler-alist)
+(setq file-name-handler-alist nil)
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq file-name-handler-alist +file-name-handler-alist)))
 
 (setq package-enable-at-startup nil)
-(setq frame-inhibit-implied-resize t)
 (setq load-prefer-newer t)
 
 (push '(menu-bar-lines . 0) default-frame-alist)
