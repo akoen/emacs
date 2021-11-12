@@ -1775,7 +1775,7 @@ Displays the folder tree
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 2))
 
   (defun +org-image-resize-to-fit ()
-    (when (eq major-mode 'org-mode)
+    (when (derived-mode-p 'org-mode)
       (setq-local org-image-actual-width
                   (min 600 (window-width nil t)))
       (org-display-inline-images nil t)))
