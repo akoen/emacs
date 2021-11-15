@@ -375,6 +375,14 @@ Make yes or no prompts be y or n prompts
   (dashboard-center-content t)
   (dashboard-items nil)
   (dashboard-page-separator "\n")
+  :init
+  (add-hook 'after-init-hook
+            (lambda ()
+              (setq dashboard-init-info
+                    (format
+                     "Emacs ready in %.2f seconds"
+                     (float-time
+                      (time-subtract after-init-time before-init-time))))))
   :config
   (dashboard-setup-startup-hook))
 #+end_src
@@ -858,6 +866,15 @@ Especially when writing text, moving by visual lines instead of by numbered line
 (define-key evil-outer-text-objects-map "e" 'evil-i-buffer)
 (define-key evil-inner-text-objects-map "e" 'evil-i-buffer)
 
+;; DEFUN
+(evil-define-text-object evil-i-defun (count &optinoal beg end type)
+   (cl-destructuring-bind (beg . end)
+      (bounds-of-thing-at-point 'defun)
+    (evil-range beg end type)))
+
+(define-key evil-outer-text-objects-map "d" 'evil-i-defun)
+(define-key evil-inner-text-objects-map "d" 'evil-i-defun)
+
 ;; URL
 (evil-define-text-object evil-inner-url (count &optional _beg _end type)
   "Text object to select the inner url at point.
@@ -997,6 +1014,14 @@ This package emulates surround.vim by Tim Pope.
   (global-evil-matchit-mode 1))
 #+end_src
 
+*** evil-lion
+#+begin_src emacs-lisp :tangle yes
+(use-package evil-lion
+  :general
+  (general-nvmap
+    "gl" 'evil-lion-left
+    "gL" 'evil-lion-right))
+#+end_src
 *** evil-snipe
 
 Allows for quick movement to 2-char sequences.
@@ -1750,7 +1775,7 @@ Displays the folder tree
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 2))
 
   (defun +org-image-resize-to-fit ()
-    (when (eq major-mode 'org-mode)
+    (when (derived-mode-p 'org-mode)
       (setq-local org-image-actual-width
                   (min 600 (window-width nil t)))
       (org-display-inline-images nil t)))
@@ -2280,12 +2305,6 @@ Make bullets circular
   :after org
   :hook (org-mode . evil-org-mode)
   :hook (org-agenda-mode . evil-org-agenda-mode)
-  :general
-  (general-nmap :keymaps 'evil-org-mode-map
-    "C-<return>" (lambda ()
-                   (interactive)
-                   (org-insert-heading-after-current)
-                   (evil-append-line 0)))
   :custom
   ;; Defines a bullet as the beginning of a sentence. Note that this regex
   ;; removes some of the complexity of the original definition, and might cause
@@ -2294,7 +2313,13 @@ Make bullets circular
   :config
   (evil-org-set-key-theme)
   (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys))
+  (evil-org-agenda-set-keys)
+
+  (general-nmap :keymaps 'evil-org-mode-map
+    "C-<return>" (lambda ()
+                   (interactive)
+                   (org-insert-heading-after-current)
+                   (evil-append-line 0))))
 #+end_src
 **** Good-scroll
 Better alternative to pixel-scroll-mode. Makes scrolling over images in org mode tolerable. Another promising alternative is [[https://github.com/casouri/iscroll]].
@@ -3302,6 +3327,11 @@ rainbow-mode shows hex code colours in buffers.
   ;; executed.
   (when (eq major-mode 'org-mode)
     (jupyter-org-interaction-mode))
+
+  (defun +jupyter-org-insert-result-refresh-images (&rest _ignore)
+    (org-display-inline-images))
+  (advice-add #'jupyter-org--do-insert-result :after #'+jupyter-org-insert-result-refresh-images)
+
   ;; See note in jupyter's :config above.
   (require 'jupyter))
 #+end_src
