@@ -596,6 +596,7 @@ Space is the best leader key.
 
   (leader-key
     ;; Misc
+    "SPC" 'execute-extended-command
     "u" 'universal-argument
 
     ;; Buffer
@@ -1345,9 +1346,10 @@ Project management.
 (use-package projectile
   :demand t
   :general
+  (general-nvmap
+    "-" 'projectile-find-file)
   (leader-key
     ;; Projects
-    "SPC" 'projectile-find-file
     "pd" 'projectile-find-dir
     "pp" 'projectile-switch-project
     "pi" 'projectile-invalidate-cache
@@ -1355,8 +1357,7 @@ Project management.
     "pt" 'my--projectile-find-file-in-project-tasks
     "pc" 'my--projectile-find-file-in-project-config
 
-    "cc" 'projectile-compile-project
-    )
+    "cc" 'projectile-compile-project)
 
   :init
   (setq projectile-enable-caching nil
