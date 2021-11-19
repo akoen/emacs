@@ -2684,7 +2684,7 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
   :straight auctex
   :defer t
   :config
-  ;; FIXME Not indempotent
+  ;; FIXME Not idempotent
   (add-hook 'LaTeX-mode-hook
             (lambda ()
               (prettify-symbols-mode)
@@ -2836,6 +2836,9 @@ Checks for signs of bad writing.
          (prog-mode . flyspell-prog-mode))
   :custom
   (flyspell-prog-text-faces '(font-lock-comment-face font-lock-doc-face))
+  :general
+  (general-imap :keymaps '(org-mode-map markdown-mode-map)
+    "C-'" 'flyspell-auto-correct-previous-word)
   :config
   (setq ispell-program-name "aspell"
         ispell-dictionary "canadian"
@@ -2847,7 +2850,11 @@ Checks for signs of bad writing.
 
   ;; REVIEW There is likely a better way to preserve undo
   ;; Ensure that change is pushed to buffer-undo-list
-  (advice-add 'flyspell-auto-correct-word :after #'save-buffer))
+  (defun +flyspell-correct-with-undo (orig-fn)
+    (evil-start-undo-step)
+    (funcall orig-fn)
+    (evil-end-undo-step))
+  (advice-add 'flyspell-auto-correct-word :around #'+flyspell-correct-with-undo))
 
 (use-package flyspell-correct
   :general
