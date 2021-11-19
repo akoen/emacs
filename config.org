@@ -3141,6 +3141,21 @@ Framework, heavily inspired by Doom Emacs, for evaluating buffer code in major-m
 
 (general-nvmap :keymaps 'override "gr" '+eval:region)
 #+end_src
+*** Lookup
+
+#+begin_src emacs-lisp :tangle yes
+(defvar +lookup-documentation-handlers '()
+  "Mode-functions to run when looking up documentation.")
+
+(defun +lookup-documentation ()
+  (interactive)
+  (let ((handler (alist-get major-mode +lookup-documentation-handlers)))
+    (if handler (funcall handler)
+      (message "No documentation handler found for %s. See `+lookup-documentation-handlers'." major-mode))))
+
+(general-nvmap :keymaps 'override
+  "K" '+lookup-documentation)
+#+end_src
 *** Folding
 #+begin_src emacs-lisp :tangle yes
 ;; Adapted from doom emacs
@@ -3440,7 +3455,14 @@ rainbow-mode shows hex code colours in buffers.
       ("^\\*sly-description" :vslot 5 :size 0.3 :ttl 0)
       ;; Do not display debugger or inspector buffers in a popup window. These
       ;; buffers are meant to be displayed with sufficient vertical space.
-      ("^\\*sly-\\(?:db\\|inspector\\)" :ignore t))))
+      ("^\\*sly-\\(?:db\\|inspector\\)" :ignore t)))
+
+  :config
+  (add-to-list '+eval-runners '(lisp-mode . sly-eval-region))
+
+  (defun +common-lisp-lookup-documentation ()
+    (command-execute #'sly-describe-symbol))
+  (add-to-list '+lookup-documentation-handlers '(lisp-mode . +common-lisp-lookup-documentation)))
 #+end_src
 
 *** Haskell
