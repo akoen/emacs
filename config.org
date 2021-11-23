@@ -2643,22 +2643,20 @@ Visualize the Zettelkasten.
 Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
 
 #+begin_src emacs-lisp :tangle yes
-(defun my--daily-review ()
+(defun +daily-review ()
   (interactive)
-  (let ((org-capture-templates `(("d" "Daily Review" entry (file (lambda () (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org")))
-                                  (file ,(concat org-dir "Templates/daily-review.org"))))))
-    (progn
-      (org-capture nil "d")
-      (org-capture-finalize t)
-      (org-speed-move-safe 'outline-up-heading)
-      (org-narrow-to-subtree))))
+  (let ((file (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org"))
+        (template (concat org-dir "Templates/daily-review.org"))
+        (find-file file)
+        (goto-char (point-max))
+        (insert-file-contents template))))
 
-(defun my--visit-daily-review ()
+(defun +visit-daily-review ()
   "Visit the file corresponding to today's daily review"
   (interactive)
   (find-file (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org")))
 
-(defun my--weekly-review ()
+(defun +weekly-review ()
   (interactive)
   (let ((org-capture-templates `(("w" "weekly review" entry (file+olp+datetree (lambda () (concat org-dir "Reviews/reviews_" (format-time-string "%Y") ".org")))
                                   (file ,(concat org-dir "Templates/weekly-review.org"))))))
@@ -2668,7 +2666,7 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
       (org-speed-move-safe 'outline-up-heading)
       (org-narrow-to-subtree))))
 
-(defun my--monthly-review ()
+(defun +monthly-review ()
   (interactive)
   (let ((org-capture-templates `(("m" "Monthly Review" entry (file+olp+datetree (lambda () (concat org-dir "Reviews/reviews_" (format-time-string "%Y") ".org")))
                                   (file ,(concat org-dir "Templates/monthly-review.org"))))))
