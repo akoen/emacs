@@ -362,6 +362,7 @@ Make yes or no prompts be y or n prompts
 #+begin_src emacs-lisp :tangle yes
 (use-package dashboard
   :custom
+  ;; FIXME causes errors when running emacs --eval
   (initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
   (dashboard-startup-banner (concat emacs-dir "splash.svg"))
   (dashboard-footer-messages
@@ -406,6 +407,7 @@ Make yes or no prompts be y or n prompts
                 vterm-mode-hook
                 org-agenda-mode-hook
                 jupyter-repl-mode-hook
+                pdf-view-mode-hook
                 treemacs-mode-hook
                 olivetti-mode-hook
                 eshell-mode-hook))
@@ -1475,6 +1477,7 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
 
   (defun +vterm-run-command (command)
     "Execute string COMMAND in dedicated vterm buffer"
+    (interactive "MCommand: ")
     (with-current-buffer
         (vterm
          (concat
@@ -1732,9 +1735,6 @@ Displays the folder tree
                       paragraph-separate "[  ]*$")))
   
   (org-babel-after-execute . org-display-inline-images)
-  :general
-  (general-nmap :keymaps 'org-mode-map
-    "<RET>" 'org-ctrl-c-ctrl-c)
   :custom
   ;; Org knows how to handle its own buffers
   (org-directory org-dir)
@@ -1974,7 +1974,9 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (setq org-refile-target-verify-function 'bh/verify-refile-target)
 
   ;; FIXME apply: Wrong number of arguments: (0 . 0), 3
-  (advice-add 'org-refile :after 'org-save-all-org-buffers))
+  (defun +org-refile-save-org-buffers (&rest ignore)
+    (org-save-all-org-buffers))
+  (advice-add 'org-refile :after '+org-refile-save-org-buffers))
 #+end_src
 
 **** Agenda
@@ -1992,6 +1994,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
                         (interactive)
                         (org-agenda nil "g")))
   :custom
+  (org-agenda-sticky t)
   (org-agenda-remove-tags t)
   (org-agenda-breadcrumbs-separator " ❯ ")
   (org-agenda-format-date "")
@@ -2227,18 +2230,6 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   :defer t
   :init
   (setq ob-async-no-async-languages-alist '("jupyter-python" "jupyter-julia")))
-
-(use-package org-babel-eval-in-repl
-  :after ob
-  :general
-  (general-nmap :keymaps 'org-mode-map
-    "C-<return>" 'evil-join)
-  ;; "C-<return>" (general-predicate-dispatch nil
-  ;; (eq (org-element-type (org-element-at-point)) 'src-block)
-  ;; #'ober-eval-in-repl))
-  :config
-  (with-eval-after-load "eval-in-repl"
-    (setq eir-jump-after-eval nil)))
 #+end_src
 
 We do not run ~org-babel-do-load-languages~ because it eagerly loads packages. See https://blog.d46.us/advanced-emacs-startup/.
@@ -2311,7 +2302,11 @@ Make bullets circular
   ;; removes some of the complexity of the original definition, and might cause
   ;; problems.
   (sentence-end "\\(^\s*?- \\)\\|\\.\s*")
+  :init
+  ;; ;; HACK Should be done by evil-org earlier
+  (evil-set-initial-state 'org-agenda-mode 'motion)
   :config
+  ;; FIXME This does not get called initially if org loaded by calling org-agenda
   (evil-org-set-key-theme)
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys)
@@ -2646,10 +2641,10 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
 (defun +daily-review ()
   (interactive)
   (let ((file (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org"))
-        (template (concat org-dir "Templates/daily-review.org"))
+        (template (concat org-dir "Templates/daily-review.org")))
         (find-file file)
         (goto-char (point-max))
-        (insert-file-contents template))))
+        (insert-file-contents template)))
 
 (defun +visit-daily-review ()
   "Visit the file corresponding to today's daily review"
@@ -3108,6 +3103,8 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
 *** Edebug
 #+begin_src emacs-lisp :tangle yes
   (use-feature edebug
+    :custom
+    (edebug-save-windows nil)
     :config
     (defun my--edebug-add-instrumentation (fun)
       "Interactively call edebug-instrument-function."
