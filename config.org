@@ -3164,6 +3164,7 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
     (with-eval-after-load 'embark
       (define-key embark-command-map (kbd "e") 'my--edebug-add-instrumentation)))
 
+  (require 'edebug-x)
 #+end_src
 *** Eval
 
