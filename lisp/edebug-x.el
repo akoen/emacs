@@ -38,9 +38,40 @@
   (+ 1 2)
   (+ 3 4))
 
-(general-nmap "<f1>" 'test)
+(defface +edebug-stop-point-face
+  '((t :underline t :background "#090"))
+  "Face to show point during edebug.")
 
-(remove-overlays (point-min) (point-max))
+(defface +edebug-point-face
+  '((t :underline t :inherit 'highlight))
+  "Face to show next stop points during edebug.")
+
+  "Face used to mark stop points.")
+;;; Stop point overlay
+(defvar +edebug-stop-point-overlay)
+(defvar +edebug-point-overlay)
+(defun +edebug-show-next-stop-point (&rest ignore)
+  (show-paren-mode -1)
+  (if edebug-mode
+    (let* ((data (edebug-get-edebug-or-ghost edebug-function))
+           (start (marker-position (car data)))
+           (stop-points (nth 2 data))
+           (point-offset (- (point) start)))
+      (when-let* ((next-stop-point
+                 (cl-some (lambda (e) (when (> e point-offset) e)) stop-points))
+                (stop-point (+ start next-stop-point)))
+          (setq +edebug-point-overlay
+                (make-overlay (point) (1+ (point)) nil t))
+          (setq +edebug-stop-point-overlay
+                (make-overlay stop-point (1+ stop-point) nil t))
+          (overlay-put +edebug-point-overlay 'face '+edebug-point-face)
+          (overlay-put +edebug-stop-point-overlay 'face '+edebug-stop-point-face)))
+    (show-paren-mode 1)
+    (delete-overlay +edebug-stop-point-overlay)
+    (delete-overlay +edebug-point-overlay)))
+
+(add-hook 'edebug-mode-hook #'+edebug-show-next-stop-point 1)
+(add-hook 'edebug-mode-hook #'show-paren-mode)
 
 ;;; Instrumented function highlighting
 
