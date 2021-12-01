@@ -50,6 +50,11 @@ Or a variable
 (debug-on-variable-change 'evil-want-Y-yank-to-eol)
 #+end_src
 
+Or a message
+#+begin_src emacs-lisp :tangle no
+(setq debug-on-message "Bad timestamp")
+#+end_src
+
 ** Performance Optimizations
 
 #+begin_src emacs-lisp :tangle yes
@@ -189,6 +194,7 @@ Tangling this org file on save. This code is borrowed from https://github.com/re
       initial-scratch-message nil
       save-interprogram-paste-before-kill t
       default-input-method 'TeX
+      debugger-stack-frame-as-list t
       compilation-scroll-output 'first-error
       compilation-skip-threshold 2   ; don't stop on info or warnings
       delete-by-moving-to-trash t    ; move files to trash when deleting
@@ -362,6 +368,7 @@ Make yes or no prompts be y or n prompts
 #+begin_src emacs-lisp :tangle yes
 (use-package dashboard
   :custom
+  ;; FIXME causes errors when running emacs --eval
   (initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
   (dashboard-startup-banner (concat emacs-dir "splash.svg"))
   (dashboard-footer-messages
@@ -406,6 +413,7 @@ Make yes or no prompts be y or n prompts
                 vterm-mode-hook
                 org-agenda-mode-hook
                 jupyter-repl-mode-hook
+                pdf-view-mode-hook
                 treemacs-mode-hook
                 olivetti-mode-hook
                 eshell-mode-hook))
@@ -596,6 +604,7 @@ Space is the best leader key.
 
   (leader-key
     ;; Misc
+    "SPC" 'execute-extended-command
     "u" 'universal-argument
 
     ;; Buffer
@@ -934,7 +943,8 @@ This code allows us to quit basically everything using ESC.
   "Run `my--escape-hook'."
   (interactive)
   (cond
-   ((evil-insert-state-p) (evil-force-normal-state))
+   ((or (evil-insert-state-p) (evil-visual-state-p))
+    (evil-force-normal-state))
    ;; quit the minibuffer if open.
    ((minibuffer-window-active-p (minibuffer-window))
     (abort-recursive-edit))
@@ -1307,7 +1317,6 @@ _r_eload    e_x_pand    _?_ list
 
 #+begin_src emacs-lisp :tangle yes
 (use-package aas)
-(add-to-list 'load-path (concat user-emacs-directory "lisp"))
 (use-package sfp
   :demand t
   :straight nil
@@ -1346,9 +1355,10 @@ Project management.
 (use-package projectile
   :demand t
   :general
+  (general-nvmap
+    "-" 'projectile-find-file)
   (leader-key
     ;; Projects
-    "SPC" 'projectile-find-file
     "pd" 'projectile-find-dir
     "pp" 'projectile-switch-project
     "pi" 'projectile-invalidate-cache
@@ -1356,8 +1366,7 @@ Project management.
     "pt" 'my--projectile-find-file-in-project-tasks
     "pc" 'my--projectile-find-file-in-project-config
 
-    "cc" 'projectile-compile-project
-    )
+    "cc" 'projectile-compile-project)
 
   :init
   (setq projectile-enable-caching nil
@@ -1475,6 +1484,7 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
 
   (defun +vterm-run-command (command)
     "Execute string COMMAND in dedicated vterm buffer"
+    (interactive "MCommand: ")
     (with-current-buffer
         (vterm
          (concat
@@ -1732,9 +1742,6 @@ Displays the folder tree
                       paragraph-separate "[  ]*$")))
   
   (org-babel-after-execute . org-display-inline-images)
-  :general
-  (general-nmap :keymaps 'org-mode-map
-    "<RET>" 'org-ctrl-c-ctrl-c)
   :custom
   ;; Org knows how to handle its own buffers
   (org-directory org-dir)
@@ -1805,6 +1812,7 @@ Displays the folder tree
         (unless (equal org-inline-image-overlays org-inline-image-overlays-old) t)) ;; if overlays did not change, the link is not inline image
       ))
 
+  ;; FIXME No longer running C-c C-c
   (add-hook 'org-tab-first-hook #'org-toggle-inline-images-at-point)
   (add-hook 'org-ctrl-c-ctrl-c-hook #'org-toggle-inline-images-at-point)
 
@@ -1840,6 +1848,101 @@ Displays the folder tree
               ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
               ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
 #+end_src
+**** org-return-dwim
+
+#+begin_src emacs-lisp :tangle yes
+(with-eval-after-load 'org
+
+  (defun unpackaged/org-element-descendant-of (type element)
+    "Return non-nil if ELEMENT is a descendant of TYPE.
+TYPE should be an element type, like `item' or `paragraph'.
+ELEMENT should be a list like that returned by `org-element-context'."
+    ;; MAYBE: Use `org-element-lineage'.
+    (when-let* ((parent (org-element-property :parent element)))
+      (or (eq type (car parent))
+          (unpackaged/org-element-descendant-of type parent))))
+
+  (defun +org-return-dwim-normal ()
+    "A helpful replacement for `org-return'.  With prefix, call `org-return'.
+
+On headings, move point to position after entry content.  In
+lists, insert a new item or end the list, with checkbox if
+appropriate.  In tables, insert a new row or end the table."
+    ;; Inspired by John Kitchin: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/
+    (interactive)
+    (cond
+     ;; Act depending on context around point.
+     ((org-in-src-block-p) (org-babel-execute-src-block)
+      (org-at-heading-p)
+      ;; Heading: Move to position after entry content.
+      (let ((heading-start (org-entry-beginning-position)))
+        (goto-char (org-entry-end-position))
+        (cond ((and (org-at-heading-p)
+                    (= heading-start (org-entry-beginning-position)))
+               ;; Entry ends on its heading; add newline after
+               (end-of-line)
+               (insert "\n\n"))
+              (t
+               ;; Entry ends after its heading; back up
+               (forward-line -1)
+               (end-of-line)
+               (when (org-at-heading-p)
+                 ;; At the same heading
+                 (forward-line)
+                 (insert "\n")
+                 (forward-line -1))
+               ;; FIXME: looking-back is supposed to be called with more arguments.
+               (while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n")))))
+                 (insert "\n"))
+               (forward-line -1)))
+        (evil-insert-state)))
+     ((org-at-item-checkbox-p)
+      (org-toggle-checkbox))
+     (t
+      ;; All other cases: call `org-return'.
+      (org-return))))
+
+  (defun +org-return-dwim-insert ()
+    (interactive)
+    (cond
+     ((org-at-item-checkbox-p)
+      ;; Checkbox: Insert new item with checkbox.
+      (org-insert-todo-heading nil))
+     ((org-in-item-p)
+      ;; Plain list.
+      (let ((context (org-element-context)))
+        (if (or (eq 'plain-list (car context))  ; First item in list
+                (and (eq 'item (car context))
+                     (not (eq (org-element-property :contents-begin context)
+                              (org-element-property :contents-end context))))
+                (unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
+            ;; Non-empty item: Add new item.
+            (org-insert-item)
+          ;; Empty item: Close the list.
+          (delete-region (line-beginning-position) (line-end-position))
+          (insert "\n"))))
+     ((org-at-table-p)
+      (cond ((save-excursion
+               (beginning-of-line)
+               ;; See `org-table-next-field'.
+               (cl-loop with end = (line-end-position)
+                        for cell = (org-element-table-cell-parser)
+                        always (equal (org-element-property :contents-begin cell)
+                                      (org-element-property :contents-end cell))
+                        while (re-search-forward "|" end t)))
+             ;; Empty row: end the table.
+             (delete-region (line-beginning-position) (line-end-position))
+             (org-return))))
+     (t
+      ;; Non-empty row: call `org-return'.
+      (org-return))))
+
+  (general-imap :keymaps 'org-mode-map
+    "<RET>" '+org-return-dwim-insert)
+  (general-nmap :keymaps 'org-mode-map
+    "<RET>" '+org-return-dwim-normal))
+#+end_src
+
 **** Emphasis
 
 Replace underline with highlight
@@ -1974,7 +2077,9 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (setq org-refile-target-verify-function 'bh/verify-refile-target)
 
   ;; FIXME apply: Wrong number of arguments: (0 . 0), 3
-  (advice-add 'org-refile :after 'org-save-all-org-buffers))
+  (defun +org-refile-save-org-buffers (&rest ignore)
+    (org-save-all-org-buffers))
+  (advice-add 'org-refile :after '+org-refile-save-org-buffers))
 #+end_src
 
 **** Agenda
@@ -1992,6 +2097,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
                         (interactive)
                         (org-agenda nil "g")))
   :custom
+  (org-agenda-sticky t)
   (org-agenda-remove-tags t)
   (org-agenda-breadcrumbs-separator " ❯ ")
   (org-agenda-format-date "")
@@ -2150,25 +2256,14 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 (use-feature ob
   :after org
   :general
-  (leader-key
-    :keymaps 'org-mode-map
-    "o=" 'my--org-indent-src-block
-    "'" 'org-babel-initiate-session)
-  (general-nmap
-    :keymaps 'org-mode-map
-    "gz" 'org-babel-pop-to-session-maybe)
-
   (general-nmap :keymaps 'override
     :predicate '(eq (org-element-type (org-element-at-point)) 'src-block)
     "C-<return>" 'my--org-babel-eval-line-or-region
     "S-<return>" 'org-babel-execute-src-block)
 
   :custom
-  (org-src-tab-acts-natively t)
-  (org-src-ask-before-returning-to-edit-buffer nil)
   (org-edit-src-content-indentation 0)
   (org-src-preserve-indentation t)
-  (org-src-window-setup 'plain)
 
   ;; See https://org-babel.readthedocs.io/en/latest/header-args/
   (org-babel-default-header-args '((:session . "none")
@@ -2182,73 +2277,22 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (setq my--org-babel-repl-handlers
         '(("emacs-lisp" . (message "elisp"))))
   :config
-  (defun +org-src-block-tab ()
-    (when (org-in-src-block-p t)
-      (org-babel-do-in-edit-buffer
-       (indent-for-tab-command))
-      t))
-  (add-hook 'org-tab-first-hook #'+org-src-block-tab)
-
-
-  ;; (defun +org-src-block-smart-backspace ()
-  ;;   (interactive)
-  ;;   (org-babel-do-in-edit-buffer
-  ;;    (evil-insert-state)
-  ;;    (call-interactively (global-key-binding (kbd "<DEL>")))))
-  ;; (general-imap :keymaps 'org-mode-map
-  ;;   :predicate '(org-in-src-block-p)
-  ;;   "<DEL>" #'+org-src-block-smart-backspace)
-
-  (set-popup-rule! "\\*Org Src" :size 0.6 :ttl nil)
 
   (defun my--org-babel-eval-line-or-region ()
     "Evalue the current line or region in the repl associated with the current src block."
     ;; REVIEW Add region
     (interactive)
     (let ((language (car (org-babel-get-src-block-info t))))
-      (eval (cdr (assoc language my--org-babel-repl-handlers)))))
-  
-
-  (defun my--org-fix-newline-and-indent-in-src-blocks-a (&optional indent _arg _interactive)
-    "Mimic `newline-and-indent' in src blocks w/ lang-appropriate indentation."
-    (if
-        (and
-         ;; indent
-         ;; org-src-tab-acts-natively
-         (org-in-src-block-p t))
-        (progn
-          (org-babel-do-in-edit-buffer
-           (call-interactively #'indent-for-tab-command)))))
-
-  ;; NOTE Work
-  (advice-add 'org-return :after #'my--org-fix-newline-and-indent-in-src-blocks-a)
-  ;; FIXME Does not work
-  (advice-add 'evil-change-whole-line :after #'my--org-fix-newline-and-indent-in-src-blocks-a)
-  
-
-  ;; Indents an src block without having to enter it
-  (defun my--org-indent-src-block ()
-    (interactive)
-    (org-edit-special)
-    (indent-region (point-min) (point-max))
-    (org-edit-src-exit)))
+      (eval (cdr (assoc language my--org-babel-repl-handlers))))))
 
 (use-package ob-async
   :defer t
   :init
   (setq ob-async-no-async-languages-alist '("jupyter-python" "jupyter-julia")))
 
-(use-package org-babel-eval-in-repl
-  :after ob
-  :general
-  (general-nmap :keymaps 'org-mode-map
-    "C-<return>" 'evil-join)
-  ;; "C-<return>" (general-predicate-dispatch nil
-  ;; (eq (org-element-type (org-element-at-point)) 'src-block)
-  ;; #'ober-eval-in-repl))
-  :config
-  (with-eval-after-load "eval-in-repl"
-    (setq eir-jump-after-eval nil)))
+(use-feature native-src
+  :custom
+  (org-startup-indented nil))
 #+end_src
 
 We do not run ~org-babel-do-load-languages~ because it eagerly loads packages. See https://blog.d46.us/advanced-emacs-startup/.
@@ -2321,7 +2365,11 @@ Make bullets circular
   ;; removes some of the complexity of the original definition, and might cause
   ;; problems.
   (sentence-end "\\(^\s*?- \\)\\|\\.\s*")
+  :init
+  ;; ;; HACK Should be done by evil-org earlier
+  (evil-set-initial-state 'org-agenda-mode 'motion)
   :config
+  ;; FIXME This does not get called initially if org loaded by calling org-agenda
   (evil-org-set-key-theme)
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys)
@@ -2653,22 +2701,20 @@ Visualize the Zettelkasten.
 Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
 
 #+begin_src emacs-lisp :tangle yes
-(defun my--daily-review ()
+(defun +daily-review ()
   (interactive)
-  (let ((org-capture-templates `(("d" "Daily Review" entry (file (lambda () (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org")))
-                                  (file ,(concat org-dir "Templates/daily-review.org"))))))
-    (progn
-      (org-capture nil "d")
-      (org-capture-finalize t)
-      (org-speed-move-safe 'outline-up-heading)
-      (org-narrow-to-subtree))))
+  (let ((file (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org"))
+        (template (concat org-dir "Templates/daily-review.org")))
+        (find-file file)
+        (goto-char (point-max))
+        (insert-file-contents template)))
 
-(defun my--visit-daily-review ()
+(defun +visit-daily-review ()
   "Visit the file corresponding to today's daily review"
   (interactive)
   (find-file (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org")))
 
-(defun my--weekly-review ()
+(defun +weekly-review ()
   (interactive)
   (let ((org-capture-templates `(("w" "weekly review" entry (file+olp+datetree (lambda () (concat org-dir "Reviews/reviews_" (format-time-string "%Y") ".org")))
                                   (file ,(concat org-dir "Templates/weekly-review.org"))))))
@@ -2678,7 +2724,7 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
       (org-speed-move-safe 'outline-up-heading)
       (org-narrow-to-subtree))))
 
-(defun my--monthly-review ()
+(defun +monthly-review ()
   (interactive)
   (let ((org-capture-templates `(("m" "Monthly Review" entry (file+olp+datetree (lambda () (concat org-dir "Reviews/reviews_" (format-time-string "%Y") ".org")))
                                   (file ,(concat org-dir "Templates/monthly-review.org"))))))
@@ -3120,6 +3166,8 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
 *** Edebug
 #+begin_src emacs-lisp :tangle yes
   (use-feature edebug
+    :custom
+    (edebug-save-windows nil)
     :config
     (defun my--edebug-add-instrumentation (fun)
       "Interactively call edebug-instrument-function."
@@ -3128,6 +3176,7 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
     (with-eval-after-load 'embark
       (define-key embark-command-map (kbd "e") 'my--edebug-add-instrumentation)))
 
+  (require 'edebug-x)
 #+end_src
 *** Eval
 
@@ -3150,6 +3199,21 @@ Framework, heavily inspired by Doom Emacs, for evaluating buffer code in major-m
   (+eval/region beg end))
 
 (general-nvmap :keymaps 'override "gr" '+eval:region)
+#+end_src
+*** Lookup
+
+#+begin_src emacs-lisp :tangle yes
+(defvar +lookup-documentation-handlers '()
+  "Mode-functions to run when looking up documentation.")
+
+(defun +lookup-documentation ()
+  (interactive)
+  (let ((handler (alist-get major-mode +lookup-documentation-handlers)))
+    (if handler (funcall handler)
+      (message "No documentation handler found for %s. See `+lookup-documentation-handlers'." major-mode))))
+
+(general-nvmap :keymaps 'override
+  "K" '+lookup-documentation)
 #+end_src
 *** Folding
 #+begin_src emacs-lisp :tangle yes
@@ -3272,7 +3336,7 @@ rainbow-mode shows hex code colours in buffers.
             
 
   (general-nmap :keymaps 'jupyter-repl-interaction-mode-map
-    "gz" 'jupyter-repl-pop-to-buffer
+    "gz" '+jupyter-pop-to-repl
     "C-<return>" 'jupyter-eval-line-or-region
     "C-S-<return>" 'jupyter-eval-buffer)
   :custom
@@ -3295,19 +3359,17 @@ rainbow-mode shows hex code colours in buffers.
    '("jupyter-python" . (+jupyter-org-maybe-eval-line-or-region))
    my--org-babel-repl-handlers)
 
-  ;; Jump to julia repl in org src blocks. In :config to prevent errors when
-  ;; jupyter not yet loaded.
-  (defun +jupyter-org-pop-to-repl ()
-    (interactive)
-    (jupyter-org-with-src-block-client
-     (jupyter-with-repl-buffer jupyter-current-client
-       (goto-char (point-max))
-       (pop-to-buffer (current-buffer))
-       (evil-append 0))))
-  (general-nmap :keymaps 'override
-    :predicate '(jupyter-org-with-src-block-client (jupyter-kernel-language jupyter-current-client))
-    "gz" '+jupyter-org-pop-to-repl)
+  (add-to-list '+lookup-documentation-handlers
+               '(julia-mode . jupyter-inspect-at-point))
+  (add-to-list '+lookup-documentation-handlers
+               '(python-mode . jupyter-inspect-at-point))
 
+  (defun +jupyter-pop-to-repl ()
+    (interactive)
+    (jupyter-with-repl-buffer jupyter-current-client
+      (goto-char (point-max))
+      (pop-to-buffer (current-buffer))
+      (evil-append 0)))
 
   (with-eval-after-load 'eros
     (defun +eros-jupyter (result)
@@ -3338,12 +3400,6 @@ rainbow-mode shows hex code colours in buffers.
   :custom
   (jupyter-org-resource-directory "/tmp/.ob-jupyter")
   :config
-  ;; By default, jupyter adds a hook for jupyter-org-interaction-mode to
-  ;; org-mode-hook, but this doesn't get set the first time src block is
-  ;; executed.
-  (when (eq major-mode 'org-mode)
-    (jupyter-org-interaction-mode))
-
   (defun +jupyter-org-insert-result-refresh-images (&rest _ignore)
     (org-display-inline-images))
   (advice-add #'jupyter-org--do-insert-result :after #'+jupyter-org-insert-result-refresh-images)
@@ -3455,7 +3511,14 @@ rainbow-mode shows hex code colours in buffers.
       ("^\\*sly-description" :vslot 5 :size 0.3 :ttl 0)
       ;; Do not display debugger or inspector buffers in a popup window. These
       ;; buffers are meant to be displayed with sufficient vertical space.
-      ("^\\*sly-\\(?:db\\|inspector\\)" :ignore t))))
+      ("^\\*sly-\\(?:db\\|inspector\\)" :ignore t)))
+
+  :config
+  (add-to-list '+eval-runners '(lisp-mode . sly-eval-region))
+
+  (defun +common-lisp-lookup-documentation ()
+    (command-execute #'sly-describe-symbol))
+  (add-to-list '+lookup-documentation-handlers '(lisp-mode . +common-lisp-lookup-documentation)))
 #+end_src
 
 *** Haskell
