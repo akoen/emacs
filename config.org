@@ -2041,12 +2041,22 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
                      (org-agenda-format-date "")
                      (org-deadline-warning-days 7)
                      (org-agenda-overriding-header "\nDEADLINES\n")))
-            (tags-todo "refile"
-                       ((org-agenda-prefix-format "  %?-12t% s")
-                        (org-agenda-overriding-header "\nREFILE\n")))
+            (org-ql-block
+             '(and (todo "TODO")
+                   (or
+                    (tags "refile")
+                    ;; Catch lost tasks that are neither active nor part of a
+                    ;; project.
+                    (not
+                     (or
+                      (tags "noagenda")
+                      (scheduled)
+                      (deadline)
+                      (ancestors (todo))
+                      (children (or (todo) (done)))))))
+             ((org-ql-block-header "\nREFILE\n")))
             (org-ql-block '(or (closed :on 0) (log-done :on 0))
-                          ((org-ql-block-header "\nCOMPLETED TODAY\n")))
-            ))))
+                          ((org-ql-block-header "\nCOMPLETED TODAY\n")))))))
 
   (defun my--check-sync-conflicts ()
     (when (directory-files org-dir nil "conflict")
