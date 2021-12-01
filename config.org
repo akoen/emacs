@@ -50,6 +50,11 @@ Or a variable
 (debug-on-variable-change 'evil-want-Y-yank-to-eol)
 #+end_src
 
+Or a message
+#+begin_src emacs-lisp :tangle no
+(setq debug-on-message "Bad timestamp")
+#+end_src
+
 ** Performance Optimizations
 
 #+begin_src emacs-lisp :tangle yes
@@ -189,6 +194,7 @@ Tangling this org file on save. This code is borrowed from https://github.com/re
       initial-scratch-message nil
       save-interprogram-paste-before-kill t
       default-input-method 'TeX
+      debugger-stack-frame-as-list t
       compilation-scroll-output 'first-error
       compilation-skip-threshold 2   ; don't stop on info or warnings
       delete-by-moving-to-trash t    ; move files to trash when deleting
@@ -1309,7 +1315,6 @@ _r_eload    e_x_pand    _?_ list
 
 #+begin_src emacs-lisp :tangle yes
 (use-package aas)
-(add-to-list 'load-path (concat user-emacs-directory "lisp"))
 (use-package sfp
   :demand t
   :straight nil
@@ -1805,6 +1810,7 @@ Displays the folder tree
         (unless (equal org-inline-image-overlays org-inline-image-overlays-old) t)) ;; if overlays did not change, the link is not inline image
       ))
 
+  ;; FIXME No longer running C-c C-c
   (add-hook 'org-tab-first-hook #'org-toggle-inline-images-at-point)
   (add-hook 'org-ctrl-c-ctrl-c-hook #'org-toggle-inline-images-at-point)
 
@@ -2238,25 +2244,14 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
 (use-feature ob
   :after org
   :general
-  (leader-key
-    :keymaps 'org-mode-map
-    "o=" 'my--org-indent-src-block
-    "'" 'org-babel-initiate-session)
-  (general-nmap
-    :keymaps 'org-mode-map
-    "gz" 'org-babel-pop-to-session-maybe)
-
   (general-nmap :keymaps 'override
     :predicate '(eq (org-element-type (org-element-at-point)) 'src-block)
     "C-<return>" 'my--org-babel-eval-line-or-region
     "S-<return>" 'org-babel-execute-src-block)
 
   :custom
-  (org-src-tab-acts-natively t)
-  (org-src-ask-before-returning-to-edit-buffer nil)
   (org-edit-src-content-indentation 0)
   (org-src-preserve-indentation t)
-  (org-src-window-setup 'plain)
 
   ;; See https://org-babel.readthedocs.io/en/latest/header-args/
   (org-babel-default-header-args '((:session . "none")
@@ -2270,61 +2265,22 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (setq my--org-babel-repl-handlers
         '(("emacs-lisp" . (message "elisp"))))
   :config
-  (defun +org-src-block-tab ()
-    (when (org-in-src-block-p t)
-      (org-babel-do-in-edit-buffer
-       (indent-for-tab-command))
-      t))
-  (add-hook 'org-tab-first-hook #'+org-src-block-tab)
-
-
-  ;; (defun +org-src-block-smart-backspace ()
-  ;;   (interactive)
-  ;;   (org-babel-do-in-edit-buffer
-  ;;    (evil-insert-state)
-  ;;    (call-interactively (global-key-binding (kbd "<DEL>")))))
-  ;; (general-imap :keymaps 'org-mode-map
-  ;;   :predicate '(org-in-src-block-p)
-  ;;   "<DEL>" #'+org-src-block-smart-backspace)
-
-  (set-popup-rule! "\\*Org Src" :size 0.6 :ttl nil)
 
   (defun my--org-babel-eval-line-or-region ()
     "Evalue the current line or region in the repl associated with the current src block."
     ;; REVIEW Add region
     (interactive)
     (let ((language (car (org-babel-get-src-block-info t))))
-      (eval (cdr (assoc language my--org-babel-repl-handlers)))))
-  
-
-  (defun my--org-fix-newline-and-indent-in-src-blocks-a (&optional indent _arg _interactive)
-    "Mimic `newline-and-indent' in src blocks w/ lang-appropriate indentation."
-    (if
-        (and
-         ;; indent
-         ;; org-src-tab-acts-natively
-         (org-in-src-block-p t))
-        (progn
-          (org-babel-do-in-edit-buffer
-           (call-interactively #'indent-for-tab-command)))))
-
-  ;; NOTE Work
-  (advice-add 'org-return :after #'my--org-fix-newline-and-indent-in-src-blocks-a)
-  ;; FIXME Does not work
-  (advice-add 'evil-change-whole-line :after #'my--org-fix-newline-and-indent-in-src-blocks-a)
-  
-
-  ;; Indents an src block without having to enter it
-  (defun my--org-indent-src-block ()
-    (interactive)
-    (org-edit-special)
-    (indent-region (point-min) (point-max))
-    (org-edit-src-exit)))
+      (eval (cdr (assoc language my--org-babel-repl-handlers))))))
 
 (use-package ob-async
   :defer t
   :init
   (setq ob-async-no-async-languages-alist '("jupyter-python" "jupyter-julia")))
+
+(use-feature native-src
+  :custom
+  (org-startup-indented nil))
 #+end_src
 
 We do not run ~org-babel-do-load-languages~ because it eagerly loads packages. See https://blog.d46.us/advanced-emacs-startup/.
@@ -3367,7 +3323,7 @@ rainbow-mode shows hex code colours in buffers.
             
 
   (general-nmap :keymaps 'jupyter-repl-interaction-mode-map
-    "gz" 'jupyter-repl-pop-to-buffer
+    "gz" '+jupyter-pop-to-repl
     "C-<return>" 'jupyter-eval-line-or-region
     "C-S-<return>" 'jupyter-eval-buffer)
   :custom
@@ -3390,19 +3346,17 @@ rainbow-mode shows hex code colours in buffers.
    '("jupyter-python" . (+jupyter-org-maybe-eval-line-or-region))
    my--org-babel-repl-handlers)
 
-  ;; Jump to julia repl in org src blocks. In :config to prevent errors when
-  ;; jupyter not yet loaded.
-  (defun +jupyter-org-pop-to-repl ()
-    (interactive)
-    (jupyter-org-with-src-block-client
-     (jupyter-with-repl-buffer jupyter-current-client
-       (goto-char (point-max))
-       (pop-to-buffer (current-buffer))
-       (evil-append 0))))
-  (general-nmap :keymaps 'override
-    :predicate '(jupyter-org-with-src-block-client (jupyter-kernel-language jupyter-current-client))
-    "gz" '+jupyter-org-pop-to-repl)
+  (add-to-list '+lookup-documentation-handlers
+               '(julia-mode . jupyter-inspect-at-point))
+  (add-to-list '+lookup-documentation-handlers
+               '(python-mode . jupyter-inspect-at-point))
 
+  (defun +jupyter-pop-to-repl ()
+    (interactive)
+    (jupyter-with-repl-buffer jupyter-current-client
+      (goto-char (point-max))
+      (pop-to-buffer (current-buffer))
+      (evil-append 0)))
 
   (with-eval-after-load 'eros
     (defun +eros-jupyter (result)
@@ -3428,12 +3382,6 @@ rainbow-mode shows hex code colours in buffers.
   :custom
   (jupyter-org-resource-directory "/tmp/.ob-jupyter")
   :config
-  ;; By default, jupyter adds a hook for jupyter-org-interaction-mode to
-  ;; org-mode-hook, but this doesn't get set the first time src block is
-  ;; executed.
-  (when (eq major-mode 'org-mode)
-    (jupyter-org-interaction-mode))
-
   (defun +jupyter-org-insert-result-refresh-images (&rest _ignore)
     (org-display-inline-images))
   (advice-add #'jupyter-org--do-insert-result :after #'+jupyter-org-insert-result-refresh-images)
