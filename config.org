@@ -943,7 +943,8 @@ This code allows us to quit basically everything using ESC.
   "Run `my--escape-hook'."
   (interactive)
   (cond
-   ((evil-insert-state-p) (evil-force-normal-state))
+   ((or (evil-insert-state-p) (evil-visual-state-p))
+    (evil-force-normal-state))
    ;; quit the minibuffer if open.
    ((minibuffer-window-active-p (minibuffer-window))
     (abort-recursive-edit))
