@@ -46,7 +46,6 @@
   '((t :underline t :inherit 'highlight))
   "Face to show next stop points during edebug.")
 
-  "Face used to mark stop points.")
 ;;; Stop point overlay
 (defvar +edebug-stop-point-overlay)
 (defvar +edebug-point-overlay)
