@@ -102,9 +102,9 @@ e.g. to disable lsp or flycheck."
   :predicate 'poly-org-header-params
   "RET" 'poly-org-eval-src-block)
 
-;;; Debug
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((jupyter . t)))
+;; ;;; Debug
+;; (org-babel-do-load-languages
+;;  'org-babel-load-languages
+;;  '((jupyter . t)))
 
 (provide 'native-src)

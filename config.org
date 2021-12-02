@@ -192,6 +192,8 @@ Tangling this org file on save. This code is borrowed from https://github.com/re
       kill-buffer-query-functions nil
       initial-major-mode 'emacs-lisp-mode
       initial-scratch-message nil
+      uniquify-buffer-name-style 'reverse
+      uniquify-separator " • "
       save-interprogram-paste-before-kill t
       default-input-method 'TeX
       debugger-stack-frame-as-list t
@@ -423,7 +425,7 @@ Make yes or no prompts be y or n prompts
 ** Highlight current line
 #+begin_src emacs-lisp :tangle yes
 (use-feature hl-line
-  :hook (prog-mode . hl-line-mode))
+  :hook ((prog-mode dired-mode) . hl-line-mode))
 #+end_src
 ** Show matching parentheses
 
@@ -1256,6 +1258,7 @@ Pressing Q restores the window configuration to the last state. Useful for killi
 #+begin_src emacs-lisp :tangle yes 
 (use-package corfu
   :demand t
+  :hook (minibuffer-setup . corfu-mode)
   :general
   (:states '(insert) :keymaps 'corfu-map
            "C-n" 'corfu-next
@@ -2146,12 +2149,22 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
                      (org-agenda-format-date "")
                      (org-deadline-warning-days 7)
                      (org-agenda-overriding-header "\nDEADLINES\n")))
-            (tags-todo "refile"
-                       ((org-agenda-prefix-format "  %?-12t% s")
-                        (org-agenda-overriding-header "\nREFILE\n")))
+            (org-ql-block
+             '(and (todo "TODO")
+                   (or
+                    (tags "refile")
+                    ;; Catch lost tasks that are neither active nor part of a
+                    ;; project.
+                    (not
+                     (or
+                      (tags "noagenda")
+                      (scheduled)
+                      (deadline)
+                      (ancestors (todo))
+                      (children (or (todo) (done)))))))
+             ((org-ql-block-header "\nREFILE\n")))
             (org-ql-block '(or (closed :on 0) (log-done :on 0))
-                          ((org-ql-block-header "\nCOMPLETED TODAY\n")))
-            ))))
+                          ((org-ql-block-header "\nCOMPLETED TODAY\n")))))))
 
   (defun my--check-sync-conflicts ()
     (when (directory-files org-dir nil "conflict")
@@ -3370,6 +3383,11 @@ rainbow-mode shows hex code colours in buffers.
                       ("\\*jupyter-repl" :ttl nil)
                       ("\\*jupyter-display" :size 0.6))))
 
+;; NOTE: If you get the error: ...ob-jupyter.elc failed to define function
+;; org-babel-execute:jupyter-lang that means you do not have the appropriate
+;; jupyter kernel installed on your machine.
+;;
+;; Then eval (org-babel-jupyter-aliases-from-kernelspecs 'refresh)
 (use-feature ob-jupyter
   :commands
   (org-babel-execute:jupyter-julia
