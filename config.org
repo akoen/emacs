@@ -3335,11 +3335,11 @@ rainbow-mode shows hex code colours in buffers.
                   (goto-char (point-max))
                   (evil-append 0)))
             
-
   (general-nmap :keymaps 'jupyter-repl-interaction-mode-map
     "gz" '+jupyter-pop-to-repl
     "C-<return>" 'jupyter-eval-line-or-region
-    "C-S-<return>" 'jupyter-eval-buffer)
+    "C-S-<return>" 'jupyter-eval-buffer
+    "C-M-<return>" '+jupyter-eval-cell)
   :custom
   (jupyter-repl-input-prompt-format "[%d] ")
   (jupyter-repl-output-prompt-format "")
@@ -3374,8 +3374,19 @@ rainbow-mode shows hex code colours in buffers.
 
   (with-eval-after-load 'eros
     (defun +eros-jupyter (result)
-      (eros--make-result-overlay result :where (point) :duration 5))
+      (eros--make-result-overlay result :where (1+ (point)) :duration 5))
     (setq jupyter-eval-short-result-display-function #'+eros-jupyter))
+
+  (setq +jupyter-cell-comment "# %%")
+  (defun +jupyter-eval-cell ()
+    "Run current code cell ala MATLAB. See `+jupyter-cell-comment'
+for delimiters."
+    (interactive)
+    (let ((left (save-excursion (search-backward +jupyter-cell-comment nil t)))
+          (right (save-excursion (search-forward +jupyter-cell-comment nil t))))
+      (if (and left right)
+          (jupyter-eval-region left right)
+        (user-error "Not in a code cell"))))
 
   ;; Order matters!
   (set-popup-rules! '(("\\*jupyter-" :size 0.4)
