@@ -1784,6 +1784,7 @@ Displays the folder tree
 
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 2))
 
+  ;; See https://blog.tecosaur.com/tmio/2021-11-30-element.html
   (defun +org-image-resize-to-fit ()
     (when (derived-mode-p 'org-mode)
       (setq-local org-image-actual-width
