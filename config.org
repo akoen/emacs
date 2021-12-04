@@ -1526,7 +1526,7 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
         dired-clean-confirm-killing-deleted-buffers nil) ;; don't ask just do
 
   ;; Show directories before files + default -al
-  (setq dired-listing-switches "-lAX --group-directories-first")
+  (setq dired-listing-switches "-lAXh --group-directories-first")
 
   (defun +open-file-external (arg)
     "Open visited file in default external program.

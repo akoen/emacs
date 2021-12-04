@@ -1,14 +1,14 @@
 ;; REVIEW: The use of +edebug-refontify breaks hl-todo and is
 ;; *not-recommended* according to the doc.
-
 (defalias '+edebug-refontify #'font-lock-debug-fontify)
 
-;;; Command key overlay
+;;; CIDER-style debug command overlay
+
 (defface +edebug-command-overlay-face
   '((t :underline t :inherit font-lock-builtin-face))
   "Face used to show keybindings during edebug session.")
 
-(setq +edebug-display-commands '("[s]tep" "[c]ontinue" "set [b]reakpoint" "[t]race"))
+(setq +edebug-display-commands '("[s]tep" "[c]ontinue" "[b]reakpoint" "[t]race"))
 (defvar +edebug-command-overlay)
 
 (defun +edebug-show-command-overlay ()
@@ -46,7 +46,6 @@
   '((t :underline t :inherit 'highlight))
   "Face to show next stop points during edebug.")
 
-  "Face used to mark stop points.")
 ;;; Stop point overlay
 (defvar +edebug-stop-point-overlay)
 (defvar +edebug-point-overlay)
