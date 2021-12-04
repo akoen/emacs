@@ -3866,6 +3866,7 @@ Arch packages:
   :config
   ;; Must be called manually to initiate jupyter :config block
   (require 'jupyter)
+  (add-to-list '+eval-runners '(python-mode . jupyter-eval-region))
   (set-popup-rule! "\\*Python\\*" :ttl nil))
 
 (use-package lsp-pyright
@@ -3954,14 +3955,64 @@ I used to dislike MATLAB, but the effort they put in to supporting Linux and Ema
 (use-package julia-mode
   :mode "\\.jl\\'"
   :config
-  (require 'lsp-julia))
+  (add-to-list '+eval-runners '(julia-mode . jupyter-eval-region)))
 
 (use-package lsp-julia
   :hook (julia-mode . lsp-deferred)
+  :general
+  (general-imap :keymaps 'julia-mode-map
+    "`" '+julia-insert-math-symbol)
   :custom
+  (lsp-julia-package dir nil)
   (lsp-julia-default-environment
    (car (last (file-expand-wildcards
-               (expand-file-name "~/.julia/environments/v*"))))))
+               (expand-file-name "~/.julia/environments/v*")))))
+  :config
+  (setq +julia-math-symbol-alist
+        '((?a "\\alpha" "\\bfalpha")
+          (?b "\\beta" "\\bfbeta")
+          (?d "\\delta" "\\bfdelta")
+          (?e "\\epsilon" "\\bfepsilon")
+          (?f "\\phi" "\\bfphi")
+          (?g "\\gamma" "\\bfgamma")
+          (?h "\\eta" "\\bfeta")
+          (?k "\\kappa" "\\bfkappa")
+          (?l "\\lambda" "\\bflambda")
+          (?m "\\mu" "\\bfmu")
+          (?n "\\nu" "\\bfnu")
+          (?o "\\omega" "\\bfomega")
+          (?p "\\pi" "\\bfpi")
+          (?q "\\theta" "\\bftheta")
+          (?r "\\rho" "\\rho")
+          (?s "\\sigma" "\\bfsigma")
+          (?t "\\tau" "\\bftau")
+          (?u "\\upsilon" "\\bfupsilon")
+          (?w "\\xi" "\\bfxi")
+          (?x "\\chi" "\\bfchi")
+          (?y "\\psi" "\\bfpsi")
+          (?z "\\zeta" "\\bfzeta")))
+
+  (defun +julia-insert-math-symbol ()
+    "Substitute a julia latex math symbol using cdlatex."
+    (interactive)
+    (require 'cdlatex)
+    (let* ((cell (cdlatex-read-char-with-help
+                  +julia-math-symbol-alist
+                  1 2
+                  "Latex symbol level %d of %d: "
+                  "AVAILABLE MATH SYMBOLS.  [%c]=next level "
+                  cdlatex-math-symbol-prefix
+                  (get 'cdlatex-math-symbol-alist-comb 'cdlatex-bindings)))
+           (char (car cell))
+           (level (cdr cell))
+           (entry (assoc char +julia-math-symbol-alist))
+           (symbol (nth level entry)))
+      (if (or (not symbol)
+              (not (stringp symbol))
+              (equal symbol ""))
+          (error "No such math symbol %c on level %d" char level))
+      (insert symbol)
+      (julia-latexsub))))
 #+end_src
 *** Lua
 #+begin_src emacs-lisp :tangle yes
