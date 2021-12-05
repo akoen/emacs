@@ -3340,6 +3340,9 @@ rainbow-mode shows hex code colours in buffers.
     "C-<return>" 'jupyter-eval-line-or-region
     "C-S-<return>" 'jupyter-eval-buffer
     "C-M-<return>" '+jupyter-eval-cell)
+
+  (leader-key :keymaps '(python-mode-map julia-mode-map)
+    "'" 'jupyter-run-repl)
   :custom
   (jupyter-repl-input-prompt-format "[%d] ")
   (jupyter-repl-output-prompt-format "")
@@ -3385,8 +3388,19 @@ for delimiters."
     (let ((left (save-excursion (search-backward +jupyter-cell-comment nil t)))
           (right (save-excursion (search-forward +jupyter-cell-comment nil t))))
       (if (and left right)
-          (jupyter-eval-region left right)
+          (progn
+            (message "Running cell")
+            (jupyter-eval-region left right))
         (user-error "Not in a code cell"))))
+
+  (defface +comment-cell-header-face
+    '((t :inherit font-lock-comment-face :weight bold))
+    "Face for cell headers.")
+
+  (dolist (mode '(julia-mode python-mode))
+    (font-lock-add-keywords mode
+                            `((,(concat "^" (regexp-quote +jupyter-cell-comment) ".*$")
+                               0 '+comment-cell-header-face t))))
 
   ;; Order matters!
   (set-popup-rules! '(("\\*jupyter-" :size 0.4)
