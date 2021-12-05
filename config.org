@@ -192,6 +192,8 @@ Tangling this org file on save. This code is borrowed from https://github.com/re
       kill-buffer-query-functions nil
       initial-major-mode 'emacs-lisp-mode
       initial-scratch-message nil
+      uniquify-buffer-name-style 'reverse
+      uniquify-separator " • "
       save-interprogram-paste-before-kill t
       default-input-method 'TeX
       debugger-stack-frame-as-list t
@@ -1524,7 +1526,7 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
         dired-clean-confirm-killing-deleted-buffers nil) ;; don't ask just do
 
   ;; Show directories before files + default -al
-  (setq dired-listing-switches "-lAX --group-directories-first")
+  (setq dired-listing-switches "-lAXh --group-directories-first")
 
   (defun +open-file-external (arg)
     "Open visited file in default external program.
@@ -3142,7 +3144,15 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
   (message-sendmail-envelope-from 'header)
   (message-send-mail-function 'sendmail-send-it)
   (message-signature "Alex Koen\nhttps://alexkoen.com")
-  (message-kill-buffer-on-exit t)) ; close after sending)
+  (message-kill-buffer-on-exit t) ; close after sending
+  :config
+  (defun +message-check-for-subject ()
+    "Prevent user from sending email without a subject."
+    (unless (message-field-value "Subject")
+      (message-goto-subject)
+      (user-error "Attempting to send mail without a subject line")))
+  (add-hook 'message-send-hook #'+message-check-for-subject))
+  
 #+end_src
 
 * Tools
@@ -3401,6 +3411,9 @@ for delimiters."
     (font-lock-add-keywords mode
                             `((,(concat "^" (regexp-quote +jupyter-cell-comment) ".*$")
                                0 '+comment-cell-header-face t))))
+
+  ;; Show kernel status in modeline
+  (add-to-list 'global-mode-string '(t (:eval (jupyter-repl-interaction-mode-line))))
 
   ;; Order matters!
   (set-popup-rules! '(("\\*jupyter-" :size 0.4)

@@ -66,13 +66,18 @@ Used in :switch-buffer-functions slot."
 (add-to-list 'auto-mode-alist '("\\.org\\'" . poly-org-mode))
 
 ;;; Compatibility
+(defvar poly-org-disabled-functions
+  '(lsp flycheck-mode display-fill-column-indicator-mode)
+  "Function to disable in poly-org-mode.")
+
 (defun poly-org-inhibit-function (orig-fn &rest args)
   "Prevent function from executing when in an org-mode src block.
 e.g. to disable lsp or flycheck."
   (unless polymode-mode
     (funcall orig-fn args)))
-(advice-add #'lsp :around #'poly-org-inhibit-function)
-(advice-add #'flycheck-mode :around #'poly-org-inhibit-function)
+
+(dolist (command poly-org-disabled-functions)
+  (advice-add command :around #'poly-org-inhibit-function))
 
 (defun poly-org-in-src-block-p (orig-fn &optional inside)
   (let ((block (car (pm--span-at-point
@@ -97,9 +102,9 @@ e.g. to disable lsp or flycheck."
   :predicate 'poly-org-header-params
   "RET" 'poly-org-eval-src-block)
 
-;;; Debug
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((jupyter . t)))
+;; ;;; Debug
+;; (org-babel-do-load-languages
+;;  'org-babel-load-languages
+;;  '((jupyter . t)))
 
 (provide 'native-src)
