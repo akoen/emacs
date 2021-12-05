@@ -606,7 +606,6 @@ Space is the best leader key.
 
   (leader-key
     ;; Misc
-    "SPC" 'execute-extended-command
     "u" 'universal-argument
 
     ;; Buffer
@@ -1357,17 +1356,14 @@ Project management.
 (use-package projectile
   :demand t
   :general
-  (general-nvmap
-    "-" 'projectile-find-file)
   (leader-key
-    ;; Projects
+    "SPC" 'projectile-find-file
     "pd" 'projectile-find-dir
     "pp" 'projectile-switch-project
     "pi" 'projectile-invalidate-cache
     "pk" 'projectile-kill-buffers
     "pt" 'my--projectile-find-file-in-project-tasks
     "pc" 'my--projectile-find-file-in-project-config
-
     "cc" 'projectile-compile-project)
 
   :init
@@ -1756,7 +1752,7 @@ Displays the folder tree
   (org-catch-invisible-edits 'show)
   (org-confirm-babel-evaluate nil)
   (org-return-follows-link t)
-  (org-startup-indented t)
+  (org-startup-indented nil)
   (org-hide-emphasis-markers t)
   (org-pretty-entities t)
   (org-startup-with-inline-images nil) ;; See hook in :config
@@ -2294,8 +2290,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (setq ob-async-no-async-languages-alist '("jupyter-python" "jupyter-julia")))
 
 (use-feature native-src
-  :custom
-  (org-startup-indented nil))
+  :after ob)
 #+end_src
 
 We do not run ~org-babel-do-load-languages~ because it eagerly loads packages. See https://blog.d46.us/advanced-emacs-startup/.
@@ -3274,7 +3269,9 @@ Framework, heavily inspired by Doom Emacs, for evaluating buffer code in major-m
 *** Flycheck
 #+begin_src emacs-lisp :tangle yes
 (use-package flycheck
-  :hook (prog-mode . flycheck-mode))
+  :hook (prog-mode . flycheck-mode)
+  :custom
+  (flycheck-indication-mode nil))
 #+end_src
 *** grep
 #+begin_src emacs-lisp :tangle yes
@@ -3335,7 +3332,6 @@ rainbow-mode shows hex code colours in buffers.
 *** Jupyter
 #+begin_src emacs-lisp :tangle yes
 (use-package jupyter
-  :commands (jupyter-run-repl)
   :general
   (:keymaps 'jupyter-repl-mode-map
             "<up>" 'jupyter-repl-history-previous
@@ -3354,6 +3350,10 @@ rainbow-mode shows hex code colours in buffers.
   (jupyter-repl-input-prompt-format "[%d] ")
   (jupyter-repl-output-prompt-format "")
   (jupyter-repl-busy-prompt "[*] ")
+  :init
+  ;;; :commands does not work, macroexpand to see why (fboundp).
+  (with-eval-after-load 'jupyter-repl
+    (require 'jupyter))
   :config
   ;; NOTE: Jupyter functions themeselves never call (require 'jupyter), so this
   ;; section of code does not invoke unless it is called directly.
@@ -3362,13 +3362,6 @@ rainbow-mode shows hex code colours in buffers.
     (if (jupyter-org-with-src-block-client (jupyter-kernel-language jupyter-current-client))
         (jupyter-org-with-src-block-client (jupyter-eval-line-or-region nil))
       (user-error "%s" "No running client.")))
-
-  (cl-pushnew
-   '("jupyter-julia" . (+jupyter-org-maybe-eval-line-or-region))
-   my--org-babel-repl-handlers)
-  (cl-pushnew
-   '("jupyter-python" . (+jupyter-org-maybe-eval-line-or-region))
-   my--org-babel-repl-handlers)
 
   (add-to-list '+lookup-documentation-handlers
                '(julia-mode . jupyter-inspect-at-point))
@@ -3414,6 +3407,14 @@ rainbow-mode shows hex code colours in buffers.
   :custom
   (jupyter-org-resource-directory "/tmp/.ob-jupyter")
   :config
+
+  (cl-pushnew
+   '("jupyter-julia" . (+jupyter-org-maybe-eval-line-or-region))
+   my--org-babel-repl-handlers)
+  (cl-pushnew
+   '("jupyter-python" . (+jupyter-org-maybe-eval-line-or-region))
+   my--org-babel-repl-handlers)
+
   (defun +jupyter-org-insert-result-refresh-images (&rest _ignore)
     (org-display-inline-images))
   (advice-add #'jupyter-org--do-insert-result :after #'+jupyter-org-insert-result-refresh-images)
