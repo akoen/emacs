@@ -3379,6 +3379,9 @@ rainbow-mode shows hex code colours in buffers.
       (eros--make-result-overlay result :where (point) :duration 5))
     (setq jupyter-eval-short-result-display-function #'+eros-jupyter))
 
+  ;; Show kernel status in modeline
+  (add-to-list 'global-mode-string '(t (:eval (jupyter-repl-interaction-mode-line))))
+
   ;; Order matters!
   (set-popup-rules! '(("\\*jupyter-" :size 0.4)
                       ("\\*jupyter-repl" :ttl nil)
