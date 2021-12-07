@@ -3336,12 +3336,14 @@ rainbow-mode shows hex code colours in buffers.
   :general
   (:keymaps 'jupyter-repl-mode-map
             "<up>" 'jupyter-repl-history-previous
-            "<down>" 'jupyter-repl-history-next
-            "A" (lambda ()
-                  (interactive)
-                  (goto-char (point-max))
-                  (evil-append 0)))
-            
+            "<down>" 'jupyter-repl-history-next)
+
+  (general-nmap 'jupyter-repl-mode-map
+    "A" (lambda ()
+          (interactive)
+          (goto-char (point-max))
+          (evil-append 0)))
+
   (general-nmap :keymaps 'jupyter-repl-interaction-mode-map
     "gz" '+jupyter-pop-to-repl
     "C-<return>" 'jupyter-eval-line-or-region
