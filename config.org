@@ -3330,6 +3330,7 @@ rainbow-mode shows hex code colours in buffers.
 (use-package rainbow-mode)
 #+end_src
 *** Jupyter
+**** Initialize
 #+begin_src emacs-lisp :tangle yes
 (use-package jupyter
   :general
@@ -3448,6 +3449,61 @@ for delimiters."
   (require 'jupyter))
 #+end_src
 
+**** Fringe overlays
+
+Show overlays in fringe where code has been evaluated. Inspired by CIDER.
+
+#+begin_src emacs-lisp :tangle yes
+(with-eval-after-load 'jupyter
+  (advice-add #'jupyter-eval-region :after #'+jupyter-add-fringe-overlays))
+
+(defface +jupyter-fringe-evaluated-face
+  '((t :foreground "#080"))
+  "Face used to denote regions that have been evaluated.")
+
+(setq +jupyter-fringe-overlay
+      (propertize " "
+                  'display '(left-fringe empty-line +jupyter-fringe-evaluated-face)))
+
+(defun +jupyter-add-fringe-overlays (beg end)
+  (save-excursion
+    (goto-char beg)
+    (while (< (point) end)
+      (unless (looking-at "[ \t]*$") ;; line is blank
+        (+jupyter-make-fringe-overlay
+         (line-beginning-position) (+jupyter-goto-end-of-expression)))
+      (forward-line 1))))
+
+(defun +jupyter-make-fringe-overlay (beg end)
+  (let ((o (make-overlay beg end (current-buffer))))
+    (overlay-put o 'category '+jupyter-fringe)
+    (overlay-put o 'before-string +jupyter-fringe-overlay)
+    (push #'+jupyter-delete-overlay (overlay-get o 'modification-hooks))
+    o))
+
+(defun +jupyter-delete-overlay (o &rest _)
+  (ignore-errors (delete-overlay o)))
+
+(defvar +jupyter-line-ends-expression-alist
+  '((julia-mode . +julia-line-ends-expression-p)
+    (pytyon-mode . +python-goto-end-of-expression)))
+
+(defun +jupyter-goto-end-of-expression ()
+  (while (not
+          (or (eobp)
+              (funcall (cdr (assoc major-mode +jupyter-line-ends-expression-alist)))))
+      (forward-line 1))
+  (goto-char (line-end-position)))
+
+(defun +python-goto-end-of-expression ()
+  (goto-char (line-end-position)))
+
+(defun +julia-line-ends-expression-p ()
+  (not (save-excursion
+         (forward-line 1)
+         (or (julia-paren-indent)
+             (julia-indent-hanging)))))
+#+end_src
 ** Lang
 *** Clojure
 #+begin_src emacs-lisp :tangle yes
