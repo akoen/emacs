@@ -3455,7 +3455,7 @@ Show overlays in fringe where code has been evaluated. Inspired by CIDER.
 
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load 'jupyter
-  (advice-add #'jupyter-eval-region :after #'+jupyter-add-fringe-overlays))
+  (advice-add #'jupyter-eval-display-overlay :after #'+jupyter-add-fringe-overlays))
 
 (defface +jupyter-fringe-evaluated-face
   '((t :foreground "#080"))
@@ -3465,7 +3465,7 @@ Show overlays in fringe where code has been evaluated. Inspired by CIDER.
       (propertize " "
                   'display '(left-fringe empty-line +jupyter-fringe-evaluated-face)))
 
-(defun +jupyter-add-fringe-overlays (beg end)
+(defun +jupyter-add-fringe-overlays (beg end &rest _)
   (save-excursion
     (goto-char beg)
     (while (< (point) end)
