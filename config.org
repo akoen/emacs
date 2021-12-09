@@ -713,13 +713,17 @@ The Hydra is vanquished once Hercules, any binding that isn't the Hydra's head, 
 ** Undo
 
 #+begin_src emacs-lisp :tangle yes
-(use-package undo-tree
+(use-package undo-fu
   :custom
-  (undo-tree-visualizer-diff t)
-  (undo-tree-auto-save-history t)
-  (undo-tree-enable-undo-in-region t)
+  (undo-limit 400000)
+  (undo-strong-limit 3000000)
+  (undo-outer-limit 48000000))
+
+(use-package undo-fu-session
+  :custom
+  (undo-fu-session-incompatible-files '("\\.gpg$" "/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
   :config
-  (global-undo-tree-mode +1))
+  (global-undo-fu-session-mode 1))
 #+end_src
 
 ** EVIL
@@ -729,7 +733,6 @@ Allows for traditional vim bindings inside of emacs
 #+begin_src emacs-lisp :tangle yes :noweb no-export
 ;; load evil
 (use-package evil
-  :after undo-tree
   :general
   ;; quick replace
   (general-def :states 'normal
@@ -751,7 +754,7 @@ Allows for traditional vim bindings inside of emacs
         evil-normal-state-cursor (lambda () (set-cursor-color (face-foreground 'default))))
 
   :custom
-  (evil-undo-system 'undo-tree)
+  (evil-undo-system 'undo-fu)
   (evil-split-window-below t)
   (evil-vsplit-window-right t)
   ;; (evil-search-module 'evil-search)
