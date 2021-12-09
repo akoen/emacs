@@ -2790,6 +2790,7 @@ Allow RefTeX to plug into AUCTeX
   :custom
   (reftex-plug-into-AUCTeX t)
   (reftex-extra-bindings t)
+  (reftex-cite-format 'natbib)
   (reftex-use-external-file-handlers t))
 #+end_src
 
