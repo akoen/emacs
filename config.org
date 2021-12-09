@@ -1425,7 +1425,8 @@ An inteface to Git. The mascot of Emacs packages.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package magit
-  :defer t)
+  :config
+  (magit-wip-mode +1))
 
 (use-package magit-todos
   :after magit hl-todo
