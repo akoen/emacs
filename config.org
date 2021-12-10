@@ -1429,7 +1429,7 @@ An inteface to Git. The mascot of Emacs packages.
   (magit-wip-mode +1))
 
 (use-package magit-todos
-  :after magit hl-todo
+  :commands magit-status
   :custom
   (magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?") ; make colon optional
   :config
@@ -2260,18 +2260,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
                                    (:cache . "no")
                                    (:noweb . "no")
                                    (:hlines . "no")
-                                   (:tangle . "no")))
-  :init
-  (setq my--org-babel-repl-handlers
-        '(("emacs-lisp" . (message "elisp"))))
-  :config
-
-  (defun my--org-babel-eval-line-or-region ()
-    "Evalue the current line or region in the repl associated with the current src block."
-    ;; REVIEW Add region
-    (interactive)
-    (let ((language (car (org-babel-get-src-block-info t))))
-      (eval (cdr (assoc language my--org-babel-repl-handlers))))))
+                                   (:tangle . "no"))))
 
 (use-package ob-async
   :defer t
@@ -3425,13 +3414,6 @@ for delimiters."
   :custom
   (jupyter-org-resource-directory "/tmp/.ob-jupyter")
   :config
-
-  (cl-pushnew
-   '("jupyter-julia" . (+jupyter-org-maybe-eval-line-or-region))
-   my--org-babel-repl-handlers)
-  (cl-pushnew
-   '("jupyter-python" . (+jupyter-org-maybe-eval-line-or-region))
-   my--org-babel-repl-handlers)
 
   (defun +jupyter-org-insert-result-refresh-images (&rest _ignore)
     (org-display-inline-images))
