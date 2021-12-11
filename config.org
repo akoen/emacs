@@ -2682,13 +2682,9 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
   (let ((file (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org"))
         (template (concat org-dir "Templates/daily-review.org")))
         (find-file file)
-        (goto-char (point-max))
-        (insert-file-contents template)))
-
-(defun +visit-daily-review ()
-  "Visit the file corresponding to today's daily review"
-  (interactive)
-  (find-file (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org")))
+        (unless (file-exists-p file)
+          (goto-char (point-max))
+          (insert-file-contents template))))
 
 (defun +weekly-review ()
   (interactive)
