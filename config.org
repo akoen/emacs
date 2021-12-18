@@ -2705,6 +2705,7 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
 (use-package latex
   :straight auctex
   :defer t
+  :hook (LaTeX-mode . outline-minor-mode)
   :config
   ;; FIXME Not idempotent
   (add-hook 'LaTeX-mode-hook
