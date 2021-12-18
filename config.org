@@ -2649,28 +2649,22 @@ Visualize the Zettelkasten.
     ;; FIXME: Does not work
     "C-c [" 'org-cite-insert))
 
-;; REVIEW Not included as a dependency of bibtex-actions
-(use-package citeproc
-  :defer t)
-(use-package bibtex-actions
-  :after oc
+(use-package citar
+  :defer t
   :general
   (leader-key
-    "ob" 'bibtex-actions-open)
+    "ob" 'citar-open)
   :custom
-  (bibtex-actions-bibliography +zotero-bibliography)
+  (citar-bibliography (list +zotero-bibliography))
+  (org-cite-global-bibliography (list +zotero-bibliography))
+  (org-cite-insert-processor 'citar)
+  (org-cite-follow-processor 'citar)
+  (org-cite-activate-processor 'citar)
   :config
-  (add-to-list 'embark-target-finders 'bibtex-actions-citation-key-at-point)
-  (add-to-list 'embark-keymap-alist '(bib-reference . bibtex-actions-map))
-  (add-to-list 'embark-keymap-alist '(citation-key . bibtex-actions-buffer-map)))
-
-(use-feature oc-bibtex-actions
-  :after bibtex-actions
-  :custom
-  (org-cite-global-bibliography +zotero-bibliography)
-  (org-cite-insert-processor 'oc-bibtex-actions)
-  (org-cite-follow-processor 'oc-bibtex-actions)
-  (org-cite-activate-processor 'oc-bibtex-actions))
+  (with-eval-after-load 'embark
+    (add-to-list 'embark-target-finders 'citar-citation-key-at-point)
+    (add-to-list 'embark-keymap-alist '(bib-reference . citar-map))
+    (add-to-list 'embark-keymap-alist '(citation-key . citar-buffer-map))))
 #+end_src
 *** Reviews
 
