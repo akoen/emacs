@@ -3481,6 +3481,17 @@ Show overlays in fringe where code has been evaluated. Inspired by CIDER.
          (or (julia-paren-indent)
              (julia-indent-hanging)))))
 #+end_src
+*** Symex
+#+begin_src emacs-lisp :tangle yes
+(use-package symex
+  :general
+  (general-nmap :keymaps 'emacs-lisp-mode-map
+    "C-;" 'symex-mode-interface)
+  :custom
+  (evil-symex-state-cursor "green")
+  :config
+  (symex-initialize))
+#+end_src
 ** Lang
 *** Clojure
 #+begin_src emacs-lisp :tangle yes
