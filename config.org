@@ -2756,7 +2756,7 @@ Allow RefTeX to plug into AUCTeX
   :custom
   (reftex-plug-into-AUCTeX t)
   (reftex-extra-bindings t)
-  (reftex-cite-format 'natbib)
+  (reftex-cite-format 'default)
   (reftex-use-external-file-handlers t))
 #+end_src
 
@@ -3075,7 +3075,9 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
 			                  (mu4e~proc-move docid (mu4e~mark-check-target target) "-N"))))
 
   ;; Html mails might be better rendered in a browser
-  (add-to-list 'mu4e-view-actions '("View in browser" . mu4e-action-view-in-browser)))
+  (add-to-list 'mu4e-view-actions '("View in browser" . mu4e-action-view-in-browser))
+
+  (set-popup-rule! "\\*mu4e" :ignore t))
 
 #+end_src
 
@@ -3309,6 +3311,7 @@ rainbow-mode shows hex code colours in buffers.
             "<down>" 'jupyter-repl-history-next)
 
   (general-nmap 'jupyter-repl-mode-map
+    "/" 'ignore ;; get rid of awful isearch-printing-char loop
     "A" (lambda ()
           (interactive)
           (goto-char (point-max))
@@ -3318,7 +3321,7 @@ rainbow-mode shows hex code colours in buffers.
     "gz" '+jupyter-pop-to-repl
     "C-<return>" 'jupyter-eval-line-or-region
     "C-S-<return>" 'jupyter-eval-buffer
-    "C-M-<return>" '+jupyter-eval-cell)
+    "M-<return>" '+jupyter-eval-cell)
 
   (leader-key :keymaps '(python-mode-map julia-mode-map)
     "'" 'jupyter-run-repl)
@@ -3378,8 +3381,13 @@ for delimiters."
                             `((,(concat "^" (regexp-quote +jupyter-cell-comment) ".*$")
                                0 '+comment-cell-header-face t))))
 
+  ;; FIXME: Does not work
   ;; Show kernel status in modeline
   (add-to-list 'global-mode-string '(t (:eval (jupyter-repl-interaction-mode-line))))
+  (advice-add #'jupyter-eval-string :after #'+jupyter-force-mode-line-update)
+  (advice-add #'jupyter-eval-result-callbacks :after #'+jupyter-force-mode-line-update)
+  (defun +jupyter-force-mode-line-update (&rest ignore)
+    (force-mode-line-update))
 
   ;; Order matters!
   (set-popup-rules! '(("\\*jupyter-" :size 0.4)
@@ -3419,8 +3427,12 @@ for delimiters."
 Show overlays in fringe where code has been evaluated. Inspired by CIDER.
 
 #+begin_src emacs-lisp :tangle yes
+
+;; TODO There is surely a better way to enable our function than overriding
+;; #'jupyter-eval-display-overlay. See `jupyter-eval-result-callbacks'.
 (with-eval-after-load 'jupyter
-  (advice-add #'jupyter-eval-display-overlay :after #'+jupyter-add-fringe-overlays))
+  (setq jupyter-eval-use-overlays t)
+  (advice-add #'jupyter-eval-display-overlay :override #'+jupyter-add-fringe-overlays))
 
 (defface +jupyter-fringe-evaluated-face
   '((t :foreground "#080"))
@@ -4017,6 +4029,11 @@ I used to dislike MATLAB, but the effort they put in to supporting Linux and Ema
    (car (last (file-expand-wildcards
                (expand-file-name "~/.julia/environments/v*")))))
   :config
+  ;; https://github.com/non-Jedi/lsp-julia/issues/35
+  (add-hook 'julia-mode-hook (defun +julia-fix-lsp ()
+                               (setq-local lsp-enable-folding t
+                                           lsp-folding-range-limit 100)))
+
   (setq +julia-math-symbol-alist
         '((?a "\\alpha" "\\bfalpha")
           (?b "\\beta" "\\bfbeta")
