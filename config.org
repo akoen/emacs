@@ -713,13 +713,17 @@ The Hydra is vanquished once Hercules, any binding that isn't the Hydra's head, 
 ** Undo
 
 #+begin_src emacs-lisp :tangle yes
-(use-package undo-tree
+(use-package undo-fu
   :custom
-  (undo-tree-visualizer-diff t)
-  (undo-tree-auto-save-history t)
-  (undo-tree-enable-undo-in-region t)
+  (undo-limit 400000)
+  (undo-strong-limit 3000000)
+  (undo-outer-limit 48000000))
+
+(use-package undo-fu-session
+  :custom
+  (undo-fu-session-incompatible-files '("\\.gpg$" "/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
   :config
-  (global-undo-tree-mode +1))
+  (global-undo-fu-session-mode 1))
 #+end_src
 
 ** EVIL
@@ -729,7 +733,6 @@ Allows for traditional vim bindings inside of emacs
 #+begin_src emacs-lisp :tangle yes :noweb no-export
 ;; load evil
 (use-package evil
-  :after undo-tree
   :general
   ;; quick replace
   (general-def :states 'normal
@@ -751,7 +754,7 @@ Allows for traditional vim bindings inside of emacs
         evil-normal-state-cursor (lambda () (set-cursor-color (face-foreground 'default))))
 
   :custom
-  (evil-undo-system 'undo-tree)
+  (evil-undo-system 'undo-fu)
   (evil-split-window-below t)
   (evil-vsplit-window-right t)
   ;; (evil-search-module 'evil-search)
@@ -1423,29 +1426,15 @@ An inteface to Git. The mascot of Emacs packages.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package magit
-  :defer t)
+  :config
+  (magit-wip-mode +1))
 
 (use-package magit-todos
-  :after magit hl-todo
+  :commands magit-status
   :custom
   (magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?") ; make colon optional
   :config
   (magit-todos-mode))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package forge
-  :after magit)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package github-review
-  :after magit forge
-  :config
-  (with-eval-after-load 'forge
-    (transient-append-suffix 'forge-dispatch "c u"
-      '("c r" "Review pull request" github-review-forge-pr-at-point))))
-
 #+end_src
 
 ** Comint
@@ -2272,18 +2261,7 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
                                    (:cache . "no")
                                    (:noweb . "no")
                                    (:hlines . "no")
-                                   (:tangle . "no")))
-  :init
-  (setq my--org-babel-repl-handlers
-        '(("emacs-lisp" . (message "elisp"))))
-  :config
-
-  (defun my--org-babel-eval-line-or-region ()
-    "Evalue the current line or region in the repl associated with the current src block."
-    ;; REVIEW Add region
-    (interactive)
-    (let ((language (car (org-babel-get-src-block-info t))))
-      (eval (cdr (assoc language my--org-babel-repl-handlers))))))
+                                   (:tangle . "no"))))
 
 (use-package ob-async
   :defer t
@@ -2672,28 +2650,22 @@ Visualize the Zettelkasten.
     ;; FIXME: Does not work
     "C-c [" 'org-cite-insert))
 
-;; REVIEW Not included as a dependency of bibtex-actions
-(use-package citeproc
-  :defer t)
-(use-package bibtex-actions
-  :after oc
+(use-package citar
+  :defer t
   :general
   (leader-key
-    "ob" 'bibtex-actions-open)
+    "ob" 'citar-open)
   :custom
-  (bibtex-actions-bibliography +zotero-bibliography)
+  (citar-bibliography (list +zotero-bibliography))
+  (org-cite-global-bibliography (list +zotero-bibliography))
+  (org-cite-insert-processor 'citar)
+  (org-cite-follow-processor 'citar)
+  (org-cite-activate-processor 'citar)
   :config
-  (add-to-list 'embark-target-finders 'bibtex-actions-citation-key-at-point)
-  (add-to-list 'embark-keymap-alist '(bib-reference . bibtex-actions-map))
-  (add-to-list 'embark-keymap-alist '(citation-key . bibtex-actions-buffer-map)))
-
-(use-feature oc-bibtex-actions
-  :after bibtex-actions
-  :custom
-  (org-cite-global-bibliography +zotero-bibliography)
-  (org-cite-insert-processor 'oc-bibtex-actions)
-  (org-cite-follow-processor 'oc-bibtex-actions)
-  (org-cite-activate-processor 'oc-bibtex-actions))
+  (with-eval-after-load 'embark
+    (add-to-list 'embark-target-finders 'citar-citation-key-at-point)
+    (add-to-list 'embark-keymap-alist '(bib-reference . citar-map))
+    (add-to-list 'embark-keymap-alist '(citation-key . citar-buffer-map))))
 #+end_src
 *** Reviews
 
@@ -2705,13 +2677,9 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
   (let ((file (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org"))
         (template (concat org-dir "Templates/daily-review.org")))
         (find-file file)
-        (goto-char (point-max))
-        (insert-file-contents template)))
-
-(defun +visit-daily-review ()
-  "Visit the file corresponding to today's daily review"
-  (interactive)
-  (find-file (concat org-dir "Reviews/daily/" (format-time-string "%Y-%m-%d") ".org")))
+        (unless (file-exists-p file)
+          (goto-char (point-max))
+          (insert-file-contents template))))
 
 (defun +weekly-review ()
   (interactive)
@@ -2738,6 +2706,7 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
 (use-package latex
   :straight auctex
   :defer t
+  :hook (LaTeX-mode . outline-minor-mode)
   :config
   ;; FIXME Not idempotent
   (add-hook 'LaTeX-mode-hook
@@ -2788,6 +2757,7 @@ Allow RefTeX to plug into AUCTeX
   :custom
   (reftex-plug-into-AUCTeX t)
   (reftex-extra-bindings t)
+  (reftex-cite-format 'default)
   (reftex-use-external-file-handlers t))
 #+end_src
 
@@ -3106,7 +3076,9 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
 			                  (mu4e~proc-move docid (mu4e~mark-check-target target) "-N"))))
 
   ;; Html mails might be better rendered in a browser
-  (add-to-list 'mu4e-view-actions '("View in browser" . mu4e-action-view-in-browser)))
+  (add-to-list 'mu4e-view-actions '("View in browser" . mu4e-action-view-in-browser))
+
+  (set-popup-rule! "\\*mu4e" :ignore t))
 
 #+end_src
 
@@ -3340,6 +3312,7 @@ rainbow-mode shows hex code colours in buffers.
             "<down>" 'jupyter-repl-history-next)
 
   (general-nmap 'jupyter-repl-mode-map
+    "/" 'ignore ;; get rid of awful isearch-printing-char loop
     "A" (lambda ()
           (interactive)
           (goto-char (point-max))
@@ -3349,7 +3322,7 @@ rainbow-mode shows hex code colours in buffers.
     "gz" '+jupyter-pop-to-repl
     "C-<return>" 'jupyter-eval-line-or-region
     "C-S-<return>" 'jupyter-eval-buffer
-    "C-M-<return>" '+jupyter-eval-cell)
+    "M-<return>" '+jupyter-eval-cell)
 
   (leader-key :keymaps '(python-mode-map julia-mode-map)
     "'" 'jupyter-run-repl)
@@ -3409,8 +3382,13 @@ for delimiters."
                             `((,(concat "^" (regexp-quote +jupyter-cell-comment) ".*$")
                                0 '+comment-cell-header-face t))))
 
+  ;; FIXME: Does not work
   ;; Show kernel status in modeline
   (add-to-list 'global-mode-string '(t (:eval (jupyter-repl-interaction-mode-line))))
+  (advice-add #'jupyter-eval-string :after #'+jupyter-force-mode-line-update)
+  (advice-add #'jupyter-eval-result-callbacks :after #'+jupyter-force-mode-line-update)
+  (defun +jupyter-force-mode-line-update (&rest ignore)
+    (force-mode-line-update))
 
   ;; Order matters!
   (set-popup-rules! '(("\\*jupyter-" :size 0.4)
@@ -3437,13 +3415,6 @@ for delimiters."
   (jupyter-org-resource-directory "/tmp/.ob-jupyter")
   :config
 
-  (cl-pushnew
-   '("jupyter-julia" . (+jupyter-org-maybe-eval-line-or-region))
-   my--org-babel-repl-handlers)
-  (cl-pushnew
-   '("jupyter-python" . (+jupyter-org-maybe-eval-line-or-region))
-   my--org-babel-repl-handlers)
-
   (defun +jupyter-org-insert-result-refresh-images (&rest _ignore)
     (org-display-inline-images))
   (advice-add #'jupyter-org--do-insert-result :after #'+jupyter-org-insert-result-refresh-images)
@@ -3457,8 +3428,12 @@ for delimiters."
 Show overlays in fringe where code has been evaluated. Inspired by CIDER.
 
 #+begin_src emacs-lisp :tangle yes
+
+;; TODO There is surely a better way to enable our function than overriding
+;; #'jupyter-eval-display-overlay. See `jupyter-eval-result-callbacks'.
 (with-eval-after-load 'jupyter
-  (advice-add #'jupyter-eval-display-overlay :after #'+jupyter-add-fringe-overlays))
+  (setq jupyter-eval-use-overlays t)
+  (advice-add #'jupyter-eval-display-overlay :override #'+jupyter-add-fringe-overlays))
 
 (defface +jupyter-fringe-evaluated-face
   '((t :foreground "#080"))
@@ -3506,6 +3481,17 @@ Show overlays in fringe where code has been evaluated. Inspired by CIDER.
          (forward-line 1)
          (or (julia-paren-indent)
              (julia-indent-hanging)))))
+#+end_src
+*** Symex
+#+begin_src emacs-lisp :tangle yes
+(use-package symex
+  :general
+  (general-nmap :keymaps 'emacs-lisp-mode-map
+    "C-;" 'symex-mode-interface)
+  :custom
+  (evil-symex-state-cursor "green")
+  :config
+  (symex-initialize))
 #+end_src
 ** Lang
 *** Clojure
@@ -4055,6 +4041,11 @@ I used to dislike MATLAB, but the effort they put in to supporting Linux and Ema
    (car (last (file-expand-wildcards
                (expand-file-name "~/.julia/environments/v*")))))
   :config
+  ;; https://github.com/non-Jedi/lsp-julia/issues/35
+  (add-hook 'julia-mode-hook (defun +julia-fix-lsp ()
+                               (setq-local lsp-enable-folding t
+                                           lsp-folding-range-limit 100)))
+
   (setq +julia-math-symbol-alist
         '((?a "\\alpha" "\\bfalpha")
           (?b "\\beta" "\\bfbeta")
