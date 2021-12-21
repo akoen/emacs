@@ -756,6 +756,7 @@ Allows for traditional vim bindings inside of emacs
   (evil-vsplit-window-right t)
   ;; (evil-search-module 'evil-search)
   (evil-ex-substitute-global t)
+  (evil-move-beyond-eol t)
   (evil-esc-mode nil) ;; performance. Only used for jj/jk type mappings
   ;; (evil-ex-search-vim-style-regexp t) Consider this
   (evil-jumps-cross-buffers nil)
