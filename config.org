@@ -2587,7 +2587,7 @@ Allows for external applications to trigger custom actions without external depe
      ("b" "book" plain
       "%?"
       :if-new (file+head "${slug}.org"
-                         "#+setupfile: ../../hugo_setup.org
+                         "#+setupfile: ../hugo_setup.org
 ,#+filetags: books
 ,#+title: ${title}
 
