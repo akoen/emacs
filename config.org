@@ -1851,45 +1851,22 @@ ELEMENT should be a list like that returned by `org-element-context'."
       (or (eq type (car parent))
           (unpackaged/org-element-descendant-of type parent))))
 
+  (defun +org-link-at-point-p ()
+    "Return t if point is on a link."
+    (member (org-element-type (org-element-context))
+            '(citation citation-reference link)))
+
   (defun +org-return-dwim-normal ()
     "A helpful replacement for `org-return'.  With prefix, call `org-return'.
-
-On headings, move point to position after entry content.  In
-lists, insert a new item or end the list, with checkbox if
-appropriate.  In tables, insert a new row or end the table."
-    ;; Inspired by John Kitchin: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/
+    ;; Inspired by John Kitchin: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/"
     (interactive)
     (cond
      ;; Act depending on context around point.
-     ((org-in-src-block-p) (org-babel-execute-src-block)
-      (org-at-heading-p)
-      ;; Heading: Move to position after entry content.
-      (let ((heading-start (org-entry-beginning-position)))
-        (goto-char (org-entry-end-position))
-        (cond ((and (org-at-heading-p)
-                    (= heading-start (org-entry-beginning-position)))
-               ;; Entry ends on its heading; add newline after
-               (end-of-line)
-               (insert "\n\n"))
-              (t
-               ;; Entry ends after its heading; back up
-               (forward-line -1)
-               (end-of-line)
-               (when (org-at-heading-p)
-                 ;; At the same heading
-                 (forward-line)
-                 (insert "\n")
-                 (forward-line -1))
-               ;; FIXME: looking-back is supposed to be called with more arguments.
-               (while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n")))))
-                 (insert "\n"))
-               (forward-line -1)))
-        (evil-insert-state)))
+     ((org-in-src-block-p) (org-babel-execute-src-block))
+     ((+org-link-at-point-p) (org-open-at-point))
      ((org-at-item-checkbox-p)
       (org-toggle-checkbox))
-     (t
-      ;; All other cases: call `org-return'.
-      (org-return))))
+     (t (org-return))))
 
   (defun +org-return-dwim-insert ()
     (interactive)
@@ -1900,12 +1877,18 @@ appropriate.  In tables, insert a new row or end the table."
      ((org-in-item-p)
       ;; Plain list.
       (let ((context (org-element-context)))
-        (if (or (eq 'plain-list (car context))  ; First item in list
-                (and (eq 'item (car context))
-                     (not (eq (org-element-property :contents-begin context)
-                              (org-element-property :contents-end context))))
-                (unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
-            ;; Non-empty item: Add new item.
+        (if (or
+             ;; List but not empty line
+             (and (eq 'plain-list (car context))
+                  (not (save-excursion
+                         (beginning-of-line)
+                         (looking-at "[ \t]*$"))))
+             ;; Empty bullet
+             (and (eq 'item (car context))
+                  (not (eq (org-element-property :contents-begin context)
+                           (org-element-property :contents-end context))))
+             ;; Element in list item, e.g. a link
+             (unpackaged/org-element-descendant-of 'item context))  
             (org-insert-item)
           ;; Empty item: Close the list.
           (delete-region (line-beginning-position) (line-end-position))
