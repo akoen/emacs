@@ -1892,20 +1892,19 @@ ELEMENT should be a list like that returned by `org-element-context'."
           ;; Empty item: Close the list.
           (delete-region (line-beginning-position) (line-end-position))
           (insert "\n"))))
-     ((org-at-table-p)
-      (cond ((save-excursion
-               (beginning-of-line)
-               ;; See `org-table-next-field'.
-               (cl-loop with end = (line-end-position)
-                        for cell = (org-element-table-cell-parser)
-                        always (equal (org-element-property :contents-begin cell)
-                                      (org-element-property :contents-end cell))
-                        while (re-search-forward "|" end t)))
-             ;; Empty row: end the table.
-             (delete-region (line-beginning-position) (line-end-position))
-             (org-return))))
+     ((and (org-at-table-p)
+           (save-excursion
+             (beginning-of-line)
+             ;; See `org-table-next-field'.
+             (cl-loop with end = (line-end-position)
+                      for cell = (org-element-table-cell-parser)
+                      always (equal (org-element-property :contents-begin cell)
+                                    (org-element-property :contents-end cell))
+                      while (re-search-forward "|" end t))))
+      ;; Empty row: end the table.
+      (progn (delete-region (line-beginning-position) (line-end-position))
+             (org-return)))
      (t
-      ;; Non-empty row: call `org-return'.
       (org-return))))
 
   (general-imap :keymaps 'org-mode-map
