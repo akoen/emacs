@@ -2814,26 +2814,24 @@ Checks for signs of bad writing.
 *** Writing Function
 
 #+begin_src emacs-lisp :tangle yes
-(defvar writemode 1 "Set default writing mode state.")
-(defun writing-mode ()
-  "Configure writing environment."
-  (interactive)
-  (cond
-   ((= writemode 1)
-    ;;(focus-mode t)
-    (olivetti-mode t)
-    (variable-pitch-mode 1) ;; All fonts with variable pitch.
-    (text-scale-increase 0.5)
-    (focus-mode 1)
-    (setq-local writemode 2))
-   ((= writemode 2)
-    ;;(focus-mode -1)
-    (olivetti-mode -1)
-    (focus-mode 0)
-    (variable-pitch-mode 0) ;; All fonts with variable pitch.
-    (text-scale-decrease 0)
-    (setq-local display-line-numbers 'relative)
-    (setq-local writemode 1))))
+(define-minor-mode writing-mode
+  "Mode for distraction-free writing."
+  :init-value nil
+  (if writing-mode
+      (progn
+        (olivetti-mode t)
+        (display-line-numbers-mode 0)
+        (variable-pitch-mode 1) ;; All fonts with variable pitch.
+        (text-scale-increase 0.5)
+        (hide-mode-line-mode 1)
+        (focus-mode 1))
+    (progn
+      (olivetti-mode -1)
+      (display-line-numbers-mode 1)
+      (hide-mode-line-mode -1)
+      (focus-mode 0)
+      (variable-pitch-mode 0) ;; All fonts with variable pitch.
+      (text-scale-decrease 0))))
 #+end_src
 *** Flyspell
 
