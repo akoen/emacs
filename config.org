@@ -417,7 +417,6 @@ Make yes or no prompts be y or n prompts
                 jupyter-repl-mode-hook
                 pdf-view-mode-hook
                 treemacs-mode-hook
-                olivetti-mode-hook
                 eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 #+end_src
@@ -2230,7 +2229,6 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   :general
   (general-nmap :keymaps 'override
     :predicate '(eq (org-element-type (org-element-at-point)) 'src-block)
-    "C-<return>" 'my--org-babel-eval-line-or-region
     "S-<return>" 'org-babel-execute-src-block)
 
   :custom
@@ -2918,7 +2916,7 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
 #+begin_src emacs-lisp :tangle yes
 (use-package mu4e
   :commands mu4e mu4e-compose-new
-  :hook (((mu4e-compose-mode mu4e-view-mode) . olivetti-mode)
+  :hook (((mu4e-compose-mode mu4e-view-mode) . writing-mode)
          (dired-mode . turn-on-gnus-dired-mode))
   :general
   (leader-key
@@ -3388,7 +3386,7 @@ for delimiters."
   :init
   (setq org-babel-default-header-args:jupyter-julia '((:async . "yes")
                                                       (:session . "jl")
-                                                      (:kernel . "julia-1.6"))
+                                                      (:kernel . "julia-1.7"))
         org-babel-default-header-args:jupyter-python '((:async . "yes")
                                                        (:session . "py")
                                                        (:kernel . "python3")))
