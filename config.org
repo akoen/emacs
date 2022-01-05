@@ -3495,6 +3495,39 @@ Show overlays in fringe where code has been evaluated. Inspired by CIDER.
          (or (julia-paren-indent)
              (julia-indent-hanging)))))
 #+end_src
+**** Eldoc integration
+
+#+begin_src emacs-lisp :tangle yes
+(defun +jupyter-eldoc (callback &rest _ignored)
+  "Try to return a function signature for the thing at point."
+  (when-let ((docstring
+              (save-window-excursion
+                (cl-destructuring-bind (code pos)
+                    (jupyter-code-context 'inspect)
+                  (jupyter-inspect code pos nil 0))
+                (when (get-buffer "*Help*")
+                  (with-current-buffer "*Help*"
+                    (goto-char (point-min))
+                    (prog1
+                        (cond
+                         ((re-search-forward "Signature:" nil t 1)
+                          (buffer-substring (line-beginning-position) (line-end-position)))
+                         ((re-search-forward "Docstring:" nil t 1)
+                          (forward-line)
+                          (buffer-substring (line-beginning-position) (line-end-position)))
+                         (t
+                          nil))
+                      ;; get rid of this so we don't accidently show old results later
+                      (with-current-buffer "*Help*"
+                        (toggle-read-only)
+                        (erase-buffer))))))))
+    (funcall callback docstring)))
+
+
+(add-hook 'jupyter-repl-interaction-mode-hook (defun +jupyter-setup-eldoc ()
+                                                (add-hook 'eldoc-documentation-functions #'+jupyter-eldoc nil t)))
+#+end_src
+
 *** Symex
 #+begin_src emacs-lisp :tangle yes
 (use-package symex
