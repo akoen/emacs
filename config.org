@@ -3391,13 +3391,17 @@ for delimiters."
                             `((,(concat "^" (regexp-quote +jupyter-cell-comment) ".*$")
                                0 '+comment-cell-header-face t))))
 
-  ;; FIXME: Does not work
   ;; Show kernel status in modeline
   (add-to-list 'global-mode-string '(t (:eval (jupyter-repl-interaction-mode-line))))
+  ;; FIXME: Does not work
   (advice-add #'jupyter-eval-string :after #'+jupyter-force-mode-line-update)
   (advice-add #'jupyter-eval-result-callbacks :after #'+jupyter-force-mode-line-update)
   (defun +jupyter-force-mode-line-update (&rest ignore)
     (force-mode-line-update))
+
+  ;; HACK: In certain cases, evil minor-mode keymaps will not take effect until
+  ;; a state change. See https://github.com/emacs-evil/evil/issues/301#issuecomment-591569346.
+  (add-hook 'jupyter-repl-interaction-mode-hook #'evil-normalize-keymaps)
 
   ;; Order matters!
   (set-popup-rules! '(("\\*jupyter-" :size 0.4)
