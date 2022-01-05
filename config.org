@@ -3142,20 +3142,29 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
   :config
   (set-popup-rule! "\\*Diff\\*" :size 0.4 :select t))
 #+end_src
+
 *** Edebug
 #+begin_src emacs-lisp :tangle yes
-  (use-feature edebug
-    :custom
-    (edebug-save-windows nil)
-    :config
-    (defun my--edebug-add-instrumentation (fun)
-      "Interactively call edebug-instrument-function."
-      (interactive "aFunction symbol: ")
-      (edebug-instrument-function fun))
-    (with-eval-after-load 'embark
-      (define-key embark-command-map (kbd "e") 'my--edebug-add-instrumentation)))
+(use-feature edebug
+  :custom
+  (edebug-save-windows nil)
+  :config
+  (defun +edebug-add-instrumentation (fun)
+    "Interactively call edebug-instrument-function."
+    (interactive "aFunction symbol: ")
+    (edebug-instrument-function fun))
+  (with-eval-after-load 'embark
+    (define-key embark-command-map (kbd "e") 'my--edebug-add-instrumentation)))
 
-  (require 'edebug-x)
+(require 'edebug-x)
+
+(define-transient-command edebug-transient ()
+  "Edebug"
+  ["Actions"
+   ("a" "Add Instrumentation" +edebug-add-instrumentation)
+   ("r" "Remove Instrumentation" edebug-remove-instrumentation)])
+
+(leader-key "de" 'edebug-transient)
 #+end_src
 *** Eval
 
