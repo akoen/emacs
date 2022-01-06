@@ -3120,20 +3120,29 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
   :config
   (set-popup-rule! "\\*Diff\\*" :size 0.4 :select t))
 #+end_src
+
 *** Edebug
 #+begin_src emacs-lisp :tangle yes
-  (use-feature edebug
-    :custom
-    (edebug-save-windows nil)
-    :config
-    (defun my--edebug-add-instrumentation (fun)
-      "Interactively call edebug-instrument-function."
-      (interactive "aFunction symbol: ")
-      (edebug-instrument-function fun))
-    (with-eval-after-load 'embark
-      (define-key embark-command-map (kbd "e") 'my--edebug-add-instrumentation)))
+(use-feature edebug
+  :custom
+  (edebug-save-windows nil)
+  :config
+  (defun +edebug-add-instrumentation (fun)
+    "Interactively call edebug-instrument-function."
+    (interactive "aFunction symbol: ")
+    (edebug-instrument-function fun))
+  (with-eval-after-load 'embark
+    (define-key embark-command-map (kbd "e") 'my--edebug-add-instrumentation)))
 
-  (require 'edebug-x)
+(require 'edebug-x)
+
+(define-transient-command edebug-transient ()
+  "Edebug"
+  ["Actions"
+   ("a" "Add Instrumentation" +edebug-add-instrumentation)
+   ("r" "Remove Instrumentation" edebug-remove-instrumentation)])
+
+(leader-key "de" 'edebug-transient)
 #+end_src
 *** Eval
 
@@ -3360,13 +3369,17 @@ for delimiters."
                             `((,(concat "^" (regexp-quote +jupyter-cell-comment) ".*$")
                                0 '+comment-cell-header-face t))))
 
-  ;; FIXME: Does not work
   ;; Show kernel status in modeline
   (add-to-list 'global-mode-string '(t (:eval (jupyter-repl-interaction-mode-line))))
+  ;; FIXME: Does not work
   (advice-add #'jupyter-eval-string :after #'+jupyter-force-mode-line-update)
   (advice-add #'jupyter-eval-result-callbacks :after #'+jupyter-force-mode-line-update)
   (defun +jupyter-force-mode-line-update (&rest ignore)
     (force-mode-line-update))
+
+  ;; HACK: In certain cases, evil minor-mode keymaps will not take effect until
+  ;; a state change. See https://github.com/emacs-evil/evil/issues/301#issuecomment-591569346.
+  (add-hook 'jupyter-repl-interaction-mode-hook #'evil-normalize-keymaps)
 
   ;; Order matters!
   (set-popup-rules! '(("\\*jupyter-" :size 0.4)
@@ -3460,6 +3473,39 @@ Show overlays in fringe where code has been evaluated. Inspired by CIDER.
          (or (julia-paren-indent)
              (julia-indent-hanging)))))
 #+end_src
+**** Eldoc integration
+
+#+begin_src emacs-lisp :tangle yes
+(defun +jupyter-eldoc (callback &rest _ignored)
+  "Try to return a function signature for the thing at point."
+  (when-let ((docstring
+              (save-window-excursion
+                (cl-destructuring-bind (code pos)
+                    (jupyter-code-context 'inspect)
+                  (jupyter-inspect code pos nil 0))
+                (when (get-buffer "*Help*")
+                  (with-current-buffer "*Help*"
+                    (goto-char (point-min))
+                    (prog1
+                        (cond
+                         ((re-search-forward "Signature:" nil t 1)
+                          (buffer-substring (line-beginning-position) (line-end-position)))
+                         ((re-search-forward "Docstring:" nil t 1)
+                          (forward-line)
+                          (buffer-substring (line-beginning-position) (line-end-position)))
+                         (t
+                          nil))
+                      ;; get rid of this so we don't accidently show old results later
+                      (with-current-buffer "*Help*"
+                        (toggle-read-only)
+                        (erase-buffer))))))))
+    (funcall callback docstring)))
+
+
+(add-hook 'jupyter-repl-interaction-mode-hook (defun +jupyter-setup-eldoc ()
+                                                (add-hook 'eldoc-documentation-functions #'+jupyter-eldoc nil t)))
+#+end_src
+
 *** Symex
 #+begin_src emacs-lisp :tangle yes
 (use-package symex
