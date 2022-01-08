@@ -1125,7 +1125,15 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   :general
   (general-imap "<DEL>" 'smart-hungry-delete-backward-char)
   :config
-  (smart-hungry-delete-add-default-hooks))
+  (smart-hungry-delete-add-default-hooks)
+
+  (advice-add #'smart-hungry-delete-backward-char :around #'+smart-hungry-delete-compat-python)
+  (defun +smart-hungry-delete-compat-python (orig-fn &rest arg)
+    "Call `smart-hungry-delete-backward-char' unless point is directly after the indentation, in which case call `python-indent-dedent-line-backspace'."
+    (if (and (eq major-mode 'python-mode)
+             (looking-back "^[\t ]+"))
+        (python-indent-dedent-line-backspace arg)
+      (funcall orig-fn arg))))
 #+end_src
 * Completion
 ** Function
