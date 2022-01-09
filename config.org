@@ -2,6 +2,8 @@
 
 I have now been using Emacs as my primary editor for almost three years. Most of the time, it feels like piloting an inter-galactic starship through the turbulence of spacetime, free from the sluggishness of earthbound life. The rest of time, I feel like printing out my config and lighting it on fire. Regardless, it is tremendous fun and a worthy distraction from my homework.
 
+#+HTML: <img src="warpspeed.jpg" align="right">
+
 Alright, let's do this:
 * Usage
 ** Use-package
