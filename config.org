@@ -2,8 +2,14 @@
 
 #+HTML: <img src="warpspeed.jpg" align="right" style="height: 16rem">
 
-I have now been using Emacs as my primary editor for almost three years. Most of the time, it feels like piloting an inter-galactic starship through the turbulence of spacetime, free from the sluggishness of earthbound life. The rest of time, I feel like printing out my config and lighting it on fire. Regardless, it is tremendous fun and a worthy distraction from my homework.
+Most of the time Emacs feels like piloting an inter-galactic starship through the turbulence of spacetime, free from the sluggishness of earthbound life. The rest of time, I feel like printing out my config and lighting it on fire. Regardless, it is tremendous fun and a worthy distraction from my homework.
 
+*Highlights:*
+1. [[https://github.com/akoen/gtd-agenda.el][Fully custom org-agenda renderer]]
+2. [[file:lisp/native-src.el][Native org-mode src-block editing with Jupyter integration]]
+3. [[file:lisp/edebug-x.el][Make edebug tolerable]]
+
+If you're a fellow Emacs junkie, feel free to say hi over at [[https://alexkoen.com]]. I have very diverse interests.
 
 Alright, let's do this:
 * Usage
