@@ -66,6 +66,8 @@ Or a message
 
 ** Performance Optimizations
 
+A lot happens in [[file:early-init.el]].
+
 #+begin_src emacs-lisp :tangle yes
 (use-package gcmh
   :hook (after-init . gcmh-mode))
