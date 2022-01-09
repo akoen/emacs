@@ -1319,7 +1319,8 @@ _r_eload    e_x_pand    _?_ list
 
   (add-hook 'post-command-hook #'my--yas-try-expanding-auto-snippets)
 
-  (add-to-list 'warning-suppress-types '(yasnippet backquote-change))
+  (with-eval-after-load 'warnings
+    (add-to-list 'warning-suppress-types '(yasnippet backquote-change)))
 
   (setq yas-verbosity 2)
   (yas-global-mode 1))
@@ -2919,7 +2920,8 @@ This is a very promising package, but it is not yet polished.
 * Email
 ** Reading Email
 
-Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.d/blob/master/config.org
+Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.d/blob/master/config.org. *Make sure install package mu!*
+
 #+begin_src emacs-lisp :tangle yes
 (use-package mu4e
   :commands mu4e mu4e-compose-new
@@ -4124,6 +4126,18 @@ I used to dislike MATLAB, but the effort they put in to supporting Linux and Ema
       (insert symbol)
       (julia-latexsub))))
 #+end_src
+*** Sxhkd
+
+Pretty niche
+
+#+begin_src emacs-lisp :tangle yes
+(use-package sxhkd-mode
+  :mode "sxhkdrc\\'"
+  :custom
+  (sxhkd-mode-reload-config t)
+  :straight (:host github :repo "xFA25E/sxhkd-mode"))
+#+end_src
+
 *** Lua
 #+begin_src emacs-lisp :tangle yes
 (use-package lua-mode
