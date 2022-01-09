@@ -1,3 +1,4 @@
+(straight-use-package 'polymode)
 (require 'polymode)
 (require 'jupyter)
 (require 'ob-jupyter)
