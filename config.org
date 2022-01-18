@@ -1726,6 +1726,25 @@ Keeps a list of recently opened files.
   (recentf-mode +1))
 #+end_src
 
+** Prodigy
+
+#+begin_src emacs-lisp :tangle yes
+(use-package prodigy
+  :defer t
+  :general
+  (leader-key
+    "tp" 'prodigy)
+  (general-nmap :keymaps 'prodigy-mode-map
+    "+" 'prodigy-start
+    "-" 'prodigy-stop)
+  :config
+  (prodigy-define-service
+    :name "hugo"
+    :command "hugo"
+    :args '("server" "-D")
+    :cwd "~/Programming/portfolio"))
+#+end_src
+
 ** NeoTree
 Displays the folder tree
 #+begin_src emacs-lisp :tangle yes
