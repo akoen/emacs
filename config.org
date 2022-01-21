@@ -3184,6 +3184,14 @@ machine smtp.mailbox.com login alex@koen.ca password <password> port 587
 
 (leader-key "de" 'edebug-transient)
 #+end_src
+
+*** Eldoc
+#+begin_src emacs-lisp :tangle yes
+(use-feature eldoc
+  :custom
+  (eldoc-idle-delay 0.1))
+#+end_src
+
 *** Eval
 
 Framework, heavily inspired by Doom Emacs, for evaluating buffer code in major-mode specific "runner" functions.
@@ -3271,7 +3279,13 @@ Framework, heavily inspired by Doom Emacs, for evaluating buffer code in major-m
 (use-package flycheck
   :hook (prog-mode . flycheck-mode)
   :custom
-  (flycheck-indication-mode nil))
+  (flycheck-indication-mode nil)
+  :config
+  ;; Suppress display of flycheck errors in insert state
+  (advice-add #'flycheck-display-error-at-point :around
+              (defun +flycheck-suppress-in-insert-mode (orig-fn)
+                (when (not (eq evil-state 'insert))
+                  (funcall orig-fn)))))
 #+end_src
 *** grep
 #+begin_src emacs-lisp :tangle yes
