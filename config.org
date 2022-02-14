@@ -457,6 +457,9 @@ Make yes or no prompts be y or n prompts
 Copied from Doom Emacs
 
 #+begin_src emacs-lisp :tangle yes
+(when (>= emacs-major-version 29)
+  (pixel-scroll-precision-mode 1))
+
 (setq hscroll-margin 2
       fast-but-imprecise-scrolling t
       hscroll-step 1
