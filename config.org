@@ -3588,6 +3588,51 @@ Show overlays in fringe where code has been evaluated. Inspired by CIDER.
   (symex-initialize))
 #+end_src
 ** Lang
+*** C/C++
+To configure a new C program:
+1. Create a =CMakeLists.txt= file. Eg:
+#+begin_src cmake :tangle no
+cmake_minimum_required(VERSION 3.10)
+
+# set the project name
+project(Tutorial)
+
+# add the executable
+add_executable(Tutorial tutorial.cxx)
+#+end_src
+
+2. Run the following commands:
+#+begin_src shell :tangle no
+cmake -H. -BDebug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
+ln -s Debug/compile_commands.json
+#+end_src
+
+Where ~-BDebug~ specifies the build directory (Debug)
+
+**** CMake
+
+#+begin_src emacs-lisp :tangle yes
+(use-package cmake-mode
+  :mode ("CMAKELists\\.txt\\'" "\\.cmake\\'"))
+
+(use-package cmake-font-lock
+  :after (cmake-mode)
+  :hook (cmake-mode . cmake-font-lock-activate))
+#+end_src
+
+**** lsp-clangd
+
+#+begin_src emacs-lisp :tangle yes
+(use-feature lsp-clangd
+  :after lsp-mode
+  :custom
+  (lsp-clients-clangd-args '("-j=3"
+			     "--background-index"
+			     "--clang-tidy"
+			     "--completion-style=detailed"
+			     "--header-insertion=never")))
+
+#+end_src
 *** Clojure
 #+begin_src emacs-lisp :tangle yes
 (use-package clojure-mode
@@ -3632,35 +3677,6 @@ Show overlays in fringe where code has been evaluated. Inspired by CIDER.
 (use-package flycheck-clj-kondo
   :after clojure-mode)
 #+end_src
-*** Elisp
-#+begin_src emacs-lisp :tangle yes
-(use-feature elisp
-  :general
-  (leader-key :keymaps 'emacs-lisp-mode-map
-    "ed" 'eval-defun
-    "el" 'load-library
-    "ee" 'pp-eval-last-sexp)
-
-  :init
-  (defun +eval-emacs-lisp (beg end)
-    "Runner for emacs-lisp."
-    (eval (read (format "(progn %s)"
-                        (buffer-substring-no-properties beg end)))))
-  (add-to-list '+eval-runners '(emacs-lisp-mode . +eval-emacs-lisp)))
-
-(use-feature ielm
-  :init
-  (set-popup-rule! "\\*ielm\\*" :ttl nil))
-
-(use-package eros
-  :hook (emacs-lisp-mode . eros-mode)
-  :config
-  (defun +eval-emacs-lisp-overlay (orig-fn &rest args)
-    (eros--eval-overlay
-     (apply orig-fn args)
-     (point)))
-  (advice-add #'+eval-emacs-lisp :around #'+eval-emacs-lisp-overlay))
-#+end_src
 *** Common Lisp
 
 #+begin_src emacs-lisp :tangle yes
@@ -3700,182 +3716,26 @@ Show overlays in fringe where code has been evaluated. Inspired by CIDER.
   (add-to-list '+lookup-documentation-handlers '(lisp-mode . +common-lisp-lookup-documentation)))
 #+end_src
 
-*** Haskell
-#+begin_src emacs-lisp :tangle yes
-(use-package haskell-mode
-  :mode "\\.hs\\'")
-  ;; :hook (haskell-mode . lsp-deferred))
+*** CSharp
 
-(use-package lsp-haskell
-  :after haskell-mode)
-#+end_src
-*** Web
-**** web mode
-#+begin_src emacs-lisp :tangle yes
-;; Config mostly stolen from https://github.com/raxod502/radian/blob/develop/emacs/radian.el
-(use-package web-mode
-  :mode (("\\.phtml\\'" . web-mode)
-         ("\\.tpl\\.php\\'" . web-mode)
-         ("\\.[agj]sp\\'" . web-mode)
-         ("\\.as[cp]x\\'" . web-mode)
-         ("\\.erb\\'" . web-mode)
-         ("\\.mustache\\'" . web-mode)
-         ("\\.djhtml\\'" . web-mode)
-         ("\\.html?\\'" . web-mode))
-  :config
-  (setq web-mode-enable-auto-closing t
-        web-mode-auto-close-style 2 ;; 2 is a nice number I suppose
-        web-mode-enable-auto-quoting nil ;; messes with jsx
-        web-mode-enable-auto-pairing nil
-        web-mode-markup-indent-offset 2
-        web-mode-code-indent-offset 2
-        web-mode-css-indent-offset 2)
-  (add-to-list 'web-mode-content-types-alist
-               '("jsx" . "\\.js[x]?\\'"))
-
-  (setq web-mode-engines-alist
-        '(("go" . "layouts/.+\\.html$")))
-
-  ;; Fix comments in javascript mode
-  (let ((types '("javascript" "jsx")))
-    (setq web-mode-comment-formats
-          (cl-remove-if (lambda (item)
-                          (member (car item) types))
-                        web-mode-comment-formats))
-    (dolist (type types)
-      (push (cons type "//") web-mode-comment-formats))))
-
-(use-package gulp-task-runner
-  :defer t)
-#+end_src
-**** restclient
 
 #+begin_src emacs-lisp :tangle yes
-;; Make sure to use comments (#) as separators
-(use-package restclient
-  :mode (("\\.rest" . restclient-mode)))
-#+end_src
-*** Javascript
-**** js2-mode
-#+begin_src emacs-lisp :tangle yes
-;; Mostly borrowed from https://github.com/CSRaghunandan/.emacs.d/blob/master/setup-files/setup-js.el
-(use-package js2-mode
-  :ensure-system-package (tsserver . "sudo npm i -g typescript-language-server && sudo pacman -S typescript")
-  :mode "\\.m?js\\'"
-  :interpreter "node"
-  :init 
-  (with-eval-after-load 'projectile
-    (add-to-list 'projectile-globally-ignored-directories "node_modules"))
-  :config
-  ;; have 2 space indentation by default
-  (setq js-indent-level 2
-        js2-basic-offset 2
-        js-chain-indent t)
+(use-package csharp-mode
+  :mode "\\.cs\\'"
+  :hook (csharp-mode . lsp-deferred))
 
-  ;; Try to highlight most ECMA built-ins
-  (setq js2-highlight-level 3)
-  ;; have a shorter idle time delay
-  (setq js2-idle-timer-delay 0.1)
-
-  ;; turn off all warnings in js2-mode
-  (setq js2-mode-show-parse-errors t
-        js2-mode-show-strict-warnings nil
-        js2-strict-missing-semi-warning nil
-        js2-strict-trailing-comma-warning nil))
-#+end_src
-**** prettier-js
-
-#+begin_src emacs-lisp :tangle yes
-(use-package prettier-js
-  :ensure-system-package prettier
-  :hook ((js2-mode rjsx-mode json-mode) . prettier-js-mode)
-  :custom (prettier-js-args '("--print-width" "100"
-                              "--single-quote" "true"
-                              "--trailing-comma" "all")))
-#+end_src
-**** rjsx-mode
-#+begin_src emacs-lisp :tangle yes
-(use-package rjsx-mode
-  :mode "components/.+\\.js$")
-#+end_src
-*** Java
-
-#+begin_src emacs-lisp :tangle yes
-(use-package lsp-java
-  :after lsp-clients)
-
-(use-package gradle-mode
-  :hook (java-mode . gradle-mode)
-  :general
-  (leader-key
-    :keymaps 'java-mode-map
-    "cb" 'gradle-build))
-#+end_src
-*** LSP-mode
-#+begin_src emacs-lisp :tangle yes
-;; Make sure to install jansson
-(use-package lsp-mode
-  :commands lsp
-  :general
-  (leader-key
-    :keymaps 'lsp-mode-map
-    "cr" 'lsp-rename
-    "cl" 'lsp-find-definition
-    "cd" 'lsp-describe-thing-at-point
-    "cpl" 'lsp-ui-peek-find-references
-    "cpi" 'lsp-ui-peek-find-implementation)
-  :hook ((lsp-mode . (lambda ()
-		       (lsp-enable-which-key-integration t)))
-	 ((c++-mode python-mode java-mode sh-mode scss-mode web-mode) . lsp))
-  :custom
-  (lsp-enable-indentation nil)
-  (lsp-keep-workspace-alive nil)
-  (lsp-enable-on-type-formatting nil)
-  (lsp-enable-file-watchers nil)
-  (read-process-ouput-max (* 1024 1024))
-  :init
-  (setq lsp-keymap-prefix "C-c l"
-	lsp-before-save-edits nil ;; Do not autoformat buffer
-	lsp-file-watch-threshold 1500)
-
-  ;; Ignore specific directories in projectile
-  (with-eval-after-load 'projectile
-    (add-to-list 'projectile-globally-ignored-directories ".clangd"))
-  (set-popup-rule! "\\*lsp-help\\*" :size 0.4))
+(use-package shader-mode
+  :mode ("\\.shader\\'"
+          "\\.compute\\'"))
 #+end_src
 
-*** lsp-ui
-#+begin_src emacs-lisp :tangle yes
-(use-package lsp-ui
-  :commands lsp-ui-mode
-  :custom
-  (lsp-ui-doc-enable nil)
-  (lsp-ui-doc-position 'top)
-  (lsp-ui-doc-delay 0)
-  (lsp-ui-doc-include-signature t)
-  (lsp-eldoc-enable-hover nil) ; Disable eldoc displays in minibuffer
+**** Using omnisharp with Unity
 
-  (lsp-ui-peek-fontify 'always)
-  (lsp-ui-peek-always-show t)
+For some reason, the OmniSharp language server uses a bundled version of mono instead of the global one. In VSCode, you can change this by setting the option =useGlobaMono= to true. In Emacs, edit the =run= shell script as shown here:
 
-  (lsp-ui-sideline-enable nil)
-  (lsp-ui-sideline-delay 0.5)
-  (lsp-ui-sideline-show-symbol nil) ;; only show code actions
-  (lsp-ui-sideline-update-mode 'line)
-  (lsp-ui-sideline-show-code-actions t)
-  (lsp-ui-sideline-show-hover t)
-  (lsp-ui-sideline-ignore-duplicate t)
-
-  (lsp-headerline-breadcrumb-enable nil)
-
-  (lsp-ui-imenu-enable nil))
-#+end_src
-
-*** lsp-treemacs
-
-#+begin_src emacs-lisp :tangle yes
-(use-package lsp-treemacs
-  :after (lsp-mode treemacs))
+#+begin_src sh tangle: no
+# mono_cmd=${bin_dir}/mono
+mono_cmd=mono
 #+end_src
 
 *** DAP
@@ -3935,73 +3795,35 @@ Show overlays in fringe where code has been evaluated. Inspired by CIDER.
 	   ("q" nil "cancel" :color blue))))
 
 #+end_src
-*** C/C++
-To configure a new C program:
-1. Create a =CMakeLists.txt= file. Eg:
-#+begin_src cmake :tangle no
-cmake_minimum_required(VERSION 3.10)
-
-# set the project name
-project(Tutorial)
-
-# add the executable
-add_executable(Tutorial tutorial.cxx)
-#+end_src
-
-2. Run the following commands:
-#+begin_src shell :tangle no
-cmake -H. -BDebug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
-ln -s Debug/compile_commands.json
-#+end_src
-
-Where ~-BDebug~ specifies the build directory (Debug)
-
-**** CMake
-
+*** Elisp
 #+begin_src emacs-lisp :tangle yes
-(use-package cmake-mode
-  :mode ("CMAKELists\\.txt\\'" "\\.cmake\\'"))
+(use-feature elisp
+  :general
+  (leader-key :keymaps 'emacs-lisp-mode-map
+    "ed" 'eval-defun
+    "el" 'load-library
+    "ee" 'pp-eval-last-sexp)
 
-(use-package cmake-font-lock
-  :after (cmake-mode)
-  :hook (cmake-mode . cmake-font-lock-activate))
+  :init
+  (defun +eval-emacs-lisp (beg end)
+    "Runner for emacs-lisp."
+    (eval (read (format "(progn %s)"
+                        (buffer-substring-no-properties beg end)))))
+  (add-to-list '+eval-runners '(emacs-lisp-mode . +eval-emacs-lisp)))
+
+(use-feature ielm
+  :init
+  (set-popup-rule! "\\*ielm\\*" :ttl nil))
+
+(use-package eros
+  :hook (emacs-lisp-mode . eros-mode)
+  :config
+  (defun +eval-emacs-lisp-overlay (orig-fn &rest args)
+    (eros--eval-overlay
+     (apply orig-fn args)
+     (point)))
+  (advice-add #'+eval-emacs-lisp :around #'+eval-emacs-lisp-overlay))
 #+end_src
-
-**** lsp-clangd
-
-#+begin_src emacs-lisp :tangle yes
-(use-feature lsp-clangd
-  :after lsp-mode
-  :custom
-  (lsp-clients-clangd-args '("-j=3"
-			     "--background-index"
-			     "--clang-tidy"
-			     "--completion-style=detailed"
-			     "--header-insertion=never")))
-
-#+end_src
-*** CSharp
-
-
-#+begin_src emacs-lisp :tangle yes
-(use-package csharp-mode
-  :mode "\\.cs\\'"
-  :hook (csharp-mode . lsp-deferred))
-
-(use-package shader-mode
-  :mode ("\\.shader\\'"
-          "\\.compute\\'"))
-#+end_src
-
-**** Using omnisharp with Unity
-
-For some reason, the OmniSharp language server uses a bundled version of mono instead of the global one. In VSCode, you can change this by setting the option =useGlobaMono= to true. In Emacs, edit the =run= shell script as shown here:
-
-#+begin_src sh tangle: no
-# mono_cmd=${bin_dir}/mono
-mono_cmd=mono
-#+end_src
-
 *** GLSL
 For OpenGl shader programming.
 
@@ -4014,108 +3836,77 @@ For OpenGl shader programming.
          "\\.frag\\'"
          "\\.vert\\'"))
 #+end_src
-*** Python
+*** Haskell
+#+begin_src emacs-lisp :tangle yes
+(use-package haskell-mode
+  :mode "\\.hs\\'")
+  ;; :hook (haskell-mode . lsp-deferred))
 
-As always, trying to make use of LSP.
-
-Arch packages:
-1. flake8 for flycheck
-2. python-black for style
-3. python-language-server for lsp
+(use-package lsp-haskell
+  :after haskell-mode)
+#+end_src
+*** Java
 
 #+begin_src emacs-lisp :tangle yes
-(use-feature python
-  :mode ("/Pipfile\\'" . conf-mode)
-  :custom
-  (python-indent-guess-indent-offset-verbose nil)
-  ;; https://github.com/gregsexton/ob-ipython/issues/89
-  (python-shell-prompt-detect-failure-warning nil)
-  :config
-  ;; Must be called manually to initiate jupyter :config block
-  (require 'jupyter)
-  (add-to-list '+eval-runners '(python-mode . jupyter-eval-region))
-  (set-popup-rule! "\\*Python\\*" :ttl nil))
+(use-package lsp-java
+  :after lsp-clients)
 
-(use-package lsp-pyright
-  :if (executable-find "pyright")
-  :after (lsp-mode python)
-  :custom
-  (lsp-pyright-typechecking-mode "off"))
-
-(use-package pyenv-mode
-  :after python
-  :hook ((python-mode . pyenv-mode)
-         (projectile-switch-project . projectile-pyenv-mode-set))
-  :custom (pyenv-mode-set "3.8.5")
-  :preface
-  (defun projectile-pyenv-mode-set ()
-    "Set pyenv version matching project name."
-    (let ((project (projectile-project-name)))
-      (if (member project (pyenv-mode-versions))
-          (pyenv-mode-set project)
-        (pyenv-mode-unset))))
-
-  :config
-  ;; Pyenv overrides the org-schedule keybind
-  (define-key pyenv-mode-map (kbd "C-c C-s") nil)
-  (define-key pyenv-mode-map (kbd "C-M-s") 'pyenv-mode-set))
-
-
-(use-package blacken
-  :commands blacken-mode
-  ;; :hook (python-mode . blacken-mode)
-  )
-
-(use-package sphinx-doc
-  :after python
-  :hook (python-mode . sphinx-doc-mode))
-
-(use-package python-docstring
-  :hook ((python-mode . python-docstring-mode)))
-
-(use-package python-pytest
+(use-package gradle-mode
+  :hook (java-mode . gradle-mode)
   :general
   (leader-key
-    :keymaps 'python-mode-map
-    "ct" 'python-pytest-dispatch)
-  :commands python-pytest-dispatch)
-        #+end_src
-*** MATLAB
-
-I used to dislike MATLAB, but the effort they put in to supporting Linux and Emacs earns my admiration. [[https://github.com/karthink/.emacs.d/blob/master/init.el#L1660][Karthink]] has a great set of modifications in his config for adding functionality.
+    :keymaps 'java-mode-map
+    "cb" 'gradle-build))
+#+end_src
+*** Javascript
+**** js2-mode
 #+begin_src emacs-lisp :tangle yes
-(use-package matlab-mode
-  :mode "\\.m\\'"
-  :general
-  (:states 'normal :keymaps 'matlab-mode-map "gz" 'matlab-shell)
-  :hook (matlab-mode . flycheck-mode)
-  :custom
-  ;; Works in org. Other methods seem to need a file
-  (matlab-shell-run-region-function 'matlab-shell-region->commandline)
-  (matlab-shell-use-emacs-toolbox nil)
-  :init
-  (setq-default mlint-show-warnings t)
-  (with-eval-after-load 'flycheck
-    (flycheck-define-checker matlab
-      "Checker for matlab"
-      ;; FIXME This should REALLY be a variable
-      ;; :command ((eval mlint-program))
-      :command ("/usr/local/MATLAB/R2020b/bin/glnxa64/mlint" source)
-      :error-patterns
-      ((warning line-start "L " line " (C " (1+ digit)  "): " (message) line-end))
-      ;; ((warning line-start "L " line " (C " column "-" column "): " (id (* alnum)) ":" (message))
-      ;; (warning line-start "L " line " (C " column "): " (id (* alnum)) ":" (message)))
-      :modes matlab-mode)
-    (push 'matlab flycheck-checkers))
-
-  (set-popup-rules! '(("\\*MATLAB\\*" :ttl nil)
-                      (".*?MATLAB Help.*")))
-
+;; Mostly borrowed from https://github.com/CSRaghunandan/.emacs.d/blob/master/setup-files/setup-js.el
+(use-package js2-mode
+  :ensure-system-package (tsserver . "sudo npm i -g typescript-language-server && sudo pacman -S typescript")
+  :mode "\\.m?js\\'"
+  :interpreter "node"
+  :init 
+  (with-eval-after-load 'projectile
+    (add-to-list 'projectile-globally-ignored-directories "node_modules"))
   :config
-  (matlab-cedet-setup))
+  ;; have 2 space indentation by default
+  (setq js-indent-level 2
+        js2-basic-offset 2
+        js-chain-indent t)
 
-  #+end_src
+  ;; Try to highlight most ECMA built-ins
+  (setq js2-highlight-level 3)
+  ;; have a shorter idle time delay
+  (setq js2-idle-timer-delay 0.1)
 
+  ;; turn off all warnings in js2-mode
+  (setq js2-mode-show-parse-errors t
+        js2-mode-show-strict-warnings nil
+        js2-strict-missing-semi-warning nil
+        js2-strict-trailing-comma-warning nil))
+#+end_src
+**** prettier-js
+
+#+begin_src emacs-lisp :tangle yes
+(use-package prettier-js
+  :ensure-system-package prettier
+  :hook ((js2-mode rjsx-mode json-mode) . prettier-js-mode)
+  :custom (prettier-js-args '("--print-width" "100"
+                              "--single-quote" "true"
+                              "--trailing-comma" "all")))
+#+end_src
+**** rjsx-mode
+#+begin_src emacs-lisp :tangle yes
+(use-package rjsx-mode
+  :mode "components/.+\\.js$")
+#+end_src
+*** Json
+
+#+begin_src emacs-lisp :tangle yes
+(use-package json-mode
+  :mode "\\.json\\'")
+#+end_src
 *** Julia
 
 #+begin_src emacs-lisp :tangle yes
@@ -4186,6 +3977,182 @@ I used to dislike MATLAB, but the effort they put in to supporting Linux and Ema
       (insert symbol)
       (julia-latexsub))))
 #+end_src
+*** LSP-mode
+#+begin_src emacs-lisp :tangle yes
+;; Make sure to install jansson
+(use-package lsp-mode
+  :commands lsp
+  :general
+  (leader-key
+    :keymaps 'lsp-mode-map
+    "cr" 'lsp-rename
+    "cl" 'lsp-find-definition
+    "cd" 'lsp-describe-thing-at-point
+    "cpl" 'lsp-ui-peek-find-references
+    "cpi" 'lsp-ui-peek-find-implementation)
+  :hook ((lsp-mode . (lambda ()
+		       (lsp-enable-which-key-integration t)))
+	 ((c++-mode python-mode java-mode sh-mode scss-mode web-mode) . lsp))
+  :custom
+  (lsp-enable-indentation nil)
+  (lsp-keep-workspace-alive nil)
+  (lsp-enable-on-type-formatting nil)
+  (lsp-enable-file-watchers nil)
+  (read-process-ouput-max (* 1024 1024))
+  :init
+  (setq lsp-keymap-prefix "C-c l"
+	lsp-before-save-edits nil ;; Do not autoformat buffer
+	lsp-file-watch-threshold 1500)
+
+  ;; Ignore specific directories in projectile
+  (with-eval-after-load 'projectile
+    (add-to-list 'projectile-globally-ignored-directories ".clangd"))
+  (set-popup-rule! "\\*lsp-help\\*" :size 0.4))
+#+end_src
+
+*** lsp-treemacs
+
+#+begin_src emacs-lisp :tangle yes
+(use-package lsp-treemacs
+  :after (lsp-mode treemacs))
+#+end_src
+
+*** lsp-ui
+#+begin_src emacs-lisp :tangle yes
+(use-package lsp-ui
+  :commands lsp-ui-mode
+  :custom
+  (lsp-ui-doc-enable nil)
+  (lsp-ui-doc-position 'top)
+  (lsp-ui-doc-delay 0)
+  (lsp-ui-doc-include-signature t)
+  (lsp-eldoc-enable-hover nil) ; Disable eldoc displays in minibuffer
+
+  (lsp-ui-peek-fontify 'always)
+  (lsp-ui-peek-always-show t)
+
+  (lsp-ui-sideline-enable nil)
+  (lsp-ui-sideline-delay 0.5)
+  (lsp-ui-sideline-show-symbol nil) ;; only show code actions
+  (lsp-ui-sideline-update-mode 'line)
+  (lsp-ui-sideline-show-code-actions t)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-sideline-ignore-duplicate t)
+
+  (lsp-headerline-breadcrumb-enable nil)
+
+  (lsp-ui-imenu-enable nil))
+#+end_src
+
+*** Lua
+#+begin_src emacs-lisp :tangle yes
+(use-package lua-mode
+  :mode "\\.lua\\'"
+  :interpreter "lua")
+#+end_src
+
+*** MATLAB
+
+I used to dislike MATLAB, but the effort they put in to supporting Linux and Emacs earns my admiration. [[https://github.com/karthink/.emacs.d/blob/master/init.el#L1660][Karthink]] has a great set of modifications in his config for adding functionality.
+#+begin_src emacs-lisp :tangle yes
+(use-package matlab-mode
+  :mode "\\.m\\'"
+  :general
+  (:states 'normal :keymaps 'matlab-mode-map "gz" 'matlab-shell)
+  :hook (matlab-mode . flycheck-mode)
+  :custom
+  ;; Works in org. Other methods seem to need a file
+  (matlab-shell-run-region-function 'matlab-shell-region->commandline)
+  (matlab-shell-use-emacs-toolbox nil)
+  :init
+  (setq-default mlint-show-warnings t)
+  (with-eval-after-load 'flycheck
+    (flycheck-define-checker matlab
+      "Checker for matlab"
+      ;; FIXME This should REALLY be a variable
+      ;; :command ((eval mlint-program))
+      :command ("/usr/local/MATLAB/R2020b/bin/glnxa64/mlint" source)
+      :error-patterns
+      ((warning line-start "L " line " (C " (1+ digit)  "): " (message) line-end))
+      ;; ((warning line-start "L " line " (C " column "-" column "): " (id (* alnum)) ":" (message))
+      ;; (warning line-start "L " line " (C " column "): " (id (* alnum)) ":" (message)))
+      :modes matlab-mode)
+    (push 'matlab flycheck-checkers))
+
+  (set-popup-rules! '(("\\*MATLAB\\*" :ttl nil)
+                      (".*?MATLAB Help.*")))
+
+  :config
+  (matlab-cedet-setup))
+
+  #+end_src
+
+*** Python
+
+As always, trying to make use of LSP.
+
+Arch packages:
+1. flake8 for flycheck
+2. python-black for style
+3. python-language-server for lsp
+
+#+begin_src emacs-lisp :tangle yes
+(use-feature python
+  :mode ("/Pipfile\\'" . conf-mode)
+  :custom
+  (python-indent-guess-indent-offset-verbose nil)
+  ;; https://github.com/gregsexton/ob-ipython/issues/89
+  (python-shell-prompt-detect-failure-warning nil)
+  :config
+  ;; Must be called manually to initiate jupyter :config block
+  (require 'jupyter)
+  (add-to-list '+eval-runners '(python-mode . jupyter-eval-region))
+  (set-popup-rule! "\\*Python\\*" :ttl nil))
+
+(use-package lsp-pyright
+  :if (executable-find "pyright")
+  :after (lsp-mode python)
+  :custom
+  (lsp-pyright-typechecking-mode "off"))
+
+(use-package pyenv-mode
+  :after python
+  :hook ((python-mode . pyenv-mode)
+         (projectile-switch-project . projectile-pyenv-mode-set))
+  :custom (pyenv-mode-set "3.8.5")
+  :preface
+  (defun projectile-pyenv-mode-set ()
+    "Set pyenv version matching project name."
+    (let ((project (projectile-project-name)))
+      (if (member project (pyenv-mode-versions))
+          (pyenv-mode-set project)
+        (pyenv-mode-unset))))
+
+  :config
+  ;; Pyenv overrides the org-schedule keybind
+  (define-key pyenv-mode-map (kbd "C-c C-s") nil)
+  (define-key pyenv-mode-map (kbd "C-M-s") 'pyenv-mode-set))
+
+
+(use-package blacken
+  :commands blacken-mode
+  ;; :hook (python-mode . blacken-mode)
+  )
+
+(use-package sphinx-doc
+  :after python
+  :hook (python-mode . sphinx-doc-mode))
+
+(use-package python-docstring
+  :hook ((python-mode . python-docstring-mode)))
+
+(use-package python-pytest
+  :general
+  (leader-key
+    :keymaps 'python-mode-map
+    "ct" 'python-pytest-dispatch)
+  :commands python-pytest-dispatch)
+        #+end_src
 *** Sxhkd
 
 Pretty niche
@@ -4198,18 +4165,51 @@ Pretty niche
   :straight (:host github :repo "xFA25E/sxhkd-mode"))
 #+end_src
 
-*** Lua
+*** Web
+**** web mode
 #+begin_src emacs-lisp :tangle yes
-(use-package lua-mode
-  :mode "\\.lua\\'"
-  :interpreter "lua")
+;; Config mostly stolen from https://github.com/raxod502/radian/blob/develop/emacs/radian.el
+(use-package web-mode
+  :mode (("\\.phtml\\'" . web-mode)
+         ("\\.tpl\\.php\\'" . web-mode)
+         ("\\.[agj]sp\\'" . web-mode)
+         ("\\.as[cp]x\\'" . web-mode)
+         ("\\.erb\\'" . web-mode)
+         ("\\.mustache\\'" . web-mode)
+         ("\\.djhtml\\'" . web-mode)
+         ("\\.html?\\'" . web-mode))
+  :config
+  (setq web-mode-enable-auto-closing t
+        web-mode-auto-close-style 2 ;; 2 is a nice number I suppose
+        web-mode-enable-auto-quoting nil ;; messes with jsx
+        web-mode-enable-auto-pairing nil
+        web-mode-markup-indent-offset 2
+        web-mode-code-indent-offset 2
+        web-mode-css-indent-offset 2)
+  (add-to-list 'web-mode-content-types-alist
+               '("jsx" . "\\.js[x]?\\'"))
+
+  (setq web-mode-engines-alist
+        '(("go" . "layouts/.+\\.html$")))
+
+  ;; Fix comments in javascript mode
+  (let ((types '("javascript" "jsx")))
+    (setq web-mode-comment-formats
+          (cl-remove-if (lambda (item)
+                          (member (car item) types))
+                        web-mode-comment-formats))
+    (dolist (type types)
+      (push (cons type "//") web-mode-comment-formats))))
+
+(use-package gulp-task-runner
+  :defer t)
 #+end_src
-
-*** Json
+**** restclient
 
 #+begin_src emacs-lisp :tangle yes
-(use-package json-mode
-  :mode "\\.json\\'")
+;; Make sure to use comments (#) as separators
+(use-package restclient
+  :mode (("\\.rest" . restclient-mode)))
 #+end_src
 *** Yaml
 #+begin_src emacs-lisp :tangle yes
