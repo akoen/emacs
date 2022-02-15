@@ -3243,6 +3243,131 @@ Framework, heavily inspired by Doom Emacs, for evaluating buffer code in major-m
 (general-nvmap :keymaps 'override
   "K" '+lookup-documentation)
 #+end_src
+*** LSP
+**** LSP-mode
+#+begin_src emacs-lisp :tangle yes
+;; Make sure to install jansson
+(use-package lsp-mode
+  :commands lsp
+  :general
+  (leader-key
+    :keymaps 'lsp-mode-map
+    "cr" 'lsp-rename
+    "cl" 'lsp-find-definition
+    "cd" 'lsp-describe-thing-at-point
+    "cpl" 'lsp-ui-peek-find-references
+    "cpi" 'lsp-ui-peek-find-implementation)
+  :hook ((lsp-mode . (lambda ()
+		       (lsp-enable-which-key-integration t)))
+	 ((c++-mode python-mode java-mode sh-mode scss-mode web-mode) . lsp))
+  :custom
+  (lsp-enable-indentation nil)
+  (lsp-keep-workspace-alive nil)
+  (lsp-enable-on-type-formatting nil)
+  (lsp-enable-file-watchers nil)
+  (read-process-ouput-max (* 1024 1024))
+  :init
+  (setq lsp-keymap-prefix "C-c l"
+	lsp-before-save-edits nil ;; Do not autoformat buffer
+	lsp-file-watch-threshold 1500)
+
+  ;; Ignore specific directories in projectile
+  (with-eval-after-load 'projectile
+    (add-to-list 'projectile-globally-ignored-directories ".clangd"))
+  (set-popup-rule! "\\*lsp-help\\*" :size 0.4))
+#+end_src
+
+**** lsp-treemacs
+
+#+begin_src emacs-lisp :tangle yes
+(use-package lsp-treemacs
+  :after (lsp-mode treemacs))
+#+end_src
+
+**** lsp-ui
+#+begin_src emacs-lisp :tangle yes
+(use-package lsp-ui
+  :commands lsp-ui-mode
+  :custom
+  (lsp-ui-doc-enable nil)
+  (lsp-ui-doc-position 'top)
+  (lsp-ui-doc-delay 0)
+  (lsp-ui-doc-include-signature t)
+  (lsp-eldoc-enable-hover nil) ; Disable eldoc displays in minibuffer
+
+  (lsp-ui-peek-fontify 'always)
+  (lsp-ui-peek-always-show t)
+
+  (lsp-ui-sideline-enable nil)
+  (lsp-ui-sideline-delay 0.5)
+  (lsp-ui-sideline-show-symbol nil) ;; only show code actions
+  (lsp-ui-sideline-update-mode 'line)
+  (lsp-ui-sideline-show-code-actions t)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-sideline-ignore-duplicate t)
+
+  (lsp-headerline-breadcrumb-enable nil)
+
+  (lsp-ui-imenu-enable nil))
+#+end_src
+
+**** DAP
+#+begin_src emacs-lisp :tangle yes
+(use-package dap-mode
+  :hook (lsp-mode . dap-mode)
+  :hook
+  ((python-mode . (lambda () (require 'dap-python)))
+   (java-mode . (lambda () (require 'dap-java)))
+   (c++-mode . (lambda () (require 'dap-cpptools)))
+   ;;((c-mode c++-mode objc-mode swift-mode) . (lambda () (require 'dap-gdb-lldb)))
+   ((js-mode js2-mode) . (lambda () (require 'dap-chrome))))
+  :general
+  (leader-key
+    "dd" 'dap-debug
+    "dr" 'dap-debug-restart
+    "dh" 'dap-hydra
+    "dbt" 'dap-breakpoint-toggle
+    "du" 'dap-ui-show-many-windows
+    "dU" (lambda ()
+	   (interactive)
+     (dap-ui-many-windows-mode -1)
+     (dap-ui-hide-many-windows)))
+
+  (general-nmap
+    "<f6>" 'dap-continue
+    "<f7>" 'dap-next
+    "<f8>" 'dap-step-in
+    "<S-f8>" 'dap-step-out
+    "<f9>" 'dap-breakpoint-toggle))
+
+;; NOTE: Make sure that debugpy is available in the current environment.
+;; Otherwise will get error:
+;; Debug session process exited with status: exited abnormally with code 1
+(use-feature dap-python
+  :defer t ;; loaded by dap-mode
+  :custom
+  (dap-python-debugger 'debugpy)
+  
+  :config
+  ;; Do not let dap ignore the virtual environment
+  (defun dap-python--pyenv-executable-find (command)
+    (executable-find "python")))
+
+(use-feature dap-java
+  :defer t ;; loaded by dap-mode
+  :general
+  (leader-key
+    :keymaps 'java-mode-map
+    "ct" (defhydra hydra-java-run ()
+	   "run"
+	   ("r" dap-java-debug "debug")
+	   ("dm" dap-java-debug-test-method "debug method")
+	   ("dc" dap-java-debug-test-class "debug class")
+	   ("m" dap-java-run-test-method "run method")
+	   ("c" dap-java-run-test-class "run class")
+	   ("q" nil "cancel" :color blue))))
+
+#+end_src
 *** Folding
 #+begin_src emacs-lisp :tangle yes
 ;; Adapted from doom emacs
@@ -3738,63 +3863,6 @@ For some reason, the OmniSharp language server uses a bundled version of mono in
 mono_cmd=mono
 #+end_src
 
-*** DAP
-#+begin_src emacs-lisp :tangle yes
-(use-package dap-mode
-  :hook (lsp-mode . dap-mode)
-  :hook
-  ((python-mode . (lambda () (require 'dap-python)))
-   (java-mode . (lambda () (require 'dap-java)))
-   (c++-mode . (lambda () (require 'dap-cpptools)))
-   ;;((c-mode c++-mode objc-mode swift-mode) . (lambda () (require 'dap-gdb-lldb)))
-   ((js-mode js2-mode) . (lambda () (require 'dap-chrome))))
-  :general
-  (leader-key
-    "dd" 'dap-debug
-    "dr" 'dap-debug-restart
-    "dh" 'dap-hydra
-    "dbt" 'dap-breakpoint-toggle
-    "du" 'dap-ui-show-many-windows
-    "dU" (lambda ()
-	   (interactive)
-     (dap-ui-many-windows-mode -1)
-     (dap-ui-hide-many-windows)))
-
-  (general-nmap
-    "<f6>" 'dap-continue
-    "<f7>" 'dap-next
-    "<f8>" 'dap-step-in
-    "<S-f8>" 'dap-step-out
-    "<f9>" 'dap-breakpoint-toggle))
-
-;; NOTE: Make sure that debugpy is available in the current environment.
-;; Otherwise will get error:
-;; Debug session process exited with status: exited abnormally with code 1
-(use-feature dap-python
-  :defer t ;; loaded by dap-mode
-  :custom
-  (dap-python-debugger 'debugpy)
-  
-  :config
-  ;; Do not let dap ignore the virtual environment
-  (defun dap-python--pyenv-executable-find (command)
-    (executable-find "python")))
-
-(use-feature dap-java
-  :defer t ;; loaded by dap-mode
-  :general
-  (leader-key
-    :keymaps 'java-mode-map
-    "ct" (defhydra hydra-java-run ()
-	   "run"
-	   ("r" dap-java-debug "debug")
-	   ("dm" dap-java-debug-test-method "debug method")
-	   ("dc" dap-java-debug-test-class "debug class")
-	   ("m" dap-java-run-test-method "run method")
-	   ("c" dap-java-run-test-class "run class")
-	   ("q" nil "cancel" :color blue))))
-
-#+end_src
 *** Elisp
 #+begin_src emacs-lisp :tangle yes
 (use-feature elisp
@@ -3977,73 +4045,6 @@ For OpenGl shader programming.
       (insert symbol)
       (julia-latexsub))))
 #+end_src
-*** LSP-mode
-#+begin_src emacs-lisp :tangle yes
-;; Make sure to install jansson
-(use-package lsp-mode
-  :commands lsp
-  :general
-  (leader-key
-    :keymaps 'lsp-mode-map
-    "cr" 'lsp-rename
-    "cl" 'lsp-find-definition
-    "cd" 'lsp-describe-thing-at-point
-    "cpl" 'lsp-ui-peek-find-references
-    "cpi" 'lsp-ui-peek-find-implementation)
-  :hook ((lsp-mode . (lambda ()
-		       (lsp-enable-which-key-integration t)))
-	 ((c++-mode python-mode java-mode sh-mode scss-mode web-mode) . lsp))
-  :custom
-  (lsp-enable-indentation nil)
-  (lsp-keep-workspace-alive nil)
-  (lsp-enable-on-type-formatting nil)
-  (lsp-enable-file-watchers nil)
-  (read-process-ouput-max (* 1024 1024))
-  :init
-  (setq lsp-keymap-prefix "C-c l"
-	lsp-before-save-edits nil ;; Do not autoformat buffer
-	lsp-file-watch-threshold 1500)
-
-  ;; Ignore specific directories in projectile
-  (with-eval-after-load 'projectile
-    (add-to-list 'projectile-globally-ignored-directories ".clangd"))
-  (set-popup-rule! "\\*lsp-help\\*" :size 0.4))
-#+end_src
-
-*** lsp-treemacs
-
-#+begin_src emacs-lisp :tangle yes
-(use-package lsp-treemacs
-  :after (lsp-mode treemacs))
-#+end_src
-
-*** lsp-ui
-#+begin_src emacs-lisp :tangle yes
-(use-package lsp-ui
-  :commands lsp-ui-mode
-  :custom
-  (lsp-ui-doc-enable nil)
-  (lsp-ui-doc-position 'top)
-  (lsp-ui-doc-delay 0)
-  (lsp-ui-doc-include-signature t)
-  (lsp-eldoc-enable-hover nil) ; Disable eldoc displays in minibuffer
-
-  (lsp-ui-peek-fontify 'always)
-  (lsp-ui-peek-always-show t)
-
-  (lsp-ui-sideline-enable nil)
-  (lsp-ui-sideline-delay 0.5)
-  (lsp-ui-sideline-show-symbol nil) ;; only show code actions
-  (lsp-ui-sideline-update-mode 'line)
-  (lsp-ui-sideline-show-code-actions t)
-  (lsp-ui-sideline-show-hover t)
-  (lsp-ui-sideline-ignore-duplicate t)
-
-  (lsp-headerline-breadcrumb-enable nil)
-
-  (lsp-ui-imenu-enable nil))
-#+end_src
-
 *** Lua
 #+begin_src emacs-lisp :tangle yes
 (use-package lua-mode
