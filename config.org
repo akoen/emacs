@@ -580,7 +580,7 @@ Highlights keywords in comments
 #+begin_src emacs-lisp :tangle yes
 (use-package doom-popup
   :commands (set-popup-rule! set-popup-rules!)
-  :straight (:host github :repo "akoen/doom-popup")
+  :straight (:host github :protocol ssh :repo "akoen/doom-popup")
   :custom
   (+popup-all-popups t)
   (windmove-allow-all-windows t)
@@ -1204,7 +1204,7 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   (completion-styles '(orderless partial-completion))
   (orderless-matching-styles
    '(orderless-regexp
-     orderless-strict-leading-initialism)))
+     orderless-initialism)))
 
 (use-package consult
   :general
@@ -2967,11 +2967,15 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
 (use-package mu4e
   :commands mu4e mu4e-compose-new
   :hook (((mu4e-compose-mode mu4e-view-mode) . writing-mode)
-         (dired-mode . turn-on-gnus-dired-mode))
+         (dired-mode . turn-on-gnus-dired-mode)
+         (mu4e-main-mode . mu4e-update-index))
   :general
   (leader-key
     "mm" 'mu4e
     "mc" 'mu4e-compose-new)
+  (general-nmap :keymaps 'mu4e-main-mode-map
+    "u" 'mu4e-update-index
+    "U" 'mu4e-update-mail-and-index)
   :custom-face
   (mu4e-view-body-face ((t (:inherit default)))) ; Not variable-pitch
   :init
@@ -3025,7 +3029,6 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
         mu4e-headers-unread-mark '("u" . ""))
 
   ;; Auto update
-  (setq mu4e-update-interval (* 15 60))
   (setq mu4e-index-update-in-background t)
 
   ;; Saved queries
@@ -3426,7 +3429,9 @@ for delimiters."
         (user-error "Not in a code cell"))))
 
   (defface +comment-cell-header-face
-    '((t :inherit font-lock-comment-face :weight bold))
+    '((t :inherit font-lock-comment-face
+         :weight bold
+         :overline t))
     "Face for cell headers.")
 
   (dolist (mode '(julia-mode python-mode))
