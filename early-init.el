@@ -70,7 +70,7 @@
   :init
   (hide-mode-line-mode 1))
 
-(setq inhibit-message t
+(setq inhibit-message nil
       warning-minimum-level :error
       debug-on-error t)
 (add-hook 'emacs-startup-hook (lambda ()

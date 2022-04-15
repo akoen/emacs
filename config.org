@@ -147,7 +147,7 @@ Note that system directories are set in init.el
 (defconst docs-dir "~/Documents/"
   "The root Drive directory, where all documents are stored.")
 
-(defconst org-dir "~/Nextcloud/Org/"
+(defconst org-dir "~/Org/"
   "Org directory")
 
 (defconst journal-dir "~/Journal/"
@@ -3668,7 +3668,7 @@ Show overlays in fringe where code has been evaluated. Inspired by CIDER.
          (or (julia-paren-indent)
              (julia-indent-hanging)))))
 #+end_src
-**** Eldoc integration
+**** (disabled) Eldoc integration
 
 #+begin_src emacs-lisp :tangle yes
 (defun +jupyter-eldoc (callback &rest _ignored)
@@ -3697,8 +3697,8 @@ Show overlays in fringe where code has been evaluated. Inspired by CIDER.
     (funcall callback docstring)))
 
 
-(add-hook 'jupyter-repl-interaction-mode-hook (defun +jupyter-setup-eldoc ()
-                                                (add-hook 'eldoc-documentation-functions #'+jupyter-eldoc nil t)))
+;; (add-hook 'jupyter-repl-interaction-mode-hook (defun +jupyter-setup-eldoc ()
+;;                                                 (add-hook 'eldoc-documentation-functions #'+jupyter-eldoc nil t)))
 #+end_src
 
 *** Symex

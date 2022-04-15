@@ -39,8 +39,8 @@ Used in :switch-buffer-functions slot."
 
 (define-hostmode poly-org-hostmode
   :mode 'org-mode
-  :protect-syntax t
-  :protect-font-lock t)
+  :protect-syntax nil
+  :protect-font-lock nil)
 
 (define-auto-innermode poly-org-innermode
   :fallback-mode 'host
@@ -57,7 +57,19 @@ Used in :switch-buffer-functions slot."
 
 (define-polymode poly-org-mode
   :hostmode 'poly-org-hostmode
-  :innermodes '(poly-org-innermode))
+  :innermodes '(poly-org-innermode)
+  (setq-local org-src-fontify-natively nil)
+  (setq-local polymode-move-these-minor-modes-from-old-buffer
+              (append '(org-indent-mode)
+                      polymode-move-these-minor-modes-from-old-buffer))
+  (setq-local polymode-run-these-before-change-functions-in-other-buffers
+              (append '(org-before-change-function
+                        org-element--cache-before-change
+                        org-table-remove-rectangle-highlight)
+                      polymode-run-these-before-change-functions-in-other-buffers))
+  (setq-local polymode-run-these-after-change-functions-in-other-buffers
+              (append '(org-element--cache-after-change)
+                      polymode-run-these-after-change-functions-in-other-buffers)))
   ;; (setq-local org-src-fontify-natively nil)
   ;; (make-local-variable 'polymode-move-these-minor-modes-from-old-buffer)
   ;; (push 'org-indent-mode polymode-move-these-minor-modes-from-old-buffer))
@@ -65,6 +77,8 @@ Used in :switch-buffer-functions slot."
 (add-to-list 'auto-mode-alist '("\\.org\\'" . poly-org-mode))
 
 ;;; Compatibility
+(add-to-list 'warning-suppress-types '(org-element-cache))
+
 (defvar poly-org-disabled-functions
   '(lsp flycheck-mode display-fill-column-indicator-mode)
   "Function to disable in poly-org-mode.")
