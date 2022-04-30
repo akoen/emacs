@@ -8,4 +8,4 @@
 !messages
 !early-init.el
 !.gitignore
-!.github/
+!README.md
