@@ -1357,6 +1357,17 @@ _r_eload    e_x_pand    _?_ list
   :straight nil
   :hook (LaTeX-mode . aas-activate-for-major-mode)
   :config
+
+  (defun +point-after-whitespace ()
+    (or (bolp)
+        (string-match (string (char-before)) "\s-")))
+
+  (+snippet-def 'latex-mode
+                :auto t
+                :cond #'+point-after-whitespace
+                "dm" "\\[\n$1\n.\\] $0"
+                "mk" "\$$1\$$0")
+
   (+snippet-def 'latex-mode
                 :cond #'texmathp
                 :auto t
@@ -2783,7 +2794,27 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
 
   (defun +latexmk-file ()
     (interactive)
-    (+vterm-run-command (concat "latexmk -pdf -pvc '" buffer-file-name "'"))))
+    (+vterm-run-command (concat "latexmk -pdf -pvc --interaction=nonstopmode '" buffer-file-name "'")))
+
+  (defun +latex-insert-inkscape-figure ()
+    (interactive)
+    (let ((title (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
+      (kill-whole-line)
+      (call-process "inkscape-figures" nil '(t nil) nil
+                    "create"
+                    title
+                    (concat default-directory "figures/"))))
+
+  (defun +latex-edit-inkscape-figure ()
+    (interactive)
+    (call-process "inkscape-figures" nil nil nil "edit" (concat default-directory "figures/")))
+
+  (general-imap :keymaps 'TeX-mode-map
+    "C-f" #'+latex-insert-inkscape-figure)
+
+  (general-nmap :keymaps 'TeX-mode-map
+    "C-f" #'+latex-edit-inkscape-figure)
+  )
 #+end_src
 
 *** CdLaTeX
