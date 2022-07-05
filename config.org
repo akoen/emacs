@@ -2412,6 +2412,30 @@ Make the header bullets look prettier
                                      (?+ . ?+)))
   (org-ellipsis " ↴ "))
 #+end_src
+**** org-caldav
+
+#+begin_src emacs-lisp :tangle yes
+(use-package org-caldav
+  :custom
+  (org-caldav-url "http://galah:5232/alex")
+  (org-caldav-calendar-id "32a980f4-ce6d-e46d-143c-2baeb2a8d7bf")
+  (org-caldav-sync-direction 'org->cal)
+  (org-caldav-inbox nil)
+  (org-caldav-show-sync-results nil)
+  (org-caldav-delete-calendar-entries 'always)
+  (org-caldav-files '("~/Org/tasks.org"))
+  (org-export-with-broken-links 'mark)
+  ;; (org-icalendar-include-todo t) ; not supported by org-caldav
+  (org-icalendar-use-deadline '(event-if-todo-not-done))
+  (org-icalendar-use-scheduled '(todo-start))
+  (org-icalendar-timezone "America/Vancouver")
+
+  :config
+  (run-with-idle-timer 30 t #'org-caldav-sync))
+#+end_src
+
+#+RESULTS:
+
 **** org-calfw
 #+begin_src emacs-lisp :tangle yes
 (use-package calfw
