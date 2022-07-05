@@ -1,1 +1,1 @@
-Alex Koen's personal Emacs configuration. I have made a considerable effort to keep my code clean, concise, and well-documented, but this configuration has not been tested on any other machines and so nothing is guaranteed. The majority of the useful configuration is located in config.org
+config.org
