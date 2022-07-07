@@ -1303,10 +1303,10 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   (corfu-auto nil)
   (tab-always-indent 'complete)
   :config
-  (evil-make-overriding-map corfu-map)
-  (advice-add 'corfu--setup :after 'evil-normalize-keymaps)
-  (advice-add 'corfu--teardown :after 'evil-normalize-keymaps)
-  (corfu-global-mode))
+  ;; (evil-make-overriding-map corfu-map)
+  ;; (advice-add 'corfu--setup :after 'evil-normalize-keymaps)
+  ;; (advice-add 'corfu--teardown :after 'evil-normalize-keymaps)
+  (global-corfu-mode))
 #+end_src
 
 
@@ -1359,6 +1359,17 @@ _r_eload    e_x_pand    _?_ list
   :straight nil
   :hook (LaTeX-mode . aas-activate-for-major-mode)
   :config
+
+  (defun +point-after-whitespace ()
+    (or (bolp)
+        (string-match (string (char-before)) "\s-")))
+
+  (+snippet-def 'latex-mode
+                :auto t
+                :cond #'+point-after-whitespace
+                "dm" "\\[\n$1\n.\\] $0"
+                "mk" "\$$1\$$0")
+
   (+snippet-def 'latex-mode
                 :cond #'texmathp
                 :auto t
@@ -2414,6 +2425,30 @@ Make the header bullets look prettier
                                      (?+ . ?+)))
   (org-ellipsis " ↴ "))
 #+end_src
+**** org-caldav
+
+#+begin_src emacs-lisp :tangle yes
+(use-package org-caldav
+  :custom
+  (org-caldav-url "http://galah:5232/alex")
+  (org-caldav-calendar-id "32a980f4-ce6d-e46d-143c-2baeb2a8d7bf")
+  (org-caldav-sync-direction 'org->cal)
+  (org-caldav-inbox nil)
+  (org-caldav-show-sync-results nil)
+  (org-caldav-delete-calendar-entries 'always)
+  (org-caldav-files '("~/Org/tasks.org"))
+  (org-export-with-broken-links 'mark)
+  ;; (org-icalendar-include-todo t) ; not supported by org-caldav
+  (org-icalendar-use-deadline '(event-if-todo-not-done))
+  (org-icalendar-use-scheduled '(todo-start))
+  (org-icalendar-timezone "America/Vancouver")
+
+  :config
+  (run-with-idle-timer 30 t #'org-caldav-sync))
+#+end_src
+
+#+RESULTS:
+
 **** org-calfw
 #+begin_src emacs-lisp :tangle yes
 (use-package calfw
@@ -2761,7 +2796,27 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
 
   (defun +latexmk-file ()
     (interactive)
-    (+vterm-run-command (concat "latexmk -pdf -pvc '" buffer-file-name "'"))))
+    (+vterm-run-command (concat "latexmk -pdf -pvc --interaction=nonstopmode '" buffer-file-name "'")))
+
+  (defun +latex-insert-inkscape-figure ()
+    (interactive)
+    (let ((title (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
+      (kill-whole-line)
+      (call-process "inkscape-figures" nil '(t nil) nil
+                    "create"
+                    title
+                    (concat default-directory "figures/"))))
+
+  (defun +latex-edit-inkscape-figure ()
+    (interactive)
+    (call-process "inkscape-figures" nil nil nil "edit" (concat default-directory "figures/")))
+
+  (general-imap :keymaps 'TeX-mode-map
+    "C-f" #'+latex-insert-inkscape-figure)
+
+  (general-nmap :keymaps 'TeX-mode-map
+    "C-f" #'+latex-edit-inkscape-figure)
+  )
 #+end_src
 
 *** CdLaTeX
@@ -3245,6 +3300,13 @@ Framework, heavily inspired by Doom Emacs, for evaluating buffer code in major-m
 (general-nvmap :keymaps 'override
   "K" '+lookup-documentation)
 #+end_src
+*** LSP
+**** Eglot
+
+#+begin_src emacs-lisp :tangle yes
+(use-package eglot)
+#+end_src
+
 *** Folding
 #+begin_src emacs-lisp :tangle yes
 ;; Adapted from doom emacs
@@ -3545,7 +3607,7 @@ Show overlays in fringe where code has been evaluated. Inspired by CIDER.
          (or (julia-paren-indent)
              (julia-indent-hanging)))))
 #+end_src
-**** Eldoc integration
+**** (disabled) Eldoc integration
 
 #+begin_src emacs-lisp :tangle yes
 (defun +jupyter-eldoc (callback &rest _ignored)
@@ -3574,8 +3636,8 @@ Show overlays in fringe where code has been evaluated. Inspired by CIDER.
     (funcall callback docstring)))
 
 
-(add-hook 'jupyter-repl-interaction-mode-hook (defun +jupyter-setup-eldoc ()
-                                                (add-hook 'eldoc-documentation-functions #'+jupyter-eldoc nil t)))
+;; (add-hook 'jupyter-repl-interaction-mode-hook (defun +jupyter-setup-eldoc ()
+;;                                                 (add-hook 'eldoc-documentation-functions #'+jupyter-eldoc nil t)))
 #+end_src
 
 *** Symex
@@ -3622,23 +3684,10 @@ Where ~-BDebug~ specifies the build directory (Debug)
   :hook (cmake-mode . cmake-font-lock-activate))
 #+end_src
 
-**** lsp-clangd
-
-#+begin_src emacs-lisp :tangle yes
-(use-feature lsp-clangd
-  :after lsp-mode
-  :custom
-  (lsp-clients-clangd-args '("-j=3"
-			     "--background-index"
-			     "--clang-tidy"
-			     "--completion-style=detailed"
-			     "--header-insertion=never")))
-
-#+end_src
 *** Clojure
 #+begin_src emacs-lisp :tangle yes
 (use-package clojure-mode
-  :hook (clojure-mode . lsp))
+  :hook (clojure-mode . eglot))
 
 (use-package cider
   :general
@@ -3724,7 +3773,7 @@ Where ~-BDebug~ specifies the build directory (Debug)
 #+begin_src emacs-lisp :tangle yes
 (use-package csharp-mode
   :mode "\\.cs\\'"
-  :hook (csharp-mode . lsp-deferred))
+  :hook (csharp-mode . eglot))
 
 (use-package shader-mode
   :mode ("\\.shader\\'"
@@ -3740,63 +3789,6 @@ For some reason, the OmniSharp language server uses a bundled version of mono in
 mono_cmd=mono
 #+end_src
 
-*** DAP
-#+begin_src emacs-lisp :tangle yes
-(use-package dap-mode
-  :hook (lsp-mode . dap-mode)
-  :hook
-  ((python-mode . (lambda () (require 'dap-python)))
-   (java-mode . (lambda () (require 'dap-java)))
-   (c++-mode . (lambda () (require 'dap-cpptools)))
-   ;;((c-mode c++-mode objc-mode swift-mode) . (lambda () (require 'dap-gdb-lldb)))
-   ((js-mode js2-mode) . (lambda () (require 'dap-chrome))))
-  :general
-  (leader-key
-    "dd" 'dap-debug
-    "dr" 'dap-debug-restart
-    "dh" 'dap-hydra
-    "dbt" 'dap-breakpoint-toggle
-    "du" 'dap-ui-show-many-windows
-    "dU" (lambda ()
-	   (interactive)
-     (dap-ui-many-windows-mode -1)
-     (dap-ui-hide-many-windows)))
-
-  (general-nmap
-    "<f6>" 'dap-continue
-    "<f7>" 'dap-next
-    "<f8>" 'dap-step-in
-    "<S-f8>" 'dap-step-out
-    "<f9>" 'dap-breakpoint-toggle))
-
-;; NOTE: Make sure that debugpy is available in the current environment.
-;; Otherwise will get error:
-;; Debug session process exited with status: exited abnormally with code 1
-(use-feature dap-python
-  :defer t ;; loaded by dap-mode
-  :custom
-  (dap-python-debugger 'debugpy)
-  
-  :config
-  ;; Do not let dap ignore the virtual environment
-  (defun dap-python--pyenv-executable-find (command)
-    (executable-find "python")))
-
-(use-feature dap-java
-  :defer t ;; loaded by dap-mode
-  :general
-  (leader-key
-    :keymaps 'java-mode-map
-    "ct" (defhydra hydra-java-run ()
-	   "run"
-	   ("r" dap-java-debug "debug")
-	   ("dm" dap-java-debug-test-method "debug method")
-	   ("dc" dap-java-debug-test-class "debug class")
-	   ("m" dap-java-run-test-method "run method")
-	   ("c" dap-java-run-test-class "run class")
-	   ("q" nil "cancel" :color blue))))
-
-#+end_src
 *** Elisp
 #+begin_src emacs-lisp :tangle yes
 (use-feature elisp
@@ -3843,16 +3835,10 @@ For OpenGl shader programming.
 (use-package haskell-mode
   :mode "\\.hs\\'")
   ;; :hook (haskell-mode . lsp-deferred))
-
-(use-package lsp-haskell
-  :after haskell-mode)
 #+end_src
 *** Java
 
 #+begin_src emacs-lisp :tangle yes
-(use-package lsp-java
-  :after lsp-clients)
-
 (use-package gradle-mode
   :hook (java-mode . gradle-mode)
   :general
@@ -3917,135 +3903,53 @@ For OpenGl shader programming.
   :config
   (add-to-list '+eval-runners '(julia-mode . jupyter-eval-region)))
 
-(use-package lsp-julia
-  :hook (julia-mode . lsp-deferred)
-  :general
-  (general-imap :keymaps 'julia-mode-map
-    "`" '+julia-insert-math-symbol)
-  :custom
-  (lsp-julia-package dir nil)
-  (lsp-julia-default-environment
-   (car (last (file-expand-wildcards
-               (expand-file-name "~/.julia/environments/v*")))))
-  :config
-  ;; https://github.com/non-Jedi/lsp-julia/issues/35
-  (add-hook 'julia-mode-hook (defun +julia-fix-lsp ()
-                               (setq-local lsp-enable-folding t
-                                           lsp-folding-range-limit 100)))
 
-  (setq +julia-math-symbol-alist
-        '((?a "\\alpha" "\\bfalpha")
-          (?b "\\beta" "\\bfbeta")
-          (?d "\\delta" "\\bfdelta")
-          (?e "\\epsilon" "\\bfepsilon")
-          (?f "\\phi" "\\bfphi")
-          (?g "\\gamma" "\\bfgamma")
-          (?h "\\eta" "\\bfeta")
-          (?k "\\kappa" "\\bfkappa")
-          (?l "\\lambda" "\\bflambda")
-          (?m "\\mu" "\\bfmu")
-          (?n "\\nu" "\\bfnu")
-          (?o "\\omega" "\\bfomega")
-          (?p "\\pi" "\\bfpi")
-          (?q "\\theta" "\\bftheta")
-          (?r "\\rho" "\\rho")
-          (?s "\\sigma" "\\bfsigma")
-          (?t "\\tau" "\\bftau")
-          (?u "\\upsilon" "\\bfupsilon")
-          (?w "\\xi" "\\bfxi")
-          (?x "\\chi" "\\bfchi")
-          (?y "\\psi" "\\bfpsi")
-          (?z "\\zeta" "\\bfzeta")))
+(setq +julia-math-symbol-alist
+      '((?a "\\alpha" "\\bfalpha")
+        (?b "\\beta" "\\bfbeta")
+        (?d "\\delta" "\\bfdelta")
+        (?e "\\epsilon" "\\bfepsilon")
+        (?f "\\phi" "\\bfphi")
+        (?g "\\gamma" "\\bfgamma")
+        (?h "\\eta" "\\bfeta")
+        (?k "\\kappa" "\\bfkappa")
+        (?l "\\lambda" "\\bflambda")
+        (?m "\\mu" "\\bfmu")
+        (?n "\\nu" "\\bfnu")
+        (?o "\\omega" "\\bfomega")
+        (?p "\\pi" "\\bfpi")
+        (?q "\\theta" "\\bftheta")
+        (?r "\\rho" "\\rho")
+        (?s "\\sigma" "\\bfsigma")
+        (?t "\\tau" "\\bftau")
+        (?u "\\upsilon" "\\bfupsilon")
+        (?w "\\xi" "\\bfxi")
+        (?x "\\chi" "\\bfchi")
+        (?y "\\psi" "\\bfpsi")
+        (?z "\\zeta" "\\bfzeta")))
 
-  (defun +julia-insert-math-symbol ()
-    "Substitute a julia latex math symbol using cdlatex."
-    (interactive)
-    (require 'cdlatex)
-    (let* ((cell (cdlatex-read-char-with-help
-                  +julia-math-symbol-alist
-                  1 2
-                  "Latex symbol level %d of %d: "
-                  "AVAILABLE MATH SYMBOLS.  [%c]=next level "
-                  cdlatex-math-symbol-prefix
-                  (get 'cdlatex-math-symbol-alist-comb 'cdlatex-bindings)))
-           (char (car cell))
-           (level (cdr cell))
-           (entry (assoc char +julia-math-symbol-alist))
-           (symbol (nth level entry)))
-      (if (or (not symbol)
-              (not (stringp symbol))
-              (equal symbol ""))
-          (error "No such math symbol %c on level %d" char level))
-      (insert symbol)
-      (julia-latexsub))))
+(defun +julia-insert-math-symbol ()
+  "Substitute a julia latex math symbol using cdlatex."
+  (interactive)
+  (require 'cdlatex)
+  (let* ((cell (cdlatex-read-char-with-help
+                +julia-math-symbol-alist
+                1 2
+                "Latex symbol level %d of %d: "
+                "AVAILABLE MATH SYMBOLS.  [%c]=next level "
+                cdlatex-math-symbol-prefix
+                (get 'cdlatex-math-symbol-alist-comb 'cdlatex-bindings)))
+         (char (car cell))
+         (level (cdr cell))
+         (entry (assoc char +julia-math-symbol-alist))
+         (symbol (nth level entry)))
+    (if (or (not symbol)
+            (not (stringp symbol))
+            (equal symbol ""))
+        (error "No such math symbol %c on level %d" char level))
+    (insert symbol)
+    (julia-latexsub)))
 #+end_src
-*** LSP-mode
-#+begin_src emacs-lisp :tangle yes
-;; Make sure to install jansson
-(use-package lsp-mode
-  :commands lsp
-  :general
-  (leader-key
-    :keymaps 'lsp-mode-map
-    "cr" 'lsp-rename
-    "cl" 'lsp-find-definition
-    "cd" 'lsp-describe-thing-at-point
-    "cpl" 'lsp-ui-peek-find-references
-    "cpi" 'lsp-ui-peek-find-implementation)
-  :hook ((lsp-mode . (lambda ()
-		       (lsp-enable-which-key-integration t)))
-	 ((c++-mode python-mode java-mode sh-mode scss-mode web-mode) . lsp))
-  :custom
-  (lsp-enable-indentation nil)
-  (lsp-keep-workspace-alive nil)
-  (lsp-enable-on-type-formatting nil)
-  (lsp-enable-file-watchers nil)
-  (read-process-ouput-max (* 1024 1024))
-  :init
-  (setq lsp-keymap-prefix "C-c l"
-	lsp-before-save-edits nil ;; Do not autoformat buffer
-	lsp-file-watch-threshold 1500)
-
-  ;; Ignore specific directories in projectile
-  (with-eval-after-load 'projectile
-    (add-to-list 'projectile-globally-ignored-directories ".clangd"))
-  (set-popup-rule! "\\*lsp-help\\*" :size 0.4))
-#+end_src
-
-*** lsp-treemacs
-
-#+begin_src emacs-lisp :tangle yes
-(use-package lsp-treemacs
-  :after (lsp-mode treemacs))
-#+end_src
-
-*** lsp-ui
-#+begin_src emacs-lisp :tangle yes
-(use-package lsp-ui
-  :commands lsp-ui-mode
-  :custom
-  (lsp-ui-doc-enable nil)
-  (lsp-ui-doc-position 'top)
-  (lsp-ui-doc-delay 0)
-  (lsp-ui-doc-include-signature t)
-  (lsp-eldoc-enable-hover nil) ; Disable eldoc displays in minibuffer
-
-  (lsp-ui-peek-fontify 'always)
-  (lsp-ui-peek-always-show t)
-
-  (lsp-ui-sideline-enable nil)
-  (lsp-ui-sideline-delay 0.5)
-  (lsp-ui-sideline-show-symbol nil) ;; only show code actions
-  (lsp-ui-sideline-update-mode 'line)
-  (lsp-ui-sideline-show-code-actions t)
-  (lsp-ui-sideline-show-hover t)
-  (lsp-ui-sideline-ignore-duplicate t)
-
-  (lsp-headerline-breadcrumb-enable nil)
-
-  (lsp-ui-imenu-enable nil))
-#+end_src
-
 *** Lua
 #+begin_src emacs-lisp :tangle yes
 (use-package lua-mode
@@ -4091,8 +3995,6 @@ I used to dislike MATLAB, but the effort they put in to supporting Linux and Ema
 
 *** Python
 
-As always, trying to make use of LSP.
-
 Arch packages:
 1. flake8 for flycheck
 2. python-black for style
@@ -4110,12 +4012,6 @@ Arch packages:
   (require 'jupyter)
   (add-to-list '+eval-runners '(python-mode . jupyter-eval-region))
   (set-popup-rule! "\\*Python\\*" :ttl nil))
-
-(use-package lsp-pyright
-  :if (executable-find "pyright")
-  :after (lsp-mode python)
-  :custom
-  (lsp-pyright-typechecking-mode "off"))
 
 (use-package pyenv-mode
   :after python

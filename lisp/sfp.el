@@ -35,3 +35,4 @@
             (yas-define-snippets mode `((,key ,template nil (,cond))))))))))
 
 (provide 'sfp)
+;;; sfp.el ends here
