@@ -22,7 +22,7 @@ Usage of :preface, :init, :config
 (use-package example
   ;; Note that errors are never trapped in the preface, since doing so would hide definitions from the byte-compiler.
   :preface (message "I'm here at byte-compile and load time")
-  :init (message "I'm always here at startup")
+  :init (message "I'm always here a startup")
   :config
   (message "I'm always here after the package is loaded"))
 #+end_src
@@ -149,7 +149,7 @@ Note that system directories are set in init.el
 (defconst docs-dir "~/Documents/"
   "The root Drive directory, where all documents are stored.")
 
-(defconst org-dir "~/Nextcloud/Org/"
+(defconst org-dir "~/Org/"
   "Org directory")
 
 (defconst journal-dir "~/Journal/"
