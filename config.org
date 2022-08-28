@@ -138,7 +138,7 @@ This sets the variable exec-path to the normal shell's PATH variable. This doesn
   :if (daemonp)
   :config
   (setq exec-path-from-shell-arguments (delete "-i" exec-path-from-shell-arguments) 
-        exec-path-from-shell-variables (nconc exec-path-from-shell-variables '("PATH" "PASSWORD_STORE_DIR SSH_AUTH_SOCK")))
+        exec-path-from-shell-variables (nconc exec-path-from-shell-variables '("PASSWORD_STORE_DIR SSH_AUTH_SOCK")))
   (exec-path-from-shell-initialize))
 #+end_src
 ** Set Directories
@@ -419,6 +419,7 @@ Make yes or no prompts be y or n prompts
 ** Visual-line mode
 #+begin_src emacs-lisp :tangle yes
 (add-hook 'text-mode-hook #'visual-line-mode)
+(add-hook 'message-mode-hook #'visual-line-mode)
 #+end_src
 ** Relative line numbers
 
@@ -2429,6 +2430,7 @@ Make the header bullets look prettier
 
 #+begin_src emacs-lisp :tangle yes
 (use-package org-caldav
+  :after org
   :custom
   (org-caldav-url "http://galah:5232/alex")
   (org-caldav-calendar-id "32a980f4-ce6d-e46d-143c-2baeb2a8d7bf")
@@ -2812,7 +2814,7 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
     (call-process "inkscape-figures" nil nil nil "edit" (concat default-directory "figures/")))
 
   (general-imap :keymaps 'TeX-mode-map
-    "C-f" #'+latex-insert-inkscape-figure)
+    "C-c C-f" #'+latex-edit-inkscape-figure)
 
   (general-nmap :keymaps 'TeX-mode-map
     "C-f" #'+latex-edit-inkscape-figure)
