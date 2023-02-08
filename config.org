@@ -435,7 +435,6 @@ Make yes or no prompts be y or n prompts
                 shell-mode-hook
                 vterm-mode-hook
                 org-agenda-mode-hook
-                jupyter-repl-mode-hook
                 pdf-view-mode-hook
                 treemacs-mode-hook
                 eshell-mode-hook))
@@ -1220,10 +1219,7 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   ;; `consult-register-store' and the Emacs built-ins.
   (setq register-preview-delay 0
         register-preview-function #'consult-register-format)
-  (advice-add #'register-preview :override #'consult-register-window)
-
-  ;; Replace `completing-read-multiple' with an enhanced version.
-  (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple))
+  (advice-add #'register-preview :override #'consult-register-window))
 
 (use-package consult-flycheck
   :commands consult-flycheck
@@ -2297,14 +2293,6 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
                                    (:noweb . "no")
                                    (:hlines . "no")
                                    (:tangle . "no"))))
-
-(use-package ob-async
-  :defer t
-  :init
-  (setq ob-async-no-async-languages-alist '("jupyter-python" "jupyter-julia")))
-
-(use-feature native-src
-  :after ob)
 #+end_src
 
 We do not run ~org-babel-do-load-languages~ because it eagerly loads packages. See https://blog.d46.us/advanced-emacs-startup/.
@@ -3210,225 +3198,6 @@ rainbow-mode shows hex code colours in buffers.
 #+begin_src emacs-lisp :tangle yes
 (use-package rainbow-mode)
 #+end_src
-*** Jupyter
-**** Initialize
-#+begin_src emacs-lisp :tangle yes
-(use-package jupyter
-  :general
-  (:keymaps 'jupyter-repl-mode-map
-            "<up>" 'jupyter-repl-history-previous
-            "<down>" 'jupyter-repl-history-next)
-
-  (general-nmap 'jupyter-repl-mode-map
-    "/" 'ignore ;; get rid of awful isearch-printing-char loop
-    "A" (lambda ()
-          (interactive)
-          (goto-char (point-max))
-          (evil-append 0)))
-
-  (general-nmap :keymaps 'jupyter-repl-interaction-mode-map
-    "gz" '+jupyter-pop-to-repl
-    "C-<return>" 'jupyter-eval-line-or-region
-    "C-S-<return>" 'jupyter-eval-buffer
-    "M-<return>" '+jupyter-eval-cell)
-
-  (leader-key :keymaps '(python-mode-map julia-mode-map)
-    "'" 'jupyter-run-repl)
-  :custom
-  (jupyter-repl-input-prompt-format "[%d] ")
-  (jupyter-repl-output-prompt-format "")
-  (jupyter-repl-busy-prompt "[*] ")
-  :init
-  ;;; :commands does not work, macroexpand to see why (fboundp).
-  (with-eval-after-load 'jupyter-repl
-    (require 'jupyter))
-  :config
-  ;; NOTE: Jupyter functions themeselves never call (require 'jupyter), so this
-  ;; section of code does not invoke unless it is called directly.
-
-  (defun +jupyter-org-maybe-eval-line-or-region ()
-    (if (jupyter-org-with-src-block-client (jupyter-kernel-language jupyter-current-client))
-        (jupyter-org-with-src-block-client (jupyter-eval-line-or-region nil))
-      (user-error "%s" "No running client.")))
-
-  (add-to-list '+lookup-documentation-handlers
-               '(julia-mode . jupyter-inspect-at-point))
-  (add-to-list '+lookup-documentation-handlers
-               '(python-mode . jupyter-inspect-at-point))
-
-  (defun +jupyter-pop-to-repl ()
-    (interactive)
-    (jupyter-with-repl-buffer jupyter-current-client
-      (goto-char (point-max))
-      (pop-to-buffer (current-buffer))
-      (evil-append 0)))
-
-  (with-eval-after-load 'eros
-    (defun +eros-jupyter (result)
-      (eros--make-result-overlay result :where (1+ (point)) :duration 5))
-    (setq jupyter-eval-short-result-display-function #'+eros-jupyter))
-
-  (setq +jupyter-cell-comment "# %%")
-  (defun +jupyter-eval-cell ()
-    "Run current code cell ala MATLAB. See `+jupyter-cell-comment'
-for delimiters."
-    (interactive)
-    (let ((left (save-excursion (search-backward +jupyter-cell-comment nil t)))
-          (right (save-excursion (search-forward +jupyter-cell-comment nil t))))
-      (if (and left right)
-          (progn
-            (message "Running cell")
-            (jupyter-eval-region left right))
-        (user-error "Not in a code cell"))))
-
-  (defface +comment-cell-header-face
-    '((t :inherit font-lock-comment-face
-         :weight bold
-         :overline t))
-    "Face for cell headers.")
-
-  (dolist (mode '(julia-mode python-mode))
-    (font-lock-add-keywords mode
-                            `((,(concat "^" (regexp-quote +jupyter-cell-comment) ".*$")
-                               0 '+comment-cell-header-face t))))
-
-  ;; Show kernel status in modeline
-  (add-to-list 'global-mode-string '(t (:eval (jupyter-repl-interaction-mode-line))))
-  ;; FIXME: Does not work
-  (advice-add #'jupyter-eval-string :after #'+jupyter-force-mode-line-update)
-  (advice-add #'jupyter-eval-result-callbacks :after #'+jupyter-force-mode-line-update)
-  (defun +jupyter-force-mode-line-update (&rest ignore)
-    (force-mode-line-update))
-
-  ;; HACK: In certain cases, evil minor-mode keymaps will not take effect until
-  ;; a state change. See https://github.com/emacs-evil/evil/issues/301#issuecomment-591569346.
-  (add-hook 'jupyter-repl-interaction-mode-hook #'evil-normalize-keymaps)
-
-  ;; Order matters!
-  (set-popup-rules! '(("\\*jupyter-" :size 0.4)
-                      ("\\*jupyter-repl" :ttl nil)
-                      ("\\*jupyter-display" :size 0.6))))
-
-;; NOTE: If you get the error: ...ob-jupyter.elc failed to define function
-;; org-babel-execute:jupyter-lang that means you do not have the appropriate
-;; jupyter kernel installed on your machine.
-;;
-;; Then eval (org-babel-jupyter-aliases-from-kernelspecs 'refresh)
-(use-feature ob-jupyter
-  :commands
-  (org-babel-execute:jupyter-julia
-   org-babel-execute:jupyter-python)
-  :init
-  (setq org-babel-default-header-args:jupyter-julia '((:async . "yes")
-                                                      (:session . "jl")
-                                                      (:kernel . "julia-1.7"))
-        org-babel-default-header-args:jupyter-python '((:async . "yes")
-                                                       (:session . "py")
-                                                       (:kernel . "python3")))
-  :custom
-  (jupyter-org-resource-directory "/tmp/.ob-jupyter")
-  :config
-
-  (defun +jupyter-org-insert-result-refresh-images (&rest _ignore)
-    (org-display-inline-images))
-  (advice-add #'jupyter-org--do-insert-result :after #'+jupyter-org-insert-result-refresh-images)
-
-  ;; See note in jupyter's :config above.
-  (require 'jupyter))
-#+end_src
-
-**** Fringe overlays
-
-Show overlays in fringe where code has been evaluated. Inspired by CIDER.
-
-#+begin_src emacs-lisp :tangle yes
-
-;; TODO There is surely a better way to enable our function than overriding
-;; #'jupyter-eval-display-overlay. See `jupyter-eval-result-callbacks'.
-(with-eval-after-load 'jupyter
-  (setq jupyter-eval-use-overlays t)
-  (advice-add #'jupyter-eval-display-overlay :override #'+jupyter-add-fringe-overlays))
-
-(defface +jupyter-fringe-evaluated-face
-  '((t :foreground "#080"))
-  "Face used to denote regions that have been evaluated.")
-
-(setq +jupyter-fringe-overlay
-      (propertize " "
-                  'display '(left-fringe empty-line +jupyter-fringe-evaluated-face)))
-
-(defun +jupyter-add-fringe-overlays (beg end &rest _)
-  (save-excursion
-    (goto-char beg)
-    (while (< (point) end)
-      (unless (looking-at "[ \t]*$") ;; line is blank
-        (+jupyter-make-fringe-overlay
-         (line-beginning-position) (+jupyter-goto-end-of-expression)))
-      (forward-line 1))))
-
-(defun +jupyter-make-fringe-overlay (beg end)
-  (let ((o (make-overlay beg end (current-buffer))))
-    (overlay-put o 'category '+jupyter-fringe)
-    (overlay-put o 'before-string +jupyter-fringe-overlay)
-    (push #'+jupyter-delete-overlay (overlay-get o 'modification-hooks))
-    o))
-
-(defun +jupyter-delete-overlay (o &rest _)
-  (ignore-errors (delete-overlay o)))
-
-(defvar +jupyter-line-ends-expression-alist
-  '((julia-mode . +julia-line-ends-expression-p)
-    (pytyon-mode . +python-goto-end-of-expression)))
-
-(defun +jupyter-goto-end-of-expression ()
-  (while (not
-          (or (eobp)
-              (funcall (cdr (assoc major-mode +jupyter-line-ends-expression-alist)))))
-      (forward-line 1))
-  (goto-char (line-end-position)))
-
-(defun +python-goto-end-of-expression ()
-  (goto-char (line-end-position)))
-
-(defun +julia-line-ends-expression-p ()
-  (not (save-excursion
-         (forward-line 1)
-         (or (julia-paren-indent)
-             (julia-indent-hanging)))))
-#+end_src
-**** (disabled) Eldoc integration
-
-#+begin_src emacs-lisp :tangle yes
-(defun +jupyter-eldoc (callback &rest _ignored)
-  "Try to return a function signature for the thing at point."
-  (when-let ((docstring
-              (save-window-excursion
-                (cl-destructuring-bind (code pos)
-                    (jupyter-code-context 'inspect)
-                  (jupyter-inspect code pos nil 0))
-                (when (get-buffer "*Help*")
-                  (with-current-buffer "*Help*"
-                    (goto-char (point-min))
-                    (prog1
-                        (cond
-                         ((re-search-forward "Signature:" nil t 1)
-                          (buffer-substring (line-beginning-position) (line-end-position)))
-                         ((re-search-forward "Docstring:" nil t 1)
-                          (forward-line)
-                          (buffer-substring (line-beginning-position) (line-end-position)))
-                         (t
-                          nil))
-                      ;; get rid of this so we don't accidently show old results later
-                      (with-current-buffer "*Help*"
-                        (toggle-read-only)
-                        (erase-buffer))))))))
-    (funcall callback docstring)))
-
-
-;; (add-hook 'jupyter-repl-interaction-mode-hook (defun +jupyter-setup-eldoc ()
-;;                                                 (add-hook 'eldoc-documentation-functions #'+jupyter-eldoc nil t)))
-#+end_src
-
 *** Symex
 #+begin_src emacs-lisp :tangle yes
 (use-package symex
@@ -3688,9 +3457,7 @@ For OpenGl shader programming.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package julia-mode
-  :mode "\\.jl\\'"
-  :config
-  (add-to-list '+eval-runners '(julia-mode . jupyter-eval-region)))
+  :mode "\\.jl\\'")
 
 
 (setq +julia-math-symbol-alist
@@ -3798,8 +3565,6 @@ Arch packages:
   (python-shell-prompt-detect-failure-warning nil)
   :config
   ;; Must be called manually to initiate jupyter :config block
-  (require 'jupyter)
-  (add-to-list '+eval-runners '(python-mode . jupyter-eval-region))
   (set-popup-rule! "\\*Python\\*" :ttl nil))
 
 (use-package pyenv-mode
