@@ -44,6 +44,8 @@ The following blocks may be tangled to debug certain features:
 #+begin_src emacs-lisp :tangle no
 (setq use-package-verbose t
       use-package-compute-statistics t)
+
+(setq use-package-always-demand t)
 #+end_src
 
 To see what's loading a package:
@@ -146,7 +148,7 @@ This sets the variable exec-path to the normal shell's PATH variable. This doesn
 Note that system directories are set in init.el
 
 #+begin_src emacs-lisp :tangle yes
-(defconst docs-dir "~/Documents/"
+(defconst docs-dir "~/Docs/"
   "The root Drive directory, where all documents are stored.")
 
 (defconst org-dir "~/Org/"
@@ -1232,7 +1234,9 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   (advice-add #'register-preview :override #'consult-register-window)
 
   ;; Replace `completing-read-multiple' with an enhanced version.
-  (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple))
+  ;; (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple))
+  )
+
 
 (use-package consult-flycheck
   :commands consult-flycheck
@@ -1451,18 +1455,12 @@ Find and grep fuzzy searching, inspired by fzf.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package affe
-  :straight (:host github :repo "minad/affe")
   :general
   (leader-key
     "sp" 'affe-grep
     ;; We handle file searching with projectile
     ;; "fz" 'affe-find
-    )
-  :config
-  (defun affe-orderless-regexp-compiler (input _type)
-    (setq input (orderless-pattern-compiler input))
-    (cons input (lambda (str) (orderless--highlight input str))))
-  (setq affe-regexp-compiler #'affe-orderless-regexp-compiler))
+    ))
 #+end_src
 ** Magit
 
@@ -1833,6 +1831,9 @@ Displays the folder tree
 
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 2))
 
+  ;; Hide property drawers by default
+  (add-hook 'org-cycle-hook #'org-cycle-hide-drawers)
+
   ;; See https://blog.tecosaur.com/tmio/2021-11-30-element.html
   (defun +org-image-resize-to-fit ()
     (when (derived-mode-p 'org-mode)
@@ -2170,9 +2171,12 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (setq org-agenda-span 'day)
   (setq org-agenda-custom-commands
         '(("g" "Get Things Done (GTD)"
-           ((agenda ""
+           (
+            (org-ql-block '(path "today")
+                          ((org-ql-block-header "\nTODAY\n")))
+            (agenda ""
                     ((org-deadline-warning-days 0)
-                     (org-agenda-overriding-header "\nAGENDA\n")))
+                     (org-agenda-overriding-header "")))
             (+agenda-projects-block nil)
             (org-ql-block '(and (todo "NEXT") (not (ancestors (todo))))
                           ((org-ql-block-header "\nISOLATED TASKS\n")))
@@ -2426,30 +2430,7 @@ Make the header bullets look prettier
                                      (?+ . ?+)))
   (org-ellipsis " ↴ "))
 #+end_src
-**** org-caldav
 
-#+begin_src emacs-lisp :tangle yes
-(use-package org-caldav
-  :after org
-  :custom
-  (org-caldav-url "http://galah:5232/alex")
-  (org-caldav-calendar-id "32a980f4-ce6d-e46d-143c-2baeb2a8d7bf")
-  (org-caldav-sync-direction 'org->cal)
-  (org-caldav-inbox nil)
-  (org-caldav-show-sync-results nil)
-  (org-caldav-delete-calendar-entries 'always)
-  (org-caldav-files '("~/Org/tasks.org"))
-  (org-export-with-broken-links 'mark)
-  ;; (org-icalendar-include-todo t) ; not supported by org-caldav
-  (org-icalendar-use-deadline '(event-if-todo-not-done))
-  (org-icalendar-use-scheduled '(todo-start))
-  (org-icalendar-timezone "America/Vancouver")
-
-  :config
-  (run-with-idle-timer 30 t #'org-caldav-sync))
-#+end_src
-
-#+RESULTS:
 
 **** org-calfw
 #+begin_src emacs-lisp :tangle yes
@@ -3024,6 +3005,7 @@ Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package mu4e
+  :disabled t
   :commands mu4e mu4e-compose-new
   :hook (((mu4e-compose-mode mu4e-view-mode) . writing-mode)
          (dired-mode . turn-on-gnus-dired-mode)
