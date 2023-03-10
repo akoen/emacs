@@ -1,8 +1,8 @@
 ;;; init.el -*- lexical-binding: t; -*-
 (add-to-list 'load-path (concat user-emacs-directory "lisp"))
 
-(setq config-file (expand-file-name "config.el" emacs-dir)
-      custom-file (expand-file-name "custom.el" emacs-dir))
+(setq config-file (expand-file-name "config.el" user-emacs-directory)
+      custom-file (expand-file-name "custom.el" user-emacs-directory))
 
 (if (file-exists-p config-file)
     (load config-file)

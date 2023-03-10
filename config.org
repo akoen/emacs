@@ -22,7 +22,7 @@ Usage of :preface, :init, :config
 (use-package example
   ;; Note that errors are never trapped in the preface, since doing so would hide definitions from the byte-compiler.
   :preface (message "I'm here at byte-compile and load time")
-  :init (message "I'm always here a startup")
+  :init (message "I'm always here at startup")
   :config
   (message "I'm always here after the package is loaded"))
 #+end_src
@@ -44,6 +44,8 @@ The following blocks may be tangled to debug certain features:
 #+begin_src emacs-lisp :tangle no
 (setq use-package-verbose t
       use-package-compute-statistics t)
+
+(setq use-package-always-demand t)
 #+end_src
 
 To see what's loading a package:
@@ -138,7 +140,7 @@ This sets the variable exec-path to the normal shell's PATH variable. This doesn
   :if (daemonp)
   :config
   (setq exec-path-from-shell-arguments (delete "-i" exec-path-from-shell-arguments) 
-        exec-path-from-shell-variables (nconc exec-path-from-shell-variables '("PATH" "PASSWORD_STORE_DIR SSH_AUTH_SOCK")))
+        exec-path-from-shell-variables (nconc exec-path-from-shell-variables '("PASSWORD_STORE_DIR SSH_AUTH_SOCK")))
   (exec-path-from-shell-initialize))
 #+end_src
 ** Set Directories
@@ -146,7 +148,7 @@ This sets the variable exec-path to the normal shell's PATH variable. This doesn
 Note that system directories are set in init.el
 
 #+begin_src emacs-lisp :tangle yes
-(defconst docs-dir "~/Documents/"
+(defconst docs-dir "~/Docs/"
   "The root Drive directory, where all documents are stored.")
 
 (defconst org-dir "~/Org/"
@@ -419,6 +421,7 @@ Make yes or no prompts be y or n prompts
 ** Visual-line mode
 #+begin_src emacs-lisp :tangle yes
 (add-hook 'text-mode-hook #'visual-line-mode)
+(add-hook 'message-mode-hook #'visual-line-mode)
 #+end_src
 ** Relative line numbers
 
@@ -1218,8 +1221,7 @@ Pressing Q restores the window configuration to the last state. Useful for killi
   ;; preview for `consult-register', `consult-register-load',
   ;; `consult-register-store' and the Emacs built-ins.
   (setq register-preview-delay 0
-        register-preview-function #'consult-register-format)
-  (advice-add #'register-preview :override #'consult-register-window))
+        register-preview-function #'consult-register-format))
 
 (use-package consult-flycheck
   :commands consult-flycheck
@@ -1438,18 +1440,12 @@ Find and grep fuzzy searching, inspired by fzf.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package affe
-  :straight (:host github :repo "minad/affe")
   :general
   (leader-key
     "sp" 'affe-grep
     ;; We handle file searching with projectile
     ;; "fz" 'affe-find
-    )
-  :config
-  (defun affe-orderless-regexp-compiler (input _type)
-    (setq input (orderless-pattern-compiler input))
-    (cons input (lambda (str) (orderless--highlight input str))))
-  (setq affe-regexp-compiler #'affe-orderless-regexp-compiler))
+    ))
 #+end_src
 ** Magit
 
@@ -1820,6 +1816,9 @@ Displays the folder tree
 
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 2))
 
+  ;; Hide property drawers by default
+  (add-hook 'org-cycle-hook #'org-cycle-hide-drawers)
+
   ;; See https://blog.tecosaur.com/tmio/2021-11-30-element.html
   (defun +org-image-resize-to-fit ()
     (when (derived-mode-p 'org-mode)
@@ -2157,9 +2156,12 @@ Set up capture templates. The backquoted list allows me to selectively evaluate 
   (setq org-agenda-span 'day)
   (setq org-agenda-custom-commands
         '(("g" "Get Things Done (GTD)"
-           ((agenda ""
+           (
+            (org-ql-block '(path "today")
+                          ((org-ql-block-header "\nTODAY\n")))
+            (agenda ""
                     ((org-deadline-warning-days 0)
-                     (org-agenda-overriding-header "\nAGENDA\n")))
+                     (org-agenda-overriding-header "")))
             (+agenda-projects-block nil)
             (org-ql-block '(and (todo "NEXT") (not (ancestors (todo))))
                           ((org-ql-block-header "\nISOLATED TASKS\n")))
@@ -2405,29 +2407,7 @@ Make the header bullets look prettier
                                      (?+ . ?+)))
   (org-ellipsis " ↴ "))
 #+end_src
-**** org-caldav
 
-#+begin_src emacs-lisp :tangle yes
-(use-package org-caldav
-  :custom
-  (org-caldav-url "http://galah:5232/alex")
-  (org-caldav-calendar-id "32a980f4-ce6d-e46d-143c-2baeb2a8d7bf")
-  (org-caldav-sync-direction 'org->cal)
-  (org-caldav-inbox nil)
-  (org-caldav-show-sync-results nil)
-  (org-caldav-delete-calendar-entries 'always)
-  (org-caldav-files '("~/Org/tasks.org"))
-  (org-export-with-broken-links 'mark)
-  ;; (org-icalendar-include-todo t) ; not supported by org-caldav
-  (org-icalendar-use-deadline '(event-if-todo-not-done))
-  (org-icalendar-use-scheduled '(todo-start))
-  (org-icalendar-timezone "America/Vancouver")
-
-  :config
-  (run-with-idle-timer 30 t #'org-caldav-sync))
-#+end_src
-
-#+RESULTS:
 
 **** org-calfw
 #+begin_src emacs-lisp :tangle yes
@@ -2772,7 +2752,7 @@ Daily review inspired by [[https://youtu.be/reazJx4INyM?t=77][Ali Abdaal]].
     (call-process "inkscape-figures" nil nil nil "edit" (concat default-directory "figures/")))
 
   (general-imap :keymaps 'TeX-mode-map
-    "C-f" #'+latex-insert-inkscape-figure)
+    "C-c C-f" #'+latex-edit-inkscape-figure)
 
   (general-nmap :keymaps 'TeX-mode-map
     "C-f" #'+latex-edit-inkscape-figure)
@@ -2974,6 +2954,203 @@ This is a very promising package, but it is not yet polished.
   :straight (math-preview :type git
 			  :host gitlab
 			  :repo "matsievskiysv/math-preview"))
+#+end_src
+* Email
+** Reading Email
+
+Configuration adapted from Doom Emacs and https://github.com/rememberYou/.emacs.d/blob/master/config.org. *Make sure install package mu!*
+
+#+begin_src emacs-lisp :tangle yes
+(use-package mu4e
+  :disabled t
+  :commands mu4e mu4e-compose-new
+  :hook (((mu4e-compose-mode mu4e-view-mode) . writing-mode)
+         (dired-mode . turn-on-gnus-dired-mode)
+         (mu4e-main-mode . mu4e-update-index))
+  :general
+  (leader-key
+    "mm" 'mu4e
+    "mc" 'mu4e-compose-new)
+  (general-nmap :keymaps 'mu4e-main-mode-map
+    "u" 'mu4e-update-index
+    "U" 'mu4e-update-mail-and-index)
+  :custom-face
+  (mu4e-view-body-face ((t (:inherit default)))) ; Not variable-pitch
+  :init
+  (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
+
+  (setq mu4e-maildir "~/.mail")
+  (setq mu4e-attachment-dir "~/Downloads")
+  :config
+  (setq mu4e-get-mail-command "mbsync -a")
+
+  ;; Fixes duplicate UID errors
+  (setq mu4e-change-filenames-when-moving t)
+
+  (setq mu4e-compose-format-flowed t ; visual-line-mode + auto-fill upon sending
+        fill-flowed-encode-column 998
+        mu4e-view-show-addresses t
+        mu4e-sent-messages-behavior 'sent
+        mu4e-hide-index-messages t
+        mu4e-headers-precise-alignment t
+        ;; try to show images
+        mu4e-view-show-images t
+        mu4e-view-image-max-width 800
+        mu4e-compose-dont-reply-to-self t
+        mu4e-completing-read-function 'completing-read
+        ;; Do not reply to self
+        mu4e-compose-dont-reply-to-self t
+        ;; set user agent
+        mail-user-agent 'mu4e-user-agent
+        ;; no need to ask
+        mu4e-confirm-quit nil)
+
+  ;; Folders
+  (setq mu4e-sent-folder "/Sent"
+        mu4e-drafts-folder "/Drafts"
+        mu4e-trash-folder "/Trash"
+        mu4e-refile-folder "/Archive"
+        mu4e-compose-signature  "Alex Koen\nhttps://alexkoen.com")
+
+  ;; Use fancy icons
+  (setq mu4e-use-fancy-chars t
+        mu4e-headers-draft-mark '("D" . "")
+        mu4e-headers-flagged-mark '("F" . "")
+        mu4e-headers-new-mark '("N" . "")
+        mu4e-headers-passed-mark '("P" . "")
+        mu4e-headers-replied-mark '("R" . "")
+        mu4e-headers-seen-mark '("S" . "")
+        mu4e-headers-trashed-mark '("T" . "")
+        mu4e-headers-attach-mark '("a" . "")
+        mu4e-headers-encrypted-mark '("x" . "")
+        mu4e-headers-signed-mark '("s" . "")
+        mu4e-headers-unread-mark '("u" . ""))
+
+  ;; Auto update
+  (setq mu4e-index-update-in-background t)
+
+  ;; Saved queries
+  (setq mu4e-bookmarks
+        '(( :name  "Unread messages"
+            :query "flag:unread AND NOT flag:trashed"
+            :key ?u)
+          ( :name "All in inbox"
+            :query "maildir:/Inbox OR maildir:/Inbox/*"
+            :key ?i)
+          ( :name "Messages with images"
+            :query "mime:image/*"
+            :key ?p)))
+
+  (add-to-list 'org-capture-templates
+               `("m" "Mail" entry (file+olp ,(concat org-dir "refile.org") "Refile")
+                 "* TODO %? Link: %a"))
+
+
+  (defun +mu4e-attach-file (&optional file-to-attach)
+    "Prompt for FILE-TO-ATTACH to message."
+    (interactive "p")
+    (if (eq major-mode 'mu4e-compose-mode)
+        (let ((mail-buffer (current-buffer))
+              (location (read-file-name "Attach: ")))
+          (if (not (file-directory-p location))
+              (save-excursion
+                (goto-char (point-max))
+                (unless (eq (current-column) 0)
+                  (insert "\n\n")
+                  (forward-line 2))
+                (mail-add-attachment location)))
+          (message "Cannot attach directory."))
+      (message "Must attach from a compose buffer.")))
+
+  (define-key mu4e-headers-mode-map (kbd "C-c c") 'mu4e-org-store-and-capture)
+  (define-key mu4e-view-mode-map    (kbd "C-c c") 'mu4e-org-store-and-capture)
+
+  ;; After refiling message immediately refresh buffer.
+  (advice-add 'mu4e-mark-execute-all :after #'mu4e-headers-rerun-search)
+
+  ;; Set from address based on address that message was sent to. See https://www.djcbsoftware.nl/code/mu/mu4e/Compose-hooks.html
+  (defun my--set-from-address ()
+    "Set the From address based on the To address of the original."
+    (let ((msg mu4e-compose-parent-message)) ;; msg is shorter...
+      (when msg
+        (let ((to-addr (mu4e-message-contact-field-matches-me msg :to))
+              (cc-addr (mu4e-message-contact-field-matches-me msg :cc)))
+          ;; TODO Would be better not to permanently set user-mail-address
+          (setq user-mail-address
+                (cond
+                 (to-addr (cdr to-addr))
+                 (cc-addr (cdr cc-addr))
+                 (t "akoen@mailbox.org")))))))
+
+  (add-hook 'mu4e-compose-pre-hook #'my--set-from-address)
+
+
+  ;; Smart refile: move message sent by me to /Sent and messages sent by others
+  ;; to "/Archive"
+  (defun +mu4e-get-refile-folder (msg)
+    (if (mu4e-message-sent-by-me msg)
+        "/Sent"
+      "/Archive"))
+  (setq mu4e-refile-folder '+mu4e-get-refile-folder)
+
+  ;; Remove the +T flag from trash. This emulates the behaviour of GUI clients. Emails are otherwise deleted when moving to trash.
+  (setf (alist-get 'trash mu4e-marks)
+        (list :char '("d" . "▼")
+              :prompt "dtrash"
+              :dyn-target (lambda (target msg)
+                            (mu4e-get-trash-folder msg))
+              :action (lambda (docid msg target)
+                        ;; Here's the main difference to the regular trash mark,
+			                  ;; no +T before -N so the message is not marked as
+			                  ;; IMAP-deleted:
+			                  (mu4e~proc-move docid (mu4e~mark-check-target target) "-N"))))
+
+  ;; Html mails might be better rendered in a browser
+  (add-to-list 'mu4e-view-actions '("View in browser" . mu4e-action-view-in-browser))
+
+  (set-popup-rule! "\\*mu4e" :ignore t))
+
+#+end_src
+
+** Sending Mail
+
+
+Create ~/.authinfo.gpg
+#+begin_src
+machine imap.mailbox.com login alex@koen.ca password <password> port 993
+machine smtp.mailbox.com login alex@koen.ca password <password> port 587
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-feature epa
+  :custom
+  (epa-pinentry-mode 'loopback)
+  :config
+  (epa-file-enable)
+  (require 'auth-source)
+  (auth-source-forget-all-cached))
+
+(use-feature sendmail
+  :custom
+  (send-mail-function 'sendmail-send-it)
+  (sendmail-program (executable-find "msmtp"))
+  :config
+  (set-popup-rule! "sendmail errors"))
+
+(use-feature message
+  :custom
+  (message-sendmail-envelope-from 'header)
+  (message-send-mail-function 'sendmail-send-it)
+  (message-signature "Alex Koen\nhttps://alexkoen.com")
+  (message-kill-buffer-on-exit t) ; close after sending
+  :config
+  (defun +message-check-for-subject ()
+    "Prevent user from sending email without a subject."
+    (unless (message-field-value "Subject")
+      (message-goto-subject)
+      (user-error "Attempting to send mail without a subject line")))
+  (add-hook 'message-send-hook #'+message-check-for-subject))
+  
 #+end_src
 
 * Tools
