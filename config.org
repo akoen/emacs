@@ -2588,27 +2588,7 @@ Allows for external applications to trigger custom actions without external depe
 (use-package org-fragtog
   :hook (org-mode . org-fragtog-mode))
 #+end_src
-**** ox-hugo
-#+begin_src emacs-lisp :tangle yes
-(use-package ox-hugo
-  :ensure-system-package hugo
-  :after ox org
-  :init
-  (setq org-hugo-set-lastmod t))
-#+end_src
-**** ox-Pandoc
-#+begin_src emacs-lisp :tangle yes
-(use-package ox-pandoc
-  :after ox org
-  :ensure-system-package pandoc
-  :init
-  (setq org-pandoc-menu-entry
-        '(
-          (?l "to latex-pdf and open." org-pandoc-export-to-latex-pdf-and-open)
-          (?L "to latex-pdf." org-pandoc-export-to-latex-pdf)
-          (?4 "to html5 and open." org-pandoc-export-to-html5-and-open)
-          (?$ "as html5." org-pandoc-export-as-html5))))
-#+end_src
+
 *** Zettelkasten
 **** org-roam
 #+begin_src emacs-lisp :tangle yes
@@ -3345,6 +3325,12 @@ For some reason, the OmniSharp language server uses a bundled version of mono in
 #+begin_src sh tangle: no
 # mono_cmd=${bin_dir}/mono
 mono_cmd=mono
+#+end_src
+
+*** Docker
+#+begin_src elisp :tangle yes
+(use-package dockerfile-mode
+  :mode "\\Dockerfile\\'")
 #+end_src
 
 *** Elisp
