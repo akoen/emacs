@@ -1483,7 +1483,6 @@ A fantastic terminal emulator for Emacs. Currently, there is no good way to use 
 
 #+begin_src emacs-lisp :tangle yes
 (use-package vterm
-  :ensure-system-package (vterm-ctrl . libvterm)
   :commands vterm vterm-mode +vterm-run-command
   :general
   (general-emap
@@ -2821,7 +2820,6 @@ Allow RefTeX to plug into AUCTeX
 *** langtool
 #+begin_src emacs-lisp :tangle yes
 (use-package langtool
-  :ensure-system-package languagetool
   :commands (langtool-check
              langtool-check-done
              langtool-show-message-at-point
@@ -2891,7 +2889,7 @@ Checks for signs of bad writing.
     "C-'" 'flyspell-auto-correct-previous-word)
   :config
   (setq ispell-program-name "aspell"
-        ispell-dictionary "canadian"
+        ispell-dictionary "ca"
         ispell-silently-savep t
         flyspell-issue-welcome-flag nil
         ;; Significantly speeds up flyspell, which would otherwise print
@@ -3572,7 +3570,6 @@ For OpenGl shader programming.
 #+begin_src emacs-lisp :tangle yes
 ;; Mostly borrowed from https://github.com/CSRaghunandan/.emacs.d/blob/master/setup-files/setup-js.el
 (use-package js2-mode
-  :ensure-system-package (tsserver . "sudo npm i -g typescript-language-server && sudo pacman -S typescript")
   :mode "\\.m?js\\'"
   :interpreter "node"
   :init 
@@ -3599,7 +3596,6 @@ For OpenGl shader programming.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package prettier-js
-  :ensure-system-package prettier
   :hook ((js2-mode rjsx-mode json-mode) . prettier-js-mode)
   :custom (prettier-js-args '("--print-width" "100"
                               "--single-quote" "true"
